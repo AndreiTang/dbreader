@@ -42,6 +42,10 @@ public class ReaderPageAdapter extends PagerAdapter {
         pages.add(page);
     }
 
+    public void addText(int index, String text){
+        pageTexts.put(index,text);
+    }
+
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         ReaderPage page = getReaderPage(position);
