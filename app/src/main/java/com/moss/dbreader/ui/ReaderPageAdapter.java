@@ -22,7 +22,7 @@ public class ReaderPageAdapter extends PagerAdapter {
         public int chapterIndex;
         public int begin;
         public int end;
-        public String title;
+        //public String title;
     }
 
     private ArrayList<ReaderPage> pages = new ArrayList<ReaderPage>();
@@ -105,21 +105,24 @@ public class ReaderPageAdapter extends PagerAdapter {
     }
 
     private void insertReaderPage(final ReaderPage page) {
-        for(int i = 0 ; i < pages.size(); i++){
+        int count = pages.size();
+        for(int i = 0 ; i < count; i++){
             ReaderPage item = pages.get(i);
-            if(item.chapterIndex != page.chapterIndex){
+            if(item.chapterIndex < page.chapterIndex){
                 continue;
             }
             if(item.begin == -1 && page.begin == 0){
                 item.begin = page.begin;
                 item.end = page.end;
-                break;
+                return;
             }
-            else if(page.begin > item.begin ){
-                pages.add(i+1,page);
-                break;
+            else if(page.begin > item.begin && i == count - 1 ){
+                pages.add(page);
+                return;
             }
-
+            else if(item.chapterIndex > page.chapterIndex){
+                pages.add(i,page);
+            }
         }
     }
 
@@ -133,9 +136,9 @@ public class ReaderPageAdapter extends PagerAdapter {
             }
         });
         String text = pageTexts.get(page.chapterIndex);
-        text = page.title + text;
         SpannableString sp = new SpannableString(text);
-        sp.setSpan(new RelativeSizeSpan(1.5f), 0, page.title.length(), 0);
+        int end = text.indexOf('\n');
+        sp.setSpan(new RelativeSizeSpan(1.2f), 0, end, 0);
         tv.setText(sp);
     }
 
@@ -151,17 +154,17 @@ public class ReaderPageAdapter extends PagerAdapter {
                 if (i < count - 1) {
                     i--;
                 }
-                int end = tv.getLayout().getLineEnd(i) - 1;
+                int end = tv.getLayout().getLineEnd(i);
                 ReaderPage rp = new ReaderPage();
                 rp.chapterIndex = page.chapterIndex;
-                if (begin == 0) {
-                    rp.title = page.title;
-                }
                 rp.begin = begin;
                 rp.end = end;
+                rp.chapterIndex = page.chapterIndex;
                 insertReaderPage(rp);
-                begin = end + 1;
-                h = 0;
+                if(i != count-1){
+                    begin = tv.getLayout().getLineStart(i+1);
+                    h = 0;
+                }
             }
         }
         needUpdated = true;
@@ -172,9 +175,9 @@ public class ReaderPageAdapter extends PagerAdapter {
         String text = pageTexts.get(page.chapterIndex);
         text = text.substring(page.begin, page.end);
         if (page.begin == 0) {
-            text = page.title + text;
+            int end = text.indexOf('\n');
             SpannableString sp = new SpannableString(text);
-            sp.setSpan(new RelativeSizeSpan(1.5f), 0, page.title.length(), 0);
+            sp.setSpan(new RelativeSizeSpan(1.2f), 0, end, 0);
             tv.setText(sp);
         } else {
             tv.setText(text);

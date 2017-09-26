@@ -25,9 +25,9 @@ public class MainActivity extends AppCompatActivity {
         ReaderPageAdapter.ReaderPage rp = new ReaderPageAdapter.ReaderPage();
         rp.begin = rp.end = -1;
         rp.chapterIndex = 0;
-        rp.title = "第一章 一梦五百年 （上）";
+        String tt =  "第一章 一梦五百年 （上）\n\n";
 
-        String tt = "凉风习习，夜色迷离，轻纱般的薄雾缭绕着安静的县城。\n" +
+        tt += "凉风习习，夜色迷离，轻纱般的薄雾缭绕着安静的县城。\n" +
                 "\n" +
                 "朦胧月光映照着清清的小河，河水从拱桥下缓缓流淌，岸边是鳞次栉比的两三层黑瓦小楼。水渍斑驳的墙面上，尽是青绿色的苔藓痕迹，还有些爬满了常青藤蔓，只露出开在临河一面的一溜窗户。\n" +
                 "\n" +
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 "沈默的眼睛瞪得溜圆，沈贺一本正经道：“圣人云：‘事不过三’，这第一次吃叫品尝，第二次叫享受，第三次叫充饥，再多吃就是饕餮浪费了。”说着朝他挤眼笑笑道：“睡吧。”便吹熄油灯，趴在桌子上睡了。\n" +
                 "\n" +
                 "因为这屋里只有一张单人床……";
-
+        tt=tt.replace("\n\n","\n");
         ReaderPageAdapter adp = new ReaderPageAdapter(views,R.id.reader_text,0);
         adp.addPage(rp);
         adp.addText(0,tt);
