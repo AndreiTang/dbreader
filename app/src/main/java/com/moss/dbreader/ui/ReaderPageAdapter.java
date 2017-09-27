@@ -54,6 +54,7 @@ public class ReaderPageAdapter extends PagerAdapter {
         }
         View view = views.get(0);
         views.remove(0);
+        view.setTag(position);
         TextView tv = (TextView) view.findViewById(textViewId);
         if (pageTexts.containsKey(page.chapterIndex)) {
             refreshPage(page, tv);
@@ -96,7 +97,7 @@ public class ReaderPageAdapter extends PagerAdapter {
         return pages.get(pos);
     }
 
-    private void refreshPage(final ReaderPage page, TextView tv) {
+    private void refreshPage(final ReaderPage page, final TextView tv) {
         if (page.begin == -1) {
             initPageText(page, tv);
         } else {
@@ -111,17 +112,20 @@ public class ReaderPageAdapter extends PagerAdapter {
             if(item.chapterIndex < page.chapterIndex){
                 continue;
             }
-            if(item.begin == -1 && page.begin == 0){
-                item.begin = page.begin;
-                item.end = page.end;
-                return;
-            }
-            else if(page.begin > item.begin && i == count - 1 ){
-                pages.add(page);
-                return;
+            if(page.chapterIndex == item.chapterIndex){
+                if(item.begin == -1 && page.begin == 0 ){
+                    item.begin = page.begin;
+                    item.end = page.end;
+                    break;
+                }
+                else if(page.begin > item.begin && i == count - 1){
+                    pages.add(page);
+                    break;
+                }
             }
             else if(item.chapterIndex > page.chapterIndex){
                 pages.add(i,page);
+                break;
             }
         }
     }
@@ -132,7 +136,7 @@ public class ReaderPageAdapter extends PagerAdapter {
             public boolean onPreDraw() {
                 tv.getViewTreeObserver().removeOnPreDrawListener(this);
                 allocatePages(page, tv);
-                return true;
+                return false;
             }
         });
         String text = pageTexts.get(page.chapterIndex);
