@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
+import com.moss.dbreader.R;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -32,6 +34,9 @@ public class ReaderPageAdapter extends PagerAdapter {
     private int maskViewId;
     private boolean needUpdated = false;
 
+    private static final int TAG_POS = 1;
+    private static final int TAG_CHAP_INDEX = 2;
+
     public ReaderPageAdapter(ArrayList<View> views, int tvId, int maskId) {
         this.views = views;
         textViewId = tvId;
@@ -42,8 +47,8 @@ public class ReaderPageAdapter extends PagerAdapter {
         pages.add(page);
     }
 
-    public void addText(int index, String text){
-        pageTexts.put(index,text);
+    public void addText(int index, String text) {
+        pageTexts.put(index, text);
     }
 
     @Override
@@ -54,14 +59,15 @@ public class ReaderPageAdapter extends PagerAdapter {
         }
         View view = views.get(0);
         views.remove(0);
-        view.setTag(position);
+        view.setTag(R.id.tag_pos,position);
+        view.setTag(R.id.tag_chap_index,page.chapterIndex);
         TextView tv = (TextView) view.findViewById(textViewId);
-        if (pageTexts.containsKey(page.chapterIndex)) {
+        if (pageTexts.containsKey(page.chapterIndex) && page.begin != -2) {
             refreshPage(page, tv);
         } else {
-            View v = view.findViewById(maskViewId);
-            v.setVisibility(View.VISIBLE);
-            tv.setVisibility(View.INVISIBLE);
+            //View v = view.findViewById(maskViewId);
+            //v.setVisibility(View.VISIBLE);
+            //tv.setVisibility(View.INVISIBLE);
         }
         ((ViewGroup) container).addView(view);
         return view;
@@ -107,24 +113,25 @@ public class ReaderPageAdapter extends PagerAdapter {
 
     private void insertReaderPage(final ReaderPage page) {
         int count = pages.size();
-        for(int i = 0 ; i < count; i++){
+        for (int i = 0; i < count; i++) {
             ReaderPage item = pages.get(i);
-            if(item.chapterIndex < page.chapterIndex){
+            if (item.chapterIndex < page.chapterIndex) {
                 continue;
             }
-            if(page.chapterIndex == item.chapterIndex){
-                if(item.begin == -1 && page.begin == 0 ){
+            if (page.chapterIndex == item.chapterIndex) {
+                if (item.begin == -1 && page.begin == 0) {
                     item.begin = page.begin;
                     item.end = page.end;
                     break;
-                }
-                else if(page.begin > item.begin && i == count - 1){
+                } else if (page.begin > item.begin && i == count - 1) {
                     pages.add(page);
                     break;
                 }
-            }
-            else if(item.chapterIndex > page.chapterIndex){
-                pages.add(i,page);
+            } else if (item.chapterIndex > page.chapterIndex) {
+                pages.add(i, page);
+                if (item.begin == -2) {
+                    item.begin = -1;
+                }
                 break;
             }
         }
@@ -136,6 +143,8 @@ public class ReaderPageAdapter extends PagerAdapter {
             public boolean onPreDraw() {
                 tv.getViewTreeObserver().removeOnPreDrawListener(this);
                 allocatePages(page, tv);
+                ViewPager vp = (ViewPager)tv.getParent().getParent();
+                refreshOtherPages(vp);
                 return false;
             }
         });
@@ -144,6 +153,19 @@ public class ReaderPageAdapter extends PagerAdapter {
         int end = text.indexOf('\n');
         sp.setSpan(new RelativeSizeSpan(1.2f), 0, end, 0);
         tv.setText(sp);
+    }
+
+    private void refreshOtherPages(ViewPager vp){
+        for(int i = 0 ;i < vp.getChildCount(); i++){
+            View v = vp.getChildAt(i);
+            int pos = (Integer) v.getTag(R.id.tag_pos);
+            int chap = (Integer)v.getTag(R.id.tag_chap_index);
+            ReaderPage rp = getReaderPage(pos);
+            if(rp.chapterIndex != chap){
+                TextView tx = (TextView) v.findViewById(textViewId);
+                setPageText(rp,tx);
+            }
+        }
     }
 
     private void allocatePages(final ReaderPage page, final TextView tv) {
@@ -165,8 +187,8 @@ public class ReaderPageAdapter extends PagerAdapter {
                 rp.end = end;
                 rp.chapterIndex = page.chapterIndex;
                 insertReaderPage(rp);
-                if(i != count-1){
-                    begin = tv.getLayout().getLineStart(i+1);
+                if (i != count - 1) {
+                    begin = tv.getLayout().getLineStart(i + 1);
                     h = 0;
                 }
             }
