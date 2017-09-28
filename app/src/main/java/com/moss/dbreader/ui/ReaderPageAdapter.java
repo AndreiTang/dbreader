@@ -3,6 +3,7 @@ package com.moss.dbreader.ui;
 import android.graphics.Rect;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 import android.view.View;
@@ -24,18 +25,16 @@ public class ReaderPageAdapter extends PagerAdapter {
         public int chapterIndex;
         public int begin;
         public int end;
-        //public String title;
     }
 
     private ArrayList<ReaderPage> pages = new ArrayList<ReaderPage>();
-    private HashMap<Integer, String> pageTexts = new HashMap<>();
+    private HashMap<Integer, String> pageTexts = new HashMap<Integer, String>();
     private ArrayList<View> views;
     private int textViewId;
     private int maskViewId;
     private boolean needUpdated = false;
+    private ArrayList<View> usingViews = new ArrayList<View>();
 
-    private static final int TAG_POS = 1;
-    private static final int TAG_CHAP_INDEX = 2;
 
     public ReaderPageAdapter(ArrayList<View> views, int tvId, int maskId) {
         this.views = views;
@@ -59,8 +58,8 @@ public class ReaderPageAdapter extends PagerAdapter {
         }
         View view = views.get(0);
         views.remove(0);
-        view.setTag(R.id.tag_pos,position);
-        view.setTag(R.id.tag_chap_index,page.chapterIndex);
+        view.setTag(R.id.tag_pos, position);
+        view.setTag(R.id.tag_chap_index, page.chapterIndex);
         TextView tv = (TextView) view.findViewById(textViewId);
         if (pageTexts.containsKey(page.chapterIndex) && page.begin != -2) {
             refreshPage(page, tv);
@@ -69,6 +68,7 @@ public class ReaderPageAdapter extends PagerAdapter {
             //v.setVisibility(View.VISIBLE);
             //tv.setVisibility(View.INVISIBLE);
         }
+        usingViews.add(view);
         ((ViewGroup) container).addView(view);
         return view;
     }
@@ -95,6 +95,7 @@ public class ReaderPageAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
+        usingViews.remove(object);
         ((ViewPager) container).removeView((View) object);
         views.add((View) object);
     }
@@ -143,8 +144,9 @@ public class ReaderPageAdapter extends PagerAdapter {
             public boolean onPreDraw() {
                 tv.getViewTreeObserver().removeOnPreDrawListener(this);
                 allocatePages(page, tv);
-                ViewPager vp = (ViewPager)tv.getParent().getParent();
-                refreshOtherPages(vp);
+                refreshOtherPages();
+                needUpdated = true;
+                ReaderPageAdapter.this.notifyDataSetChanged();
                 return false;
             }
         });
@@ -155,16 +157,16 @@ public class ReaderPageAdapter extends PagerAdapter {
         tv.setText(sp);
     }
 
-    private void refreshOtherPages(ViewPager vp){
-        for(int i = 0 ;i < vp.getChildCount(); i++){
-            View v = vp.getChildAt(i);
+    private void refreshOtherPages() {
+        for (int i = 0; i < usingViews.size(); i++) {
+            View v = usingViews.get(i);
             int pos = (Integer) v.getTag(R.id.tag_pos);
-            int chap = (Integer)v.getTag(R.id.tag_chap_index);
+            int chap = (Integer) v.getTag(R.id.tag_chap_index);
             ReaderPage rp = getReaderPage(pos);
-            if(rp.chapterIndex != chap){
-                TextView tx = (TextView) v.findViewById(textViewId);
-                setPageText(rp,tx);
+            if (rp.chapterIndex == chap || rp.begin < 0) {
+                continue;
             }
+            setPageText(rp, (TextView) v.findViewById(textViewId));
         }
     }
 
@@ -193,8 +195,6 @@ public class ReaderPageAdapter extends PagerAdapter {
                 }
             }
         }
-        needUpdated = true;
-        ReaderPageAdapter.this.notifyDataSetChanged();
     }
 
     private void setPageText(final ReaderPage page, TextView tv) {

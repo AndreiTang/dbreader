@@ -17,15 +17,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ArrayList<View> views = new ArrayList<View>();
-        for(int i = 0 ; i < 4 ; i++){
-            View v = getLayoutInflater().inflate(R.layout.view_reader,null);
+        for (int i = 0; i < 4; i++) {
+            View v = getLayoutInflater().inflate(R.layout.view_reader, null);
             views.add(v);
         }
 
         ReaderPageAdapter.ReaderPage rp = new ReaderPageAdapter.ReaderPage();
         rp.begin = rp.end = -1;
         rp.chapterIndex = 0;
-        String tt =  "第一章 一梦五百年 （上）\n\n";
+        String tt = "第一章 一梦五百年 （上）\n\n";
 
         tt += "凉风习习，夜色迷离，轻纱般的薄雾缭绕着安静的县城。\n" +
                 "\n" +
@@ -104,10 +104,10 @@ public class MainActivity extends AppCompatActivity {
                 "沈默的眼睛瞪得溜圆，沈贺一本正经道：“圣人云：‘事不过三’，这第一次吃叫品尝，第二次叫享受，第三次叫充饥，再多吃就是饕餮浪费了。”说着朝他挤眼笑笑道：“睡吧。”便吹熄油灯，趴在桌子上睡了。\n" +
                 "\n" +
                 "因为这屋里只有一张单人床……";
-        tt=tt.replace("\n\n","\n");
-        ReaderPageAdapter adp = new ReaderPageAdapter(views,R.id.reader_text,0);
+        tt = tt.replace("\n\n", "\n");
+        ReaderPageAdapter adp = new ReaderPageAdapter(views, R.id.reader_text, 0);
         adp.addPage(rp);
-        adp.addText(0,tt);
+        adp.addText(0, tt);
 
         tt = "第二章 一梦五百年 （中）\n\n";
         tt += "    沈默不能入眠，他借着幽暗的天光，端详着趴在桌子上的…父亲，心中久久无法平静。\n" +
@@ -193,14 +193,16 @@ public class MainActivity extends AppCompatActivity {
                 "    沈贺便将碗搁在床沿上，低声道：“慢慢吃，吃完了继续睡。大夫说，睡觉最养人了。”\n" +
                 "\n" +
                 "    沈默又点点头，见老头端起砂锅，转过身去，背对着自己坐下，似乎在吃饭，似乎在抽泣。";
-        tt=tt.replace("\n\n","\n");
-        adp.addText(1,tt);
+        tt = tt.replace("\n\n", "\n");
+        adp.addText(1, tt);
         rp = new ReaderPageAdapter.ReaderPage();
         rp.begin = rp.end = -2;
         rp.chapterIndex = 1;
         adp.addPage(rp);
 
-        ViewPager vp = (ViewPager)findViewById(R.id.reader_viewpager);
+
+        ViewPager vp = (ViewPager) findViewById(R.id.reader_viewpager);
         vp.setAdapter(adp);
+
     }
 }
