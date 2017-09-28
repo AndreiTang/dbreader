@@ -200,7 +200,6 @@ public class MainActivity extends AppCompatActivity {
         rp.chapterIndex = 1;
         adp.addPage(rp);
 
-
         ViewPager vp = (ViewPager) findViewById(R.id.reader_viewpager);
         vp.setAdapter(adp);
 

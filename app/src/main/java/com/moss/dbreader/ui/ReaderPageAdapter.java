@@ -5,7 +5,10 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.SpannableString;
+import android.text.style.AbsoluteSizeSpan;
 import android.text.style.RelativeSizeSpan;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -34,6 +37,7 @@ public class ReaderPageAdapter extends PagerAdapter {
     private int maskViewId;
     private boolean needUpdated = false;
     private ArrayList<View> usingViews = new ArrayList<View>();
+    private static final int TITLE_FONT_SIZE_SP = 22;
 
 
     public ReaderPageAdapter(ArrayList<View> views, int tvId, int maskId) {
@@ -153,7 +157,8 @@ public class ReaderPageAdapter extends PagerAdapter {
         String text = pageTexts.get(page.chapterIndex);
         SpannableString sp = new SpannableString(text);
         int end = text.indexOf('\n');
-        sp.setSpan(new RelativeSizeSpan(1.2f), 0, end, 0);
+        int fs = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, TITLE_FONT_SIZE_SP, tv.getResources().getDisplayMetrics());
+        sp.setSpan(new DBReaderCenterSpan(fs), 0, end, 0);
         tv.setText(sp);
     }
 
@@ -203,10 +208,13 @@ public class ReaderPageAdapter extends PagerAdapter {
         if (page.begin == 0) {
             int end = text.indexOf('\n');
             SpannableString sp = new SpannableString(text);
-            sp.setSpan(new RelativeSizeSpan(1.2f), 0, end, 0);
+            int fs = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, TITLE_FONT_SIZE_SP, tv.getResources().getDisplayMetrics());
+            sp.setSpan(new DBReaderCenterSpan(fs), 0, end, 0);
             tv.setText(sp);
+            tv.setGravity(Gravity.BOTTOM);
         } else {
             tv.setText(text);
+            tv.setGravity(Gravity.TOP);
         }
     }
 }
