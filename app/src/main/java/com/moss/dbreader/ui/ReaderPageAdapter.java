@@ -31,6 +31,8 @@ public class ReaderPageAdapter extends PagerAdapter {
     }
 
     private ArrayList<ReaderPage> pages = new ArrayList<ReaderPage>();
+    private ArrayList<ReaderPage> readyPages = new ArrayList<ReaderPage>();
+
     private HashMap<Integer, String> pageTexts = new HashMap<Integer, String>();
     private ArrayList<View> views;
     private int textViewId;
@@ -47,7 +49,12 @@ public class ReaderPageAdapter extends PagerAdapter {
     }
 
     public void addPage(ReaderPage page) {
-        pages.add(page);
+        if (pages.size() > 0) {
+            readyPages.add(page);
+        }
+        else if (readyPages.size() == 0 || page.begin >=0 ) {
+            pages.add(page);
+        }
     }
 
     public void addText(int index, String text) {
@@ -65,7 +72,7 @@ public class ReaderPageAdapter extends PagerAdapter {
         view.setTag(R.id.tag_pos, position);
         view.setTag(R.id.tag_chap_index, page.chapterIndex);
         TextView tv = (TextView) view.findViewById(textViewId);
-        if (pageTexts.containsKey(page.chapterIndex) && page.begin != -2) {
+        if (pageTexts.containsKey(page.chapterIndex)) {
             refreshPage(page, tv);
         } else {
             //View v = view.findViewById(maskViewId);
@@ -134,9 +141,6 @@ public class ReaderPageAdapter extends PagerAdapter {
                 }
             } else if (item.chapterIndex > page.chapterIndex) {
                 pages.add(i, page);
-                if (item.begin == -2) {
-                    item.begin = -1;
-                }
                 break;
             }
         }
@@ -148,6 +152,10 @@ public class ReaderPageAdapter extends PagerAdapter {
             public boolean onPreDraw() {
                 tv.getViewTreeObserver().removeOnPreDrawListener(this);
                 allocatePages(page, tv);
+                if (readyPages.size() > 0) {
+                    ReaderPage rp = readyPages.remove(0);
+                    pages.add(rp);
+                }
                 refreshOtherPages();
                 needUpdated = true;
                 ReaderPageAdapter.this.notifyDataSetChanged();
@@ -171,6 +179,7 @@ public class ReaderPageAdapter extends PagerAdapter {
             if (rp.chapterIndex == chap || rp.begin < 0) {
                 continue;
             }
+            v.setTag(R.id.tag_chap_index, rp.chapterIndex);
             setPageText(rp, (TextView) v.findViewById(textViewId));
         }
     }

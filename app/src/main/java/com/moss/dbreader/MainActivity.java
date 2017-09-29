@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         tt = tt.replace("\n\n", "\n");
         adp.addText(1, tt);
         rp = new ReaderPageAdapter.ReaderPage();
-        rp.begin = rp.end = -2;
+        rp.begin = rp.end = -1;
         rp.chapterIndex = 1;
         adp.addPage(rp);
 
