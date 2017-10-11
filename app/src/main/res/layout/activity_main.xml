@@ -6,10 +6,11 @@
     android:layout_height="match_parent"
     tools:context="com.moss.dbreader.MainActivity">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/reader_viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+   <fragment
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:name="com.moss.dbreader.ui.BookcaseFragment"
+       android:id="@+id/frag_bookcase"
+       />
 
 </android.support.constraint.ConstraintLayout>
