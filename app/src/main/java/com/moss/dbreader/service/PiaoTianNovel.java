@@ -1,12 +1,23 @@
 package com.moss.dbreader.service;
 
+import android.net.Uri;
+
 import org.jsoup.Jsoup;
+import org.jsoup.helper.HttpConnection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -16,83 +27,165 @@ import java.util.regex.Pattern;
  * Created by tangqif on 2017/9/23.
  */
 public final class PiaoTianNovel implements IFetchNovelEngine {
+
     @Override
-    public ArrayList<DBReaderRemoteNovel> searchNovels(String name) {
-        String encodeName = null;
-        ArrayList<DBReaderRemoteNovel> nvs = new ArrayList<DBReaderRemoteNovel>();
+    public boolean searchNovels(final String name, ArrayList<DBReaderNovel> nvs) {
         try {
-            encodeName = URLEncoder.encode(name, "gb2312");
-            String url = "http://www.piaotian.com/modules/article/search.php?searchtype=articlename&searchkey=" + encodeName;
-            while (url != null) {
-                Document doc = Jsoup.connect(url).timeout(3000).get();
+            String url = "http://www.piaotian.com/modules/article/search.php?searchtype=articlename&searchkey=";
+            String encodeName = URLEncoder.encode(name, "gb2312");
+            url += encodeName;
+            StringWriter buf = new StringWriter();
+            if(!get(url,buf)){
+                return false;
+            }
+            String cont = buf.toString();
+            Document doc = Jsoup.parse(cont);
+            while (true) {
                 parseSearchPage(doc, nvs);
                 Elements nexts = doc.select("a.next");
                 if (nexts.size() == 0) {
-                    url = null;
+                    break;
                 } else {
                     url = "http://www.piaotian.com" + nexts.first().attr("href");
+                    buf = new StringWriter();
+                    if(!get(url,buf)){
+                        break;
+                    }
+                    cont = buf.toString();
+                    doc = Jsoup.parse(cont);
                 }
             }
             if (nvs.size() > 0) {
-                return nvs;
+                return true;
+            } else {
+                DBReaderNovel novel = new DBReaderNovel();
+                if (fetchNovvelFromDoc(doc, novel)) {
+                    nvs.add(novel);
+                    return true;
+                }
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+
+        return false;
     }
 
+
     @Override
-    public boolean fetchNovel(final DBReaderRemoteNovel remote,DBReaderLocalNovel local) {
+    public boolean fetchChapter(final DBReaderNovel.Chapter chapter, StringWriter buf) {
         try {
-            Document doc = Jsoup.connect(remote.url).timeout(3000).get();
-
-            Elements eles = doc.select("caption");
-            Elements items = eles.first().select("a");
-            local.url = items.first().attr("href");
-            collectChapters(local);
-
-            eles = doc.select("a");
-            for(Element img : eles){
-                String target = img.attr("target");
-                if(target.compareTo("_blank")==0){
-                    local.img = img.select("img").first().attr("src");
-                    break;
-                }
+            Document doc = Jsoup.connect(chapter.url).timeout(3000).get();
+            String html = doc.outerHtml();
+            int begin = html.indexOf("&nbsp;&nbsp;&nbsp;&nbsp;");
+            if (begin == -1) {
+                return false;
+            }
+            int end = html.indexOf("<!--", begin + 1);
+            if (end == -1) {
+                return false;
             }
 
+            String cont = html.substring(begin, end);
+            cont = cont.replace("&nbsp;", " ");
+            cont = cont.replace("<br>", "\n");
+            cont = arrangeNovel(cont);
+            cont = chapter.name + cont;
+            buf.write(cont);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    public boolean fetchNovel(DBReaderNovel novel) {
+        try {
+            Document doc = Jsoup.connect(novel.url).timeout(3000).get();
+            return fetchNovvelFromDoc(doc, novel);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    @Override
-    public String fetchChapter(DBReaderLocalNovel.Chapter chapter){
+    private String arrangeNovel(final String txt) {
+        BufferedReader reader = new BufferedReader(new StringReader(txt));
         String cont = "";
         try {
-            Document doc = Jsoup.connect("http://www.piaotian.com/html/8/8511/5863410.html").timeout(3000).get();
-            String html = doc.outerHtml();
-            int begin = html.indexOf("&nbsp;&nbsp;&nbsp;&nbsp;");
-            if(begin == -1){
-                return "";
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                String data = line;
+                data = data.trim();
+                if(data.length() == 0){
+                    continue;
+                }
+                cont += "\n";
+                cont += line;
             }
-            int end = html.indexOf("<!--",begin+1);
-            if(end ==-1){
-                return "";
-            }
-            cont = html.substring(begin,end);
-            cont = cont.replace("&nbsp;&nbsp;&nbsp;&nbsp;","  ");
-            cont = cont.replace("<br>","\n");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
         return cont;
     }
 
-    private void parseSearchPage(Document doc, ArrayList<DBReaderRemoteNovel> nvs) {
+    private boolean get(final String urlPath,StringWriter buf) {
+        try {
+            URL url = new URL(urlPath);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            if (200 != urlConnection.getResponseCode()) {
+                return false;
+            }
+
+            InputStream is = urlConnection.getInputStream();
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len = 0;
+            while (-1 != (len = is.read(buffer))) {
+                output.write(buffer, 0, len);
+                output.flush();
+            }
+            buf.write(output.toString("gb2312"));
+            return true;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private boolean fetchNovvelFromDoc(Document doc, DBReaderNovel novel) {
+        Elements eles = doc.select("caption");
+        if (eles.size() == 0) {
+            return false;
+        }
+        Elements items = eles.first().select("a");
+        if (items.size() == 0) {
+            return false;
+        }
+        novel.url = items.first().attr("href");
+        collectChapters(novel);
+
+        if(novel.name == null){
+            novel.name = doc.select("h1").first().text();
+        }
+
+        eles = doc.select("a");
+        for (Element img : eles) {
+            String target = img.attr("target");
+            if (target.compareTo("_blank") == 0) {
+                novel.img = img.select("img").first().attr("src");
+                break;
+            }
+        }
+        return true;
+    }
+
+
+    private void parseSearchPage(Document doc, ArrayList<DBReaderNovel> nvs) {
         Elements items = doc.select("div#content");
         if (items.size() == 0) {
             return;
@@ -102,7 +195,7 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
             return;
         }
         for (Element ele : novels) {
-            DBReaderRemoteNovel it = new DBReaderRemoteNovel();
+            DBReaderNovel it = new DBReaderNovel();
             boolean ret = parseNovel(ele, it);
             if (ret) {
                 nvs.add(it);
@@ -110,12 +203,19 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         }
     }
 
-    private boolean parseNovel(Element novel, DBReaderRemoteNovel it) {
+    private boolean parseNovel(Element novel, DBReaderNovel it) {
+        if (novel.children().size() < 6) {
+            return false;
+        }
         Element item = novel.child(0);
         if (item.tagName().compareTo("td") != 0) {
             return false;
         }
-        Element ele = item.select("a").first();
+        Elements els = item.select("a");
+        if (els.size() == 0) {
+            return false;
+        }
+        Element ele = els.first();
         it.name = ele.text();
         it.url = ele.attr("href");
 
@@ -131,23 +231,26 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         return true;
     }
 
-    private void collectChapters(DBReaderLocalNovel local){
+    private void collectChapters(DBReaderNovel local) {
         try {
             Document doc = Jsoup.connect(local.url).timeout(3000).get();
             Elements chaps = doc.select("li");
             String regEx = "^[0-9]{1,}.html";
             Pattern pattern = Pattern.compile(regEx);
-            for(Element chap : chaps){
+            for (Element chap : chaps) {
                 Element it = chap.select("a").first();
-                if(it == null){
+                if (it == null) {
                     continue;
                 }
-                String url = it.attr("href");
 
+                String url = it.attr("href");
+                ;
                 Matcher matcher = pattern.matcher(url);
                 boolean bRet = matcher.matches();
-                if(bRet){
-                    local.Add(it.text(),url);
+                if (bRet) {
+                    int end = local.url.indexOf("index.html");
+                    url = local.url.substring(0, end) + url;
+                    local.Add(it.text(), url);
                 }
             }
         } catch (IOException e) {

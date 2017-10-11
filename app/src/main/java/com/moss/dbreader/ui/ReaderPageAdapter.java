@@ -28,6 +28,7 @@ public class ReaderPageAdapter extends PagerAdapter {
         public int chapterIndex;
         public int begin;
         public int end;
+        public String name;
     }
 
     private ArrayList<ReaderPage> pages = new ArrayList<ReaderPage>();
@@ -59,6 +60,15 @@ public class ReaderPageAdapter extends PagerAdapter {
 
     public void addText(int index, String text) {
         pageTexts.put(index, text);
+        for(int i = 0 ; i < usingViews.size(); i++){
+            View v = usingViews.get(i);
+            int chapIndex = (Integer)v.getTag(R.id.tag_chap_index);
+            if(chapIndex == index){
+                ReaderPage page = getFirstPageOfChapter(chapIndex);
+                initPageText(page,(TextView) v.findViewById(textViewId));
+                break;
+            }
+        }
     }
 
     @Override
@@ -109,6 +119,16 @@ public class ReaderPageAdapter extends PagerAdapter {
         usingViews.remove(object);
         ((ViewPager) container).removeView((View) object);
         views.add((View) object);
+    }
+
+    private ReaderPage getFirstPageOfChapter(int chapIndex){
+        for(int i = 0 ;i < pages.size(); i++){
+            ReaderPage page = pages.get(i);
+            if(page.chapterIndex == chapIndex && page.begin == -1){
+                return page;
+            }
+        }
+        return null;
     }
 
     private ReaderPage getReaderPage(int pos) {
