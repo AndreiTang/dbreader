@@ -7,13 +7,37 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="60dp"
+        android:background="#00ff00"
+        android:gravity="center"
         android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:text="Editfsdfrerewr"
+            android:layout_weight="0"
+            android:gravity="left"
+            android:layout_marginLeft="10dp"
+            android:textColor="#000000"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
-            android:layout_gravity="center"/>
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="#000000" />
+
+        <TextView
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:gravity="right"
+            android:layout_marginRight="10dp"
+            android:textColor="#000000"/>
+
+
     </LinearLayout>
 
 </LinearLayout>
