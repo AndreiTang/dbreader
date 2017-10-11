@@ -9,12 +9,12 @@ import android.view.ViewGroup;
 import com.moss.dbreader.R;
 
 /**
- * Created by tangqif on 2017/10/9.
+ * Created by andrei on 2017/10/11.
  */
 
-public class NovelReaderFragment extends Fragment {
+public class BookcaseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_novelreader,container,false);
+        return inflater.inflate(R.layout.fragment_bookcase,container,false);
     }
 }
