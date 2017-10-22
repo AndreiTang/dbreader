@@ -9,14 +9,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
+import com.moss.dbreader.service.DBReaderNovel;
+import com.moss.dbreader.service.IFetchNovelEngineNotify;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class BookSearchFragment extends Fragment {
+public class BookSearchFragment extends Fragment implements IFetchNovelEngineNotify {
 
 
     public BookSearchFragment() {
@@ -35,6 +39,25 @@ public class BookSearchFragment extends Fragment {
     public void onActivityCreated (Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
         customizeSearchView();
+
+        SearchView sv = (SearchView) getActivity().findViewById(R.id.book_search);
+        sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                MainActivity activity = (MainActivity) getActivity();
+                activity.getNovelEngine().searchNovel(s,0);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
+
+        MainActivity activity = (MainActivity) getActivity();
+        activity.getNovelEngine().addNotify(this);
+
     }
 
     private void customizeSearchView(){
@@ -50,4 +73,18 @@ public class BookSearchFragment extends Fragment {
         }
     }
 
+    @Override
+    public void OnSearchNovels(boolean bRet, int engineID, int sessionID, ArrayList<DBReaderNovel> novels) {
+
+    }
+
+    @Override
+    public void OnFetchNovel(boolean bRet, int engineID, int sessionID, DBReaderNovel novel) {
+
+    }
+
+    @Override
+    public void OnFetchChapter(boolean bRet, int sessionID, int index, String cont) {
+
+    }
 }

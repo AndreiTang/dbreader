@@ -59,6 +59,10 @@ public class NovelEngineService extends Service {
         public void addNotify(IFetchNovelEngineNotify notify) {
             notifies.add(notify);
         }
+
+        public void removeNotify(IFetchNovelEngineNotify notify){
+            notifies.remove(notify);
+        }
     }
 
     private NovelEngine novelEngine = new NovelEngine();

@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
         NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) iBinder;
         engine = binder.getNovelEngine();
-
     }
 
     @Override
@@ -38,12 +37,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         setContentView(R.layout.activity_main);
         System.out.printf("this is a test");
 
-        //Intent intent = new Intent(this, NovelEngineService.class);
-       // bindService(intent, this, Context.BIND_AUTO_CREATE);
-
-
+        Intent intent = new Intent(this, NovelEngineService.class);
+        bindService(intent, this, Context.BIND_AUTO_CREATE);
 
     }
 
-
+    public NovelEngineService.NovelEngine getNovelEngine(){
+        return engine;
+    }
 }
