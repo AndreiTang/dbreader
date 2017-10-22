@@ -1,4 +1,4 @@
-package com.moss.dbreader.ui;
+package com.moss.dbreader.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,7 +12,7 @@ import com.moss.dbreader.R;
  * Created by andrei on 2017/10/11.
  */
 
-public class BookcaseFragment extends Fragment {
+public class BookCaseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_bookcase,container,false);

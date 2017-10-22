@@ -9,8 +9,8 @@
    <fragment
        android:layout_width="match_parent"
        android:layout_height="match_parent"
-       android:name="com.moss.dbreader.ui.BookcaseFragment"
-       android:id="@+id/frag_bookcase"
+       android:name="com.moss.dbreader.fragment.NovelReaderFragment"
+       android:id="@+id/reader_Frag"
        />
 
 </android.support.constraint.ConstraintLayout>

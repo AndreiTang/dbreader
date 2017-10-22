@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">DBReader</string>
 
-    <item type="id" name="tag_pos">pos </item>
-    <item type="id" name="tag_chap_index">chap_index </item>
+    <item name="tag_pos" type="id">pos</item>
+    <item name="tag_chap_index" type="id">chap_index</item>
+    <item name="tag_need_update" type="id">0</item>
+    <item name="tag_page_begin" type="id">0</item>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="book_store_title">书城</string>
+    <string name="book_search_title">书城搜索</string>
 </resources>

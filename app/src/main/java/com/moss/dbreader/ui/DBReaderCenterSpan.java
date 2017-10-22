@@ -9,6 +9,7 @@ import android.support.v7.widget.ViewUtils;
 import android.text.TextPaint;
 import android.text.style.ReplacementSpan;
 import android.util.TypedValue;
+import android.view.View;
 
 import java.lang.reflect.TypeVariable;
 
@@ -18,8 +19,10 @@ import java.lang.reflect.TypeVariable;
 
 public class DBReaderCenterSpan  extends ReplacementSpan {
     private int fontSize;
-    public DBReaderCenterSpan(int fontSize){
+    private int margin;
+    public DBReaderCenterSpan(int fontSize,int margin){
         this.fontSize = fontSize;
+        this.margin = margin;
     }
     @Override
     public int getSize(@NonNull Paint paint, CharSequence charSequence, @IntRange(from = 0) int i, @IntRange(from = 0) int i1, @Nullable Paint.FontMetricsInt fontMetricsInt) {
@@ -32,8 +35,9 @@ public class DBReaderCenterSpan  extends ReplacementSpan {
     public void draw(@NonNull Canvas canvas, CharSequence charSequence, @IntRange(from = 0) int i, @IntRange(from = 0) int i1, float v, int i2, int i3, int i4, @NonNull Paint paint) {
         charSequence = charSequence.subSequence(i, i1);
         Paint p = GetCustomerTextPaint(paint);
-        int w  = canvas.getWidth();
+        int w = canvas.getWidth();
         int x = (w- (int)p.measureText(charSequence.toString()))/2;
+        x -= margin;
         canvas.drawText(charSequence.toString(),x,i3,p);
     }
 
