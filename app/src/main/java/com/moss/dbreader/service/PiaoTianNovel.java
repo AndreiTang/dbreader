@@ -59,7 +59,7 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
                 return true;
             } else {
                 DBReaderNovel novel = new DBReaderNovel();
-                if (fetchNovvelFromDoc(doc, novel)) {
+                if (fetchNovelFromDoc(doc, novel)) {
                     nvs.add(novel);
                     return true;
                 }
@@ -103,11 +103,27 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
     public boolean fetchNovel(DBReaderNovel novel) {
         try {
             Document doc = Jsoup.connect(novel.url).timeout(3000).get();
-            return fetchNovvelFromDoc(doc, novel);
+            novel.decs = fetchNovelDecs(doc);
+            return fetchNovelFromDoc(doc, novel);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private String fetchNovelDecs(Document doc){
+        String html  = doc.outerHtml();
+        String head = "内容简介：</span><br />&nbsp;&nbsp;&nbsp;&nbsp;";
+        int begin = html.indexOf(head);
+        if(begin == -1){
+            return "";
+        }
+        begin += head.length();
+        int end = html.indexOf("</td>",begin);
+        String str = html.substring(begin,end);
+        str = str.replace("&nbsp;","");
+        str = str.replace("<br />","");
+        return str;
     }
 
     private String arrangeNovel(final String txt) {
@@ -157,7 +173,7 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         return false;
     }
 
-    private boolean fetchNovvelFromDoc(Document doc, DBReaderNovel novel) {
+    private boolean fetchNovelFromDoc(Document doc, DBReaderNovel novel) {
         Elements eles = doc.select("caption");
         if (eles.size() == 0) {
             return false;

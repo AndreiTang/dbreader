@@ -133,15 +133,8 @@ public class NovelEngineService extends Service {
         ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
         boolean bRet = searchNovels(name, engineID, novels);
         DBReaderNovel novel = novels.get(0);
-        if(novels.size() == 1 && novel.chapters.size() > 0){
-            for (int i = 0; i < notifies.size(); i++) {
-                notifies.get(i).OnFetchNovel(bRet, sessionID, engineID, novel);
-            }
-        }
-        else{
-            for (int i = 0; i < notifies.size(); i++) {
-                notifies.get(i).OnSearchNovels(bRet, sessionID, engineID, novels);
-            }
+        for (int i = 0; i < notifies.size(); i++) {
+            notifies.get(i).OnSearchNovels(bRet, sessionID, engineID, novels);
         }
     }
 
@@ -164,7 +157,7 @@ public class NovelEngineService extends Service {
             bRet = engine.fetchNovel(novel);
         }
         for (int i = 0; i < notifies.size(); i++) {
-            notifies.get(i).OnFetchNovel(bRet, sessionID, engineID, novel);
+            notifies.get(i).OnFetchNovel(bRet, sessionID,novel);
         }
     }
 

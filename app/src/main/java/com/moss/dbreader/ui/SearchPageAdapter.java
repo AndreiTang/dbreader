@@ -56,6 +56,12 @@ public class SearchPageAdapter extends BaseAdapter {
         DBReaderNovel item = novels.get(i);
         TextView tv = (TextView) view.findViewById(R.id.search_novel_name);
         tv.setText(item.name);
+        tv = (TextView) view.findViewById(R.id.search_novel_author);
+        tv.setText(item.author);
+        tv = (TextView) view.findViewById(R.id.search_novel_decs);
+        tv.setText(item.decs);
+        tv = (TextView) view.findViewById(R.id.search_novel_type);
+        tv.setText(item.type);
         return view;
     }
 }

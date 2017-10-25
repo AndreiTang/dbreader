@@ -31,25 +31,42 @@ import java.util.ArrayList;
 public class BookSearchFragment extends Fragment  {
 
     private NovelEngineService.NovelEngine engine = null;
-    private int engineID;
+    private int engineID = -1;
+    private int searchCount = 0;
+    ArrayList<DBReaderNovel> tmpNovels = new ArrayList<DBReaderNovel>();
+    private static final int AllowCount = 5;
+
 
     IFetchNovelEngineNotify notify = new IFetchNovelEngineNotify() {
         @Override
         public void OnSearchNovels(boolean bRet, int engineID, int sessionID, final ArrayList<DBReaderNovel> novels) {
+            if(!bRet){
+                return;
+            }
             BookSearchFragment.this.engineID = engineID;
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
-                    SearchPageAdapter adapter = new SearchPageAdapter(getActivity().getApplicationContext(), novels);
-                    lv.setAdapter(adapter);
-                }
-            });
+            searchCount = novels.size();
+            for(int i = 0 ; i < novels.size() ; i++){
+                engine.fetchNovel(novels.get(i),engineID,sessionID);
+            }
         }
 
         @Override
-        public void OnFetchNovel(boolean bRet, int engineID, int sessionID, DBReaderNovel novel) {
-
+        public void OnFetchNovel(boolean bRet, int sessionID, DBReaderNovel novel) {
+            searchCount--;
+            if(!bRet){
+                return;
+            }
+            tmpNovels.add(novel);
+            if(searchCount == 0 || tmpNovels.size() == AllowCount){
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
+                        //SearchPageAdapter adapter = new SearchPageAdapter(getActivity().getApplicationContext(), novels);
+                        //lv.setAdapter(adapter);
+                    }
+                });
+            }
         }
 
         @Override
@@ -90,8 +107,19 @@ public class BookSearchFragment extends Fragment  {
         super.onActivityCreated(savedInstanceState);
         initializeSearchView();
 
-        Intent intent = new Intent(getActivity(), NovelEngineService.class);
-        getActivity().bindService(intent,serviceConnection, Context.BIND_AUTO_CREATE);
+        ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
+        ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
+        DBReaderNovel nv = new DBReaderNovel();
+        nv.name = "官居一品";
+        nv.author="三戒大师";
+        nv.decs="数风流，论成败，百年一梦多慷慨。有心要励精图治挽天倾，哪怕身后骂名滚滚";
+        nv.type="连载";
+        novels.add(nv);
+        SearchPageAdapter adapter = new SearchPageAdapter(getActivity().getApplicationContext(), novels);
+        lv.setAdapter(adapter);
+
+        //Intent intent = new Intent(getActivity(), NovelEngineService.class);
+        //getActivity().bindService(intent,serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
