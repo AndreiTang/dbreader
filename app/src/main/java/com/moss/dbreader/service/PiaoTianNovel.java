@@ -123,6 +123,7 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         String str = html.substring(begin,end);
         str = str.replace("&nbsp;","");
         str = str.replace("<br />","");
+        str = str.replace("\n","");
         return str;
     }
 

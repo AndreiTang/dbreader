@@ -20,13 +20,21 @@ import java.util.ArrayList;
 
 public class SearchPageAdapter extends BaseAdapter {
 
-    private ArrayList<DBReaderNovel> novels;
+    private ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
     private Context context;
     private ArrayList<View> views = new ArrayList<View>();
 
-    public SearchPageAdapter(Context context,ArrayList<DBReaderNovel> novels){
+    public SearchPageAdapter(Context context){
         this.novels = novels;
         this.context = context;
+    }
+
+    public void addNovel(DBReaderNovel novel){
+        novels.add(novel);
+    }
+
+    public void refresh(){
+        this.notifyDataSetChanged();
     }
 
     @Override

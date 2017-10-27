@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
+import android.util.TypedValue;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.view.LayoutInflater;
@@ -45,7 +47,10 @@ public class BookSearchFragment extends Fragment  {
             }
             BookSearchFragment.this.engineID = engineID;
             searchCount = novels.size();
-            for(int i = 0 ; i < novels.size() ; i++){
+            if(searchCount > AllowCount){
+                searchCount = AllowCount;
+            }
+            for(int i = 0 ; i < searchCount ; i++){
                 engine.fetchNovel(novels.get(i),engineID,sessionID);
             }
         }
@@ -62,8 +67,11 @@ public class BookSearchFragment extends Fragment  {
                     @Override
                     public void run() {
                         ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
-                        //SearchPageAdapter adapter = new SearchPageAdapter(getActivity().getApplicationContext(), novels);
-                        //lv.setAdapter(adapter);
+                        SearchPageAdapter adapter = new SearchPageAdapter(getActivity().getApplicationContext());
+                        for(int i = 0 ; i < tmpNovels.size(); i++){
+                            adapter.addNovel(tmpNovels.get(i));
+                        }
+                        lv.setAdapter(adapter);
                     }
                 });
             }
@@ -106,17 +114,26 @@ public class BookSearchFragment extends Fragment  {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         initializeSearchView();
+        initializeListView();
 
-        ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
-        ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
-        DBReaderNovel nv = new DBReaderNovel();
-        nv.name = "官居一品";
-        nv.author="三戒大师";
-        nv.decs="数风流，论成败，百年一梦多慷慨。有心要励精图治挽天倾，哪怕身后骂名滚滚";
-        nv.type="连载";
-        novels.add(nv);
-        SearchPageAdapter adapter = new SearchPageAdapter(getActivity().getApplicationContext(), novels);
-        lv.setAdapter(adapter);
+
+
+//        ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
+//        DBReaderNovel nv = new DBReaderNovel();
+//        nv.name = "官居一品";
+//        nv.author="三戒大师";
+//        nv.decs="数风流，论成败，百年一梦多慷慨。有心要励精图治挽天倾，哪怕身后骂名滚滚,论功名还看今朝";
+//        nv.type="连载";
+//        novels.add(nv);
+//        nv = new DBReaderNovel();
+//        nv.name = "官居一品";
+//        nv.author="三戒大师";
+//        nv.decs="数风流，论成败，百年一梦多慷慨。有心要励精图治挽天倾，哪怕身后骂名滚滚";
+//        nv.type="连载";
+//        novels.add(nv);
+//        SearchPageAdapter adapter = new SearchPageAdapter(getActivity().getApplicationContext(), novels);
+//        ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
+//        lv.setAdapter(adapter);
 
         //Intent intent = new Intent(getActivity(), NovelEngineService.class);
         //getActivity().bindService(intent,serviceConnection, Context.BIND_AUTO_CREATE);
@@ -129,6 +146,15 @@ public class BookSearchFragment extends Fragment  {
             getActivity().unbindService(serviceConnection);
             engine = null;
         }
+    }
+
+    private void initializeListView(){
+        ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
+        lv.setFooterDividersEnabled(false);
+        float dividerHigh = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,getResources().getDisplayMetrics());
+        lv.setDividerHeight((int)dividerHigh);
+        Drawable dw = lv.getDivider();
+        dw.setAlpha(0);
     }
 
     private void initializeSearchView() {
