@@ -15,4 +15,5 @@ public class NovelEngineCommand {
     public CommandType type;
     public int engineCode;
     public ArrayList<Object> pars = new ArrayList<Object>();
+    public boolean isCancel = false;
 }

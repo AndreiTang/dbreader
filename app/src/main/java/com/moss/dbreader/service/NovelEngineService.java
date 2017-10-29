@@ -56,6 +56,10 @@ public class NovelEngineService extends Service {
             commands.add(cmd);
         }
 
+        public void cancel(){
+            NovelEngineService.this.cancel();
+        }
+
         public void addNotify(IFetchNovelEngineNotify notify) {
             notifies.add(notify);
         }
@@ -68,7 +72,7 @@ public class NovelEngineService extends Service {
     private NovelEngine novelEngine = new NovelEngine();
     private Binder binder = new NovelEngineBinder();
     private ArrayList<IFetchNovelEngine> engines = new ArrayList<IFetchNovelEngine>();
-    private Queue<NovelEngineCommand> commands = new LinkedList<NovelEngineCommand>();
+    private ArrayList<NovelEngineCommand> commands = new ArrayList<NovelEngineCommand>();
     private ArrayList<IFetchNovelEngineNotify> notifies = new ArrayList<IFetchNovelEngineNotify>();
     private Thread thrd;
 
@@ -107,12 +111,26 @@ public class NovelEngineService extends Service {
         thrd.start();
     }
 
-    private void proc() {
-        if (commands.size() == 0) {
-            return;
+    private void cancel(){
+        synchronized (this){
+            commands.clear();
+            for(int i = 0 ; i < engines.size(); i++){
+                IFetchNovelEngine engine = engines.get(i);
+                engine.cancel();
+            }
         }
-        NovelEngineCommand cmd = commands.remove();
-        NovelEngineCommand.CommandType type = cmd.type;
+    }
+
+    private void proc() {
+        NovelEngineCommand cmd = null;
+        NovelEngineCommand.CommandType type = search;
+        synchronized (this){
+            if (commands.size() == 0) {
+                return;
+            }
+            cmd = commands.remove(0);
+            type = cmd.type;
+        }
         switch (type) {
             case search:
                 procSearch((String) cmd.pars.get(0), cmd.sessionID);

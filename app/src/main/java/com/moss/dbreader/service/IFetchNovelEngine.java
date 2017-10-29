@@ -10,4 +10,5 @@ public interface IFetchNovelEngine {
     boolean searchNovels(final String name,ArrayList<DBReaderNovel> novels);
     boolean fetchNovel(DBReaderNovel novel);
     boolean fetchChapter(final DBReaderNovel.Chapter chapter, StringWriter cont);
+    void cancel();
 }

@@ -78,6 +78,8 @@ public class BookSearchFragment extends Fragment {
                 BookSearchFragment.this.getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        View mask = getActivity().findViewById(R.id.search_mask);
+                        mask.setVisibility(View.GONE);
                         final ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
                         lv.removeFooterView(footView);
                         isRunning = false;
@@ -126,7 +128,7 @@ public class BookSearchFragment extends Fragment {
 
         initializeSearchView();
         initializeListView();
-        initializeFootView();
+        initializeProgressViews();
 
         Intent intent = new Intent(getActivity(), NovelEngineService.class);
         getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -136,12 +138,13 @@ public class BookSearchFragment extends Fragment {
     public void onStop() {
         super.onStop();
         if (engine != null) {
+            engine.cancel();
             getActivity().unbindService(serviceConnection);
             engine = null;
         }
     }
 
-    private void initializeFootView() {
+    private void initializeProgressViews() {
         SimpleDraweeView pv = (SimpleDraweeView) footView.findViewById(R.id.search_progress);
         Uri uri = Uri.parse("res://" + getContext().getPackageName() + "/" + R.drawable.progress_small);
         DraweeController controller = Fresco.newDraweeControllerBuilder()
@@ -149,6 +152,15 @@ public class BookSearchFragment extends Fragment {
                 .setAutoPlayAnimations(true)
                 .build();
         pv.setController(controller);
+
+        pv = (SimpleDraweeView) getActivity().findViewById(R.id.searching_progress);
+        uri = Uri.parse("res://" + getContext().getPackageName() + "/" + R.drawable.progress_big);
+        controller = Fresco.newDraweeControllerBuilder()
+                .setUri(uri)
+                .setAutoPlayAnimations(true)
+                .build();
+        pv.setController(controller);
+
     }
 
     private void showSearchResult() {
@@ -238,8 +250,7 @@ public class BookSearchFragment extends Fragment {
         sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-                sessionID++;
-                engine.searchNovel(s, sessionID);
+                startSearch(s);
                 return false;
             }
 
@@ -249,6 +260,20 @@ public class BookSearchFragment extends Fragment {
             }
         });
         customizeSearchView(sv);
+    }
+
+    private void startSearch(String s) {
+        engine.cancel();
+        sessionID++;
+        ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
+        if(lv.getFooterViewsCount() == 1){
+            lv.removeFooterView(footView);
+        }
+        lv.setAdapter(null);
+        searchPageAdapter = null;
+        View mask = getActivity().findViewById(R.id.search_mask);
+        mask.setVisibility(View.VISIBLE);
+        engine.searchNovel(s, sessionID);
     }
 
     private void customizeSearchView(SearchView sv) {

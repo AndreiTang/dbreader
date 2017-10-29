@@ -51,11 +51,39 @@
         android:background="@drawable/search_frame"
         android:queryHint="Search"/>
 
-    <ListView
+    <FrameLayout
         android:layout_margin="18dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/search_list">
-    </ListView>
+        android:layout_height="match_parent">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/search_list">
+        </ListView>
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/search_mask"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="match_parent">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/searching_progress"
+                android:layout_gravity="center"
+                android:layout_width="116dp"
+                android:layout_height="20dp"/>
+
+            <TextView
+                android:textSize="18sp"
+                android:layout_marginTop="10dp"
+                android:text="@string/book_search_loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+    </FrameLayout>
+
+
 
 </LinearLayout>
