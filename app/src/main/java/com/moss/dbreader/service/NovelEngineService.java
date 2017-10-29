@@ -132,9 +132,8 @@ public class NovelEngineService extends Service {
         Integer engineID = 0;
         ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
         boolean bRet = searchNovels(name, engineID, novels);
-        DBReaderNovel novel = novels.get(0);
         for (int i = 0; i < notifies.size(); i++) {
-            notifies.get(i).OnSearchNovels(bRet, sessionID, engineID, novels);
+            notifies.get(i).OnSearchNovels(bRet, engineID, sessionID, novels);
         }
     }
 

@@ -113,7 +113,7 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
 
     private String fetchNovelDecs(Document doc){
         String html  = doc.outerHtml();
-        String head = "内容简介：</span><br />&nbsp;&nbsp;&nbsp;&nbsp;";
+        String head = "内容简介：</span>";
         int begin = html.indexOf(head);
         if(begin == -1){
             return "";
@@ -124,6 +124,9 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         str = str.replace("&nbsp;","");
         str = str.replace("<br />","");
         str = str.replace("\n","");
+        str = str.replace("<br>","");
+        str = str.replace("</div>","");
+        str = str.replace(" ","");
         return str;
     }
 
@@ -193,9 +196,15 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         eles = doc.select("a");
         for (Element img : eles) {
             String target = img.attr("target");
-            if (target.compareTo("_blank") == 0) {
-                novel.img = img.select("img").first().attr("src");
-                break;
+            String href = img.attr("href");
+            Elements imgs = img.select("img");
+            if (target.compareTo("_blank") == 0 && imgs.size() >0) {
+                String imgUrl = imgs.first().attr("src");
+                if(imgUrl.indexOf(".jpg")!=-1 && imgUrl.compareTo(href) == 0){
+                    novel.img = imgUrl;
+                    break;
+                }
+
             }
         }
         return true;
