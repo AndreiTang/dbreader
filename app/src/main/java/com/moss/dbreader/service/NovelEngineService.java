@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import static com.moss.dbreader.service.IFetchNovelEngine.ERROR_NO_RESULT;
+import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
 import static com.moss.dbreader.service.NovelEngineCommand.CommandType.fetchChapter;
 import static com.moss.dbreader.service.NovelEngineCommand.CommandType.fetchNovel;
 import static com.moss.dbreader.service.NovelEngineCommand.CommandType.search;
@@ -149,47 +151,47 @@ public class NovelEngineService extends Service {
     private void procSearch(final String name, int sessionID) {
         Integer engineID = 0;
         ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
-        boolean bRet = searchNovels(name, engineID, novels);
+        int nRet = searchNovels(name, engineID, novels);
         for (int i = 0; i < notifies.size(); i++) {
-            notifies.get(i).OnSearchNovels(bRet, engineID, sessionID, novels);
+            notifies.get(i).OnSearchNovels(nRet, engineID, sessionID, novels);
         }
     }
 
-    private boolean searchNovels(final String name, Integer engineID, ArrayList<DBReaderNovel> novels) {
+    private int searchNovels(final String name, Integer engineID, ArrayList<DBReaderNovel> novels) {
         for (int i = 0; i < engines.size(); i++) {
             IFetchNovelEngine engine = engines.get(i);
-            boolean bRet = engine.searchNovels(name, novels);
-            if (bRet) {
+            int nRet = engine.searchNovels(name, novels);
+            if (nRet == NO_ERROR) {
                 engineID = i;
-                return true;
+                return NO_ERROR;
             }
         }
-        return false;
+        return ERROR_NO_RESULT;
     }
 
     private void procFetchNovel(DBReaderNovel novel, int engineID, int sessionID){
-        boolean bRet = false;
+        int nRet = ERROR_NO_RESULT;
         if (engineID > 0 || engineID < engines.size()) {
             IFetchNovelEngine engine = engines.get(engineID);
-            bRet = engine.fetchNovel(novel);
+            nRet = engine.fetchNovel(novel);
         }
         for (int i = 0; i < notifies.size(); i++) {
-            notifies.get(i).OnFetchNovel(bRet, sessionID,novel);
+            notifies.get(i).OnFetchNovel(nRet, sessionID,novel);
         }
     }
 
     private void procFetchChapter(final DBReaderNovel.Chapter chapter, int engineID, int sessionID) {
-        boolean bRet = false;
+        int nRet = ERROR_NO_RESULT;
         String cont = "";
         if (engineID > 0 || engineID < engines.size()) {
             IFetchNovelEngine engine = engines.get(engineID);
             StringWriter buf = new StringWriter();
-            bRet = engine.fetchChapter(chapter, buf);
+            nRet = engine.fetchChapter(chapter, buf);
             cont = buf.toString();
         }
 
         for (int i = 0; i < notifies.size(); i++) {
-            notifies.get(i).OnFetchChapter(bRet, sessionID, chapter.index,cont);
+            notifies.get(i).OnFetchChapter(nRet, sessionID, chapter.index,cont);
         }
     }
 

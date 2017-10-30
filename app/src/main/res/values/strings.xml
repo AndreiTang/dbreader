@@ -11,4 +11,7 @@
     <string name="book_store_title">书城</string>
     <string name="book_search_title">书城搜索</string>
     <string name="book_search_loading">正在搜索中...</string>
+    <string name="book_search_err_network">网络无法连接，请检查相关设置</string>
+    <string name="book_search_err_no_result">未搜索到相关内容</string>
+    <string name="book_search_err_too_many">查找条件需要更详细</string>
 </resources>

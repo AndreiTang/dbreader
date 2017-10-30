@@ -20,6 +20,7 @@ import android.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
@@ -34,6 +35,11 @@ import com.moss.dbreader.ui.SearchPageAdapter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.moss.dbreader.service.IFetchNovelEngine.ERROR_NETWORK;
+import static com.moss.dbreader.service.IFetchNovelEngine.ERROR_NO_RESULT;
+import static com.moss.dbreader.service.IFetchNovelEngine.ERROR_TOO_MANY;
+import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -55,8 +61,12 @@ public class BookSearchFragment extends Fragment {
 
     IFetchNovelEngineNotify notify = new IFetchNovelEngineNotify() {
         @Override
-        public void OnSearchNovels(boolean bRet, int engineID, int sessionID, final ArrayList<DBReaderNovel> novels) {
-            if (!bRet || BookSearchFragment.sessionID != sessionID) {
+        public void OnSearchNovels(int nRet, int engineID, int sessionID, final ArrayList<DBReaderNovel> novels) {
+            if(BookSearchFragment.sessionID != sessionID){
+                return;
+            }
+            if (nRet != NO_ERROR) {
+                showErrorInfo(nRet);
                 return;
             }
             BookSearchFragment.this.novels = novels;
@@ -65,12 +75,12 @@ public class BookSearchFragment extends Fragment {
         }
 
         @Override
-        public void OnFetchNovel(boolean bRet, int sessionID, DBReaderNovel novel) {
+        public void OnFetchNovel(int nRet, int sessionID, DBReaderNovel novel) {
             if (BookSearchFragment.sessionID != sessionID) {
                 return;
             }
             searchCount--;
-            if (!bRet) {
+            if (nRet != NO_ERROR) {
                 return;
             }
             tmpNovels.add(novel);
@@ -78,11 +88,6 @@ public class BookSearchFragment extends Fragment {
                 BookSearchFragment.this.getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        View mask = getActivity().findViewById(R.id.search_mask);
-                        mask.setVisibility(View.GONE);
-                        final ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
-                        lv.removeFooterView(footView);
-                        isRunning = false;
                         showSearchResult();
                     }
                 });
@@ -90,7 +95,7 @@ public class BookSearchFragment extends Fragment {
         }
 
         @Override
-        public void OnFetchChapter(boolean bRet, int sessionID, int index, String cont) {
+        public void OnFetchChapter(int nRet, int sessionID, int index, String cont) {
         }
     };
 
@@ -164,20 +169,33 @@ public class BookSearchFragment extends Fragment {
     }
 
     private void showSearchResult() {
-        ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
-        boolean bNew = false;
-        if (searchPageAdapter == null) {
-            searchPageAdapter = new SearchPageAdapter(getActivity().getApplicationContext(), this);
-            bNew = true;
-        }
-        for (int i = 0; i < tmpNovels.size(); i++) {
-            searchPageAdapter.addNovel(tmpNovels.get(i));
-        }
-        if (bNew == true) {
-            lv.setAdapter(searchPageAdapter);
-        } else {
-            searchPageAdapter.notifyDataSetChanged();
-        }
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View mask = getActivity().findViewById(R.id.search_mask);
+                mask.setVisibility(View.GONE);
+                final ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
+                lv.removeFooterView(footView);
+                isRunning = false;
+
+                boolean bNew = false;
+                if (searchPageAdapter == null) {
+                    searchPageAdapter = new SearchPageAdapter(getActivity().getApplicationContext(), BookSearchFragment.this);
+                    bNew = true;
+                }
+                for (int i = 0; i < tmpNovels.size(); i++) {
+                    searchPageAdapter.addNovel(tmpNovels.get(i));
+                }
+                if (bNew == true) {
+                    lv.setAdapter(searchPageAdapter);
+                } else {
+                    searchPageAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+
 
     }
 
@@ -273,6 +291,9 @@ public class BookSearchFragment extends Fragment {
         searchPageAdapter = null;
         View mask = getActivity().findViewById(R.id.search_mask);
         mask.setVisibility(View.VISIBLE);
+        mask.findViewById(R.id.searching_progress).setVisibility(View.VISIBLE);
+        mask.findViewById(R.id.searching_text).setVisibility(View.VISIBLE);
+        mask.findViewById(R.id.searching_err).setVisibility(View.GONE);
         engine.searchNovel(s, sessionID);
     }
 
@@ -286,6 +307,31 @@ public class BookSearchFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void showErrorInfo(final int err){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View mask = getActivity().findViewById(R.id.search_mask);
+                mask.setVisibility(View.VISIBLE);
+                mask.findViewById(R.id.searching_progress).setVisibility(View.GONE);
+                mask.findViewById(R.id.searching_text).setVisibility(View.GONE);
+                mask.findViewById(R.id.searching_err).setVisibility(View.VISIBLE);
+                String errInfo;
+                if(err == ERROR_NETWORK){
+                    errInfo = getActivity().getResources().getString(R.string.book_search_err_network);
+                }
+                else if(err==ERROR_TOO_MANY){
+                    errInfo = getActivity().getResources().getString(R.string.book_search_err_too_many);
+                }
+                else{
+                    errInfo = getActivity().getResources().getString(R.string.book_search_err_no_result);
+                }
+                TextView tx = (TextView)mask.findViewById(R.id.searching_err);
+                tx.setText(errInfo);
+            }
+        });
     }
 
 

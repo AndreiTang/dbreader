@@ -60,6 +60,12 @@ public class SearchPageAdapter extends BaseAdapter {
         if(view == null){
             view = LayoutInflater.from(context).inflate(R.layout.view_search,viewGroup,false);
             views.add(view);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
         }
 
         view.setTag(R.id.tag_pos,i);
