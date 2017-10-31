@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.moss.dbreader.MainActivity">
+    tools:context="com.moss.dbreader.ReaderActivity">
 
-   <android.support.v4.view.ViewPager
-       android:id="@+id/main_viewpager"
-       android:layout_width="match_parent"
-       android:layout_height="match_parent" />
+    <fragment
+        android:id="@+id/reader_Frag"
+        android:name="com.moss.dbreader.fragment.NovelReaderFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </android.support.constraint.ConstraintLayout>

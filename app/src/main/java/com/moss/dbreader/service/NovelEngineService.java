@@ -23,6 +23,7 @@ import static com.moss.dbreader.service.NovelEngineCommand.CommandType.search;
 
 public class NovelEngineService extends Service {
 
+    private static int sessionID = 0;
 
     public class NovelEngineBinder extends Binder {
         public NovelEngine getNovelEngine() {
@@ -31,6 +32,11 @@ public class NovelEngineService extends Service {
     }
 
     public class NovelEngine {
+
+        public int generateSessionID(){
+            return sessionID++;
+        }
+
         public void searchNovel(final String name, int sessionID) {
             NovelEngineCommand cmd = new NovelEngineCommand();
             cmd.type = search;

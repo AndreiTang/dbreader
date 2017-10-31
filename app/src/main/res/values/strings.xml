@@ -14,4 +14,7 @@
     <string name="book_search_err_network">网络无法连接，请检查相关设置</string>
     <string name="book_search_err_no_result">未搜索到相关内容</string>
     <string name="book_search_err_too_many">查找条件需要更详细</string>
+    <string name="book_case_title">我的书架</string>
+    <string name="book_case_edit">编辑</string>
+    <string name="book_case_search">搜索</string>
 </resources>

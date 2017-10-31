@@ -48,7 +48,7 @@ public class BookSearchFragment extends Fragment {
 
     private NovelEngineService.NovelEngine engine = null;
     private int engineID = -1;
-    private static int sessionID = 0;
+    private int sessionID = 0;
     private int searchCount = 0;
     ArrayList<DBReaderNovel> tmpNovels = new ArrayList<DBReaderNovel>();
     private final int AllowCount = 5;
@@ -56,27 +56,26 @@ public class BookSearchFragment extends Fragment {
     private View footView;
     private boolean isRunning = false;
     private SearchPageAdapter searchPageAdapter = null;
-    private int currIndex = 0;
 
 
     IFetchNovelEngineNotify notify = new IFetchNovelEngineNotify() {
         @Override
         public void OnSearchNovels(int nRet, int engineID, int sessionID, final ArrayList<DBReaderNovel> novels) {
-            if(BookSearchFragment.sessionID != sessionID){
+            if(BookSearchFragment.this.sessionID != sessionID){
                 return;
             }
             if (nRet != NO_ERROR) {
-                showErrorInfo(nRet);
+                BookSearchFragment.this.showErrorInfo(nRet);
                 return;
             }
             BookSearchFragment.this.novels = novels;
             BookSearchFragment.this.engineID = engineID;
-            fetchNovelDetails();
+            BookSearchFragment.this.fetchNovelDetails();
         }
 
         @Override
         public void OnFetchNovel(int nRet, int sessionID, DBReaderNovel novel) {
-            if (BookSearchFragment.sessionID != sessionID) {
+            if (BookSearchFragment.this.sessionID != sessionID) {
                 return;
             }
             searchCount--;
@@ -85,12 +84,7 @@ public class BookSearchFragment extends Fragment {
             }
             tmpNovels.add(novel);
             if (searchCount == 0) {
-                BookSearchFragment.this.getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        showSearchResult();
-                    }
-                });
+                showSearchResult();
             }
         }
 
@@ -282,7 +276,7 @@ public class BookSearchFragment extends Fragment {
 
     private void startSearch(String s) {
         engine.cancel();
-        sessionID++;
+        sessionID = engine.generateSessionID();
         ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
         if(lv.getFooterViewsCount() == 1){
             lv.removeFooterView(footView);

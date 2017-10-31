@@ -34,19 +34,18 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         public String name;
     }
 
-    private ArrayList<ReaderPage> pages = new ArrayList<ReaderPage>();
-    private ArrayList<ReaderPage> readyPages = new ArrayList<ReaderPage>();
 
+    private ArrayList<ReaderPage> pages = new ArrayList<ReaderPage>();
     private HashMap<Integer, String> pageTexts = new HashMap<Integer, String>();
     private ArrayList<View> views;
     private int textViewId;
     private int maskViewId;
-    private boolean needUpdated = false;
     private ArrayList<View> usingViews = new ArrayList<View>();
     private int curPos;
+    IReaderPageAdapterNotify  readerPageAdapterNotify = null;
     private static final int TITLE_FONT_SIZE_SP = 22;
-    private static final int FLAG_CURR_PAGE = -1;
-    private static final int FLAG_PREVIOUS_PAGE = -2;
+    public static final int FLAG_CURR_PAGE = -1;
+    public static final int FLAG_PREVIOUS_PAGE = -2;
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -80,12 +79,13 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
 
-    public ReaderPageAdapter(ArrayList<View> views, int tvId, int maskId) {
+    public ReaderPageAdapter(ArrayList<View> views, int tvId, int maskId, IReaderPageAdapterNotify readerPageAdapterNotify) {
 
         curPos = -1;
         this.views = views;
         textViewId = tvId;
         maskViewId = maskId;
+        this.readerPageAdapterNotify = readerPageAdapterNotify;
     }
 
     public void setCurrentItem(int pos)
@@ -101,12 +101,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         }
     }
     public void addPage(ReaderPage page) {
-//        if (pages.size() > 0) {
-//            readyPages.add(page);
-//        }
-//        else if (readyPages.size() == 0 || page.begin >=0 ) {
-//            pages.add(page);
-//        }
         pages.add(page);
     }
 
@@ -141,6 +135,9 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             refreshPage(page,tv);
         } else {
             tv.setText("");
+            if(page.begin == FLAG_CURR_PAGE){
+                readerPageAdapterNotify.update(page.chapterIndex);
+            }
             //View v = view.findViewById(maskViewId);
             //v.setVisibility(View.VISIBLE);
             //tv.setVisibility(View.INVISIBLE);
@@ -240,7 +237,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                     rp.begin = FLAG_CURR_PAGE;
                 }
                 updatePages();
-                needUpdated = true;
                 ReaderPageAdapter.this.notifyDataSetChanged();
                 return false;
             }

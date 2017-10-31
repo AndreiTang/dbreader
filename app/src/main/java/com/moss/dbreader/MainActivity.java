@@ -1,18 +1,11 @@
 package com.moss.dbreader;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
+
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.moss.dbreader.service.NovelEngineService;
-
+import com.moss.dbreader.ui.MainPageAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,7 +14,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Fresco.initialize(this);
         setContentView(R.layout.activity_main);
-        System.out.printf("this is a test");
+
+        MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(),this.getApplicationContext());
+        ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
+        vp.setAdapter(adapter);
+
     }
 
 }
