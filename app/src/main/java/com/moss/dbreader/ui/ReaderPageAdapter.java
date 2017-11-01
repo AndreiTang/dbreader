@@ -246,10 +246,10 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                 return false;
             }
         });
-        String text = pageTexts.get(page.chapterIndex);
-        if(text.indexOf(page.name) == -1){
-            text = page.name + "\n" + text;
-        }
+        String text = page.name + "\n"+ pageTexts.get(page.chapterIndex);
+//        if(text.indexOf(page.name) == -1){
+//            text = page.name + "\n" + text;
+//        }
         SpannableString sp = new SpannableString(text);
         int end = text.indexOf('\n');
         int fs = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, TITLE_FONT_SIZE_SP, tv.getResources().getDisplayMetrics());
@@ -301,10 +301,10 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
     private void setPageText(final ReaderPage page, TextView tv) {
-        String text = pageTexts.get(page.chapterIndex);
-        if(text.indexOf(page.name) == -1){
-            text = page.name + "\n" + text;
-        }
+        String text = page.name + "\n" + pageTexts.get(page.chapterIndex);
+//        if(text.indpage.name + "\n" + exOf(page.name) == -1){
+//            text = text;
+//        }
         text = text.substring(page.begin, page.end);
         if (page.begin == 0) {
             int end = text.indexOf('\n');
