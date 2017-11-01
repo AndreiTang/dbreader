@@ -132,6 +132,10 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         view.setTag(R.id.tag_page_begin,page.begin);
         view.setTag(R.id.tag_need_update,0);
         TextView tv = (TextView) view.findViewById(textViewId);
+        if(page.begin >=0 ){
+            TextView ttv = (TextView)view.findViewById(R.id.reader_chapter_title);
+            ttv.setText(page.name);
+        }
         if (pageTexts.containsKey(page.chapterIndex) && page.begin != FLAG_PREVIOUS_PAGE) {
             refreshPage(page,tv);
         } else {
