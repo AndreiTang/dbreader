@@ -71,9 +71,9 @@ public class SearchPageAdapter extends BaseAdapter {
                     int pos = (Integer) v.getTag(R.id.tag_pos);
                     DBReaderNovel novel = novels.get(pos);
                     Intent intent = new Intent(fragment.getActivity(), ReaderActivity.class);
-                    //intent.putExtra(Common.TAG_NOVEL,novel);
+                    intent.putExtra(Common.TAG_NOVEL,novel);
                     intent.putExtra(Common.TAG_ENGINE_ID,engineID);
-                    intent.putExtra(Common.TAG_CUR_PAGE,1);
+                    intent.putExtra(Common.TAG_CUR_PAGE,0);
                     fragment.getActivity().startActivity(intent);
                 }
             });

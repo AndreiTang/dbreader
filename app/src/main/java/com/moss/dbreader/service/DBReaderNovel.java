@@ -8,7 +8,11 @@ import java.util.ArrayList;
  */
 public class DBReaderNovel implements Serializable{
 
-    public class Chapter {
+
+    private static final long serialVersionUID = 1177827488392242691L;
+
+    public class Chapter implements Serializable{
+        private static final long serialVersionUID = 1742127615231658991L;
         public String name;
         public String url;
         public int index;

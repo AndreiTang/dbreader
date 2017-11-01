@@ -17,15 +17,13 @@ public class ReaderActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reader);
-        //this.novel = (DBReaderNovel)getIntent().getSerializableExtra("novel");
+        this.novel = (DBReaderNovel)getIntent().getSerializableExtra("novel");
         Fragment fragment = this.getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
         if(fragment instanceof NovelReaderFragment){
             int engineID = getIntent().getIntExtra(Common.TAG_ENGINE_ID,0);
             int curPage = getIntent().getIntExtra(Common.TAG_CUR_PAGE,0);
-            Log.i("Andrei",novel.name);
             String str = engineID + " " + curPage;
-            Log.i("Andrei", str);
-            //((NovelReaderFragment)fragment).setNovelInfo(this.novel,engineID,curPage);
+            ((NovelReaderFragment)fragment).setNovelInfo(this.novel,engineID,curPage);
         }
     }
 }

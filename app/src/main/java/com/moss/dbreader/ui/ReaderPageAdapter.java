@@ -97,6 +97,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             }
             if(pos == i && item.begin == FLAG_PREVIOUS_PAGE){
                 item.begin = FLAG_CURR_PAGE;
+                curPos = pos;
             }
         }
     }
@@ -110,8 +111,8 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             View v = usingViews.get(i);
             int pos = (Integer)v.getTag(R.id.tag_pos);
             int chapIndex = (Integer)v.getTag(R.id.tag_chap_index);
-            if(chapIndex == index && pos == curPos){
-                ReaderPage page = getFirstPageOfChapter(chapIndex);
+            ReaderPage page = getFirstPageOfChapter(chapIndex);
+            if(chapIndex == index && page.begin == FLAG_CURR_PAGE){
                 initPageText(page,(TextView) v.findViewById(textViewId));
                 break;
             }
@@ -241,7 +242,10 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                 return false;
             }
         });
-        String text = page.name + "\n" + pageTexts.get(page.chapterIndex);
+        String text = pageTexts.get(page.chapterIndex);
+        if(text.indexOf(page.name) == -1){
+            text = page.name + "\n" + text;
+        }
         SpannableString sp = new SpannableString(text);
         int end = text.indexOf('\n');
         int fs = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, TITLE_FONT_SIZE_SP, tv.getResources().getDisplayMetrics());
@@ -293,7 +297,10 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
     private void setPageText(final ReaderPage page, TextView tv) {
-        String text = page.name + "\n" + pageTexts.get(page.chapterIndex);
+        String text = pageTexts.get(page.chapterIndex);
+        if(text.indexOf(page.name) == -1){
+            text = page.name + "\n" + text;
+        }
         text = text.substring(page.begin, page.end);
         if (page.begin == 0) {
             int end = text.indexOf('\n');

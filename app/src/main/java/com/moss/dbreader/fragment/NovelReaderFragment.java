@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,11 +35,17 @@ public class NovelReaderFragment extends Fragment {
     private int sessionID = 0;
     private DBReaderNovel novel;
     private ReaderPageAdapter adapter = null;
+    private int tmpIndex = -1;
 
     IReaderPageAdapterNotify readerPageAdapterNotify = new IReaderPageAdapterNotify() {
         @Override
         public void update(int index) {
-            engine.fetchChapter(novel.chapters.get(index), engineID, sessionID);
+            if(engine == null){
+                tmpIndex = index;
+            }
+            else{
+                engine.fetchChapter(novel.chapters.get(index), engineID, sessionID);
+            }
         }
     };
 
@@ -54,14 +61,21 @@ public class NovelReaderFragment extends Fragment {
         }
 
         @Override
-        public void OnFetchChapter(int nRet, int sessionID, int index, String cont) {
+        public void OnFetchChapter(int nRet, int sessionID, final int index, final String cont) {
+            Log.i("Andrei", "index is " + index + " " + cont);
             if (NovelReaderFragment.this.sessionID != sessionID) {
                 return;
             }
             if (nRet != NO_ERROR) {
                 return;
             }
-            NovelReaderFragment.this.adapter.addText(index, cont);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    NovelReaderFragment.this.adapter.addText(index, cont);
+                }
+            });
+
         }
     };
 
@@ -71,6 +85,9 @@ public class NovelReaderFragment extends Fragment {
             NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) iBinder;
             NovelReaderFragment.this.engine = binder.getNovelEngine();
             NovelReaderFragment.this.engine.addNotify(fetchNovelEngineNotify);
+            if(tmpIndex != -1){
+                engine.fetchChapter(novel.chapters.get(tmpIndex), engineID, sessionID);
+            }
         }
 
         @Override
@@ -128,8 +145,8 @@ public class NovelReaderFragment extends Fragment {
         }
 
         vp.addOnPageChangeListener(adapter);
-        vp.setAdapter(adapter);
         this.adapter.setCurrentItem(curPage);
+        vp.setAdapter(adapter);
         vp.setCurrentItem(curPage);
     }
 

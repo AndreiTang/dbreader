@@ -4,14 +4,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:background="#00ff00"
-        android:layout_weight="0">
-
-    </LinearLayout>
-
+        android:paddingLeft="15dp"
+        android:textSize="15sp"
+        android:textColor="#FAFAFA"
+        android:layout_height="30dp"
+        android:id="@+id/reader_chapter_title"
+        android:gravity="left|center_vertical"
+        android:layout_weight="0"/>
     <TextView
         android:id="@+id/reader_text"
         android:layout_width="match_parent"
@@ -25,8 +26,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:background="#00ff00"
+        android:layout_height="30dp"
         android:layout_weight="0">
     </LinearLayout>
 </LinearLayout>
