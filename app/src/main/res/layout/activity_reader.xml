@@ -7,7 +7,7 @@
     tools:context="com.moss.dbreader.ReaderActivity">
 
     <fragment
-        android:id="@+id/reader_Frag"
+        android:id="@+id/reader_fragment"
         android:name="com.moss.dbreader.fragment.NovelReaderFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
