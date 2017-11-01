@@ -175,7 +175,7 @@ public class BookSearchFragment extends Fragment {
 
                 boolean bNew = false;
                 if (searchPageAdapter == null) {
-                    searchPageAdapter = new SearchPageAdapter(getActivity().getApplicationContext(), BookSearchFragment.this);
+                    searchPageAdapter = new SearchPageAdapter(getActivity().getApplicationContext(), BookSearchFragment.this,BookSearchFragment.this.engineID);
                     bNew = true;
                 }
                 for (int i = 0; i < tmpNovels.size(); i++) {

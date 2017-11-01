@@ -1,11 +1,12 @@
 package com.moss.dbreader.service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by tangqif on 2017/9/23.
  */
-public class DBReaderNovel {
+public class DBReaderNovel implements Serializable{
 
     public class Chapter {
         public String name;
