@@ -134,7 +134,7 @@ public class NovelReaderFragment extends Fragment {
             views.add(v);
         }
 
-        this.adapter = new ReaderPageAdapter(views, R.id.reader_text, 0, readerPageAdapterNotify);
+        this.adapter = new ReaderPageAdapter(views, R.id.reader_text, R.id.reader_chapter_title,R.id.reader_chapter_page_no, 0, readerPageAdapterNotify);
 
         for (int i = 0; i < this.novel.chapters.size(); i++) {
             ReaderPageAdapter.ReaderPage rp = new ReaderPageAdapter.ReaderPage();
@@ -145,9 +145,9 @@ public class NovelReaderFragment extends Fragment {
         }
 
         vp.addOnPageChangeListener(adapter);
+        vp.setCurrentItem(curPage);
         this.adapter.setCurrentItem(curPage);
         vp.setAdapter(adapter);
-        vp.setCurrentItem(curPage);
     }
 
 //    private void test(ReaderPageAdapter adapter){

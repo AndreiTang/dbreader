@@ -40,8 +40,9 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     private ArrayList<View> views;
     private int textViewId;
     private int maskViewId;
+    private int pageNoId;
+    private int titleId;
     private ArrayList<View> usingViews = new ArrayList<View>();
-    private int curPos;
     IReaderPageAdapterNotify  readerPageAdapterNotify = null;
     private static final int TITLE_FONT_SIZE_SP = 22;
     public static final int FLAG_CURR_PAGE = -1;
@@ -54,13 +55,12 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
 
     @Override
     public void onPageSelected(int position) {
-        curPos = position;
         for(int i = 0 ; i < usingViews.size(); i++){
             View v = usingViews.get(i);
             int pos = (Integer)v.getTag(R.id.tag_pos);
             int chapIndex = (Integer)v.getTag(R.id.tag_chap_index);
             ReaderPage rp = getFirstPageOfChapter(chapIndex);
-            if(pos == curPos){
+            if(pos == position){
                 if(rp.begin == FLAG_PREVIOUS_PAGE){
                     rp.begin = FLAG_CURR_PAGE;
                     v.setTag(R.id.tag_need_update,1);
@@ -79,12 +79,12 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
 
-    public ReaderPageAdapter(ArrayList<View> views, int tvId, int maskId, IReaderPageAdapterNotify readerPageAdapterNotify) {
-
-        curPos = -1;
+    public ReaderPageAdapter(ArrayList<View> views, int tvId, int titleId, int pageNoId, int maskId, IReaderPageAdapterNotify readerPageAdapterNotify) {
         this.views = views;
         textViewId = tvId;
         maskViewId = maskId;
+        this.titleId = titleId;
+        this.pageNoId = pageNoId;
         this.readerPageAdapterNotify = readerPageAdapterNotify;
     }
 
@@ -97,7 +97,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             }
             if(pos == i && item.begin == FLAG_PREVIOUS_PAGE){
                 item.begin = FLAG_CURR_PAGE;
-                curPos = pos;
             }
         }
     }
@@ -109,7 +108,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         pageTexts.put(index, text);
         for(int i = 0 ; i < usingViews.size(); i++){
             View v = usingViews.get(i);
-            int pos = (Integer)v.getTag(R.id.tag_pos);
             int chapIndex = (Integer)v.getTag(R.id.tag_chap_index);
             ReaderPage page = getFirstPageOfChapter(chapIndex);
             if(chapIndex == index && page.begin == FLAG_CURR_PAGE){
@@ -131,11 +129,15 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         view.setTag(R.id.tag_chap_index, page.chapterIndex);
         view.setTag(R.id.tag_page_begin,page.begin);
         view.setTag(R.id.tag_need_update,0);
-        TextView tv = (TextView) view.findViewById(textViewId);
+        TextView tv = null;
         if(page.begin >=0 ){
-            TextView ttv = (TextView)view.findViewById(R.id.reader_chapter_title);
-            ttv.setText(page.name);
+            tv = (TextView)view.findViewById(this.titleId);
+            tv.setText(page.name);
+            tv = (TextView)view.findViewById(this.pageNoId);
+            String pageNo = (position+1) + "/" + pages.size();
+            tv.setText(pageNo);
         }
+        tv = (TextView) view.findViewById(textViewId);
         if (pageTexts.containsKey(page.chapterIndex) && page.begin != FLAG_PREVIOUS_PAGE) {
             refreshPage(page,tv);
         } else {
@@ -246,12 +248,12 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                 return false;
             }
         });
-        String text = page.name + "\n"+ pageTexts.get(page.chapterIndex);
-//        if(text.indexOf(page.name) == -1){
-//            text = page.name + "\n" + text;
-//        }
-        SpannableString sp = new SpannableString(text);
+        String text = pageTexts.get(page.chapterIndex);
+        if(text.indexOf(page.name) == -1){
+            text = page.name + "\n"+ pageTexts.get(page.chapterIndex);
+        }
         int end = text.indexOf('\n');
+        SpannableString sp = new SpannableString(text);
         int fs = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, TITLE_FONT_SIZE_SP, tv.getResources().getDisplayMetrics());
         int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, tv.getResources().getDisplayMetrics());
         sp.setSpan(new DBReaderCenterSpan(fs,margin), 0, end, 0);
@@ -273,8 +275,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
 
     private void allocatePages(final ReaderPage page, final TextView tv,int tvHigh) {
         int count = tv.getLineCount();
-        int b = tv.getLayout().getLineStart(0);
-        int e = tv.getLayout().getLineEnd(0);
         int h = 0;
         Rect rc = new Rect();
         int begin = 0;
@@ -283,7 +283,9 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             h += rc.height();
             if (h > tvHigh || i == count - 1) {
                 if (i < count - 1) {
-                    i--;
+                    if(begin == 0){
+                        i = i - 2;
+                    }
                 }
                 int end = tv.getLayout().getLineEnd(i);
                 ReaderPage rp = new ReaderPage();
@@ -301,10 +303,10 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
     private void setPageText(final ReaderPage page, TextView tv) {
-        String text = page.name + "\n" + pageTexts.get(page.chapterIndex);
-//        if(text.indpage.name + "\n" + exOf(page.name) == -1){
-//            text = text;
-//        }
+        String text = pageTexts.get(page.chapterIndex);
+        if(text.indexOf(page.name) == -1){
+            text = page.name + "\n"+ pageTexts.get(page.chapterIndex);
+        }
         text = text.substring(page.begin, page.end);
         if (page.begin == 0) {
             int end = text.indexOf('\n');
