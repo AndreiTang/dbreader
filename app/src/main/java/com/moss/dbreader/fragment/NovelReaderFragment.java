@@ -9,7 +9,9 @@ import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,6 +21,8 @@ import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelEngineService;
 import com.moss.dbreader.ui.IReaderPageAdapterNotify;
 import com.moss.dbreader.ui.ReaderPageAdapter;
+import com.moss.dbreader.ui.ReaderPanel;
+import com.moss.dbreader.ui.ReaderPanel.IReadPanelNotify;
 
 import java.util.ArrayList;
 
@@ -37,13 +41,93 @@ public class NovelReaderFragment extends Fragment {
     private ReaderPageAdapter adapter = null;
     private int tmpIndex = -1;
 
+    private GestureDetector.OnDoubleTapListener doubleTapListener = new GestureDetector.OnDoubleTapListener(){
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            ReaderPanel rp = (ReaderPanel) getActivity().findViewById(R.id.reader_panel);
+            rp.setVisibility(View.VISIBLE);
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTapEvent(MotionEvent e) {
+            return false;
+        }
+    };
+
+    private GestureDetector detector = new GestureDetector(NovelReaderFragment.this.getContext(), new GestureDetector.OnGestureListener() {
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+        }
+    });
+
+    IReadPanelNotify readPanelNotify = new IReadPanelNotify() {
+
+        @Override
+        public void onClickDict() {
+
+        }
+
+        @Override
+        public void onClickCache() {
+
+        }
+
+        @Override
+        public void onClickCase() {
+
+        }
+
+        @Override
+        public void onClickSearch() {
+
+        }
+
+        @Override
+        public void onClickDefault() {
+            ReaderPanel rp = (ReaderPanel) getActivity().findViewById(R.id.reader_panel);
+            rp.setVisibility(View.GONE);
+        }
+    };
+
     IReaderPageAdapterNotify readerPageAdapterNotify = new IReaderPageAdapterNotify() {
         @Override
         public void update(int index) {
-            if(engine == null){
+            if (engine == null) {
                 tmpIndex = index;
-            }
-            else{
+            } else {
                 engine.fetchChapter(novel.chapters.get(index), engineID, sessionID);
             }
         }
@@ -62,7 +146,7 @@ public class NovelReaderFragment extends Fragment {
 
         @Override
         public void OnFetchChapter(int nRet, int sessionID, final int index, final String cont) {
-            Log.i("Andrei", "index is " + index + " " + cont);
+            Log.i("Andrei", "index is " + index + " text arrived");
             if (NovelReaderFragment.this.sessionID != sessionID) {
                 return;
             }
@@ -85,7 +169,7 @@ public class NovelReaderFragment extends Fragment {
             NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) iBinder;
             NovelReaderFragment.this.engine = binder.getNovelEngine();
             NovelReaderFragment.this.engine.addNotify(fetchNovelEngineNotify);
-            if(tmpIndex != -1){
+            if (tmpIndex != -1) {
                 engine.fetchChapter(novel.chapters.get(tmpIndex), engineID, sessionID);
             }
         }
@@ -111,6 +195,7 @@ public class NovelReaderFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        initializePanel();
 
         Intent intent = new Intent(getActivity(), NovelEngineService.class);
         getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -129,12 +214,20 @@ public class NovelReaderFragment extends Fragment {
     private void initializeViewPager(int curPage) {
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
         ArrayList<View> views = new ArrayList<View>();
+        detector.setOnDoubleTapListener(doubleTapListener);
         for (int i = 0; i < 4; i++) {
             View v = getActivity().getLayoutInflater().inflate(R.layout.view_reader, null);
             views.add(v);
+            v.setLongClickable(true);
+            v.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return detector.onTouchEvent(event);
+                }
+            });
         }
 
-        this.adapter = new ReaderPageAdapter(views, R.id.reader_text, R.id.reader_chapter_title,R.id.reader_chapter_page_no, 0, readerPageAdapterNotify);
+        this.adapter = new ReaderPageAdapter(views, R.id.reader_text, R.id.reader_chapter_title, R.id.reader_chapter_page_no, 0, readerPageAdapterNotify);
 
         for (int i = 0; i < this.novel.chapters.size(); i++) {
             ReaderPageAdapter.ReaderPage rp = new ReaderPageAdapter.ReaderPage();
@@ -145,9 +238,14 @@ public class NovelReaderFragment extends Fragment {
         }
 
         vp.addOnPageChangeListener(adapter);
-        vp.setCurrentItem(curPage);
         this.adapter.setCurrentItem(curPage);
         vp.setAdapter(adapter);
+        vp.setCurrentItem(curPage);
+    }
+
+    private void initializePanel() {
+        ReaderPanel rp = (ReaderPanel) getActivity().findViewById(R.id.reader_panel);
+        rp.setNotify(readPanelNotify);
     }
 
 //    private void test(ReaderPageAdapter adapter){

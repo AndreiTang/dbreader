@@ -27,6 +27,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
+                android:textColor="#000000"
+                android:gravity="top"
                 android:id="@+id/search_novel_name"/>
             <TextView
                 android:layout_weight="0"
@@ -43,7 +45,8 @@
             android:layout_weight="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="15sp"
+            android:textColor="#424242"
+            android:textSize="16sp"
             android:id="@+id/search_novel_author"/>
         <TextView
             android:maxLines="2"

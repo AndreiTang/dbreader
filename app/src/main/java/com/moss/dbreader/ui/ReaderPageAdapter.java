@@ -92,7 +92,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     {
         for(int i = 0 ; i < pages.size() ; i++){
             ReaderPage item = pages.get(i);
-            if(item.begin == FLAG_CURR_PAGE ){
+            if(item.begin == FLAG_CURR_PAGE && pos != i){
                 item.begin = FLAG_PREVIOUS_PAGE;
             }
             if(pos == i && item.begin == FLAG_PREVIOUS_PAGE){
@@ -105,6 +105,8 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
     public void addText(int index, String text) {
+
+        Log.i("Andrei","addText index is " + index);
         pageTexts.put(index, text);
         for(int i = 0 ; i < usingViews.size(); i++){
             View v = usingViews.get(i);
@@ -233,6 +235,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
     private void initPageText(final ReaderPage page, final TextView tv) {
+        Log.i("Andrei", "initPage index " + page.chapterIndex);
         tv.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {

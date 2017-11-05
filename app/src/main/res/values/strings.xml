@@ -17,4 +17,9 @@
     <string name="book_case_title">我的书架</string>
     <string name="book_case_edit">编辑</string>
     <string name="book_case_search">搜索</string>
+    <string name="panel_search">搜索</string>
+    <string name="panel_dict">目录</string>cache
+    <string name="panel_cache">缓存</string>
+    <string name="panel_case">书架</string>
+
 </resources>
