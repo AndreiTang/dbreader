@@ -47,7 +47,7 @@ public class BookCaseManager {
     }
 
     static public void saveChapterText(String name, int index, String text) {
-        String path = getNovelFolder(name) + "txts/"+index + ".txt";
+        String path = getNovelFolder(name) +  index + ".txt";
         try {
             FileOutputStream file = new FileOutputStream(path);
             file.write(text.getBytes());
@@ -61,7 +61,7 @@ public class BookCaseManager {
     }
 
     static public String getChapterText(String name, int index) {
-        String path = getNovelFolder(name) + "txts/"+index + ".txt";
+        String path = getNovelFolder(name) +index + ".txt";
         String chapText="";
         try {
             File file = new File(path);
@@ -98,7 +98,7 @@ public class BookCaseManager {
 
     static public String getNovelFolder(String novelName) {
         File root = Environment.getExternalStorageDirectory();
-        String path = root.getAbsolutePath() + novelFolder + novelName + "/";
+        String path = root.getAbsolutePath() + novelFolder  + novelName + "/";
         File dir = new File(path);
         if (!dir.exists()) {
             dir.mkdirs();

@@ -127,7 +127,7 @@ public class NovelReaderFragment extends Fragment {
 
         @Override
         public void OnFetchChapter(int nRet, int sessionID, final int index, final String cont) {
-            Log.i("Andrei", "index is " + index + " text arrived");
+            Log.i("Andrei", "index is " + index + " text arrived" + " session is " + sessionID + " ret is " + nRet);
             if (NovelReaderFragment.this.sessionID != sessionID) {
                 return;
             }

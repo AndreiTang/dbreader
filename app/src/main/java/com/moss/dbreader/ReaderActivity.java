@@ -81,10 +81,11 @@ public class ReaderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reader);
 
+        this.novel = (DBReaderNovel)getIntent().getSerializableExtra("novel");
+
         BookCaseManager.saveDBReader(novel);
         BookCaseManager.add(novel);
 
-        this.novel = (DBReaderNovel)getIntent().getSerializableExtra("novel");
         Fragment fragment = this.getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
         if(fragment instanceof NovelReaderFragment){
             int engineID = getIntent().getIntExtra(Common.TAG_ENGINE_ID,0);

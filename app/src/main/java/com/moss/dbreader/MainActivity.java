@@ -5,7 +5,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.ui.MainPageAdapter;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,9 +23,18 @@ public class MainActivity extends AppCompatActivity {
         MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(),this.getApplicationContext());
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         vp.setAdapter(adapter);
+        int count = 0;
+        ArrayList<DBReaderNovel> novels = BookCaseManager.getNovels();
+        for(int i = 0 ; i < novels.size(); i++){
+            DBReaderNovel novel = novels.get(i);
+            if(novel.isInCase == 1){
+                count++;
+            }
+        }
+
         int index = getIntent().getIntExtra(Common.TAG_MAIN_CATEGORY,-1);
         if(index == -1){
-            if(BookCaseManager.getNovels().size() == 0){
+            if(count == 0){
                 index = 1;
             }
             else{
