@@ -119,6 +119,10 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         }
     }
 
+    HashMap<Integer, String> getPageTexts(){
+        return pageTexts;
+    }
+
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         ReaderPage page = getReaderPage(position);
