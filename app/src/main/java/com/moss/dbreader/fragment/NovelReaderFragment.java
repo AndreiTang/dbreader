@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.moss.dbreader.BookCaseManager;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
@@ -93,42 +94,22 @@ public class NovelReaderFragment extends Fragment {
         }
     });
 
-    IReadPanelNotify readPanelNotify = new IReadPanelNotify() {
 
-        @Override
-        public void onClickDict() {
-
-        }
-
-        @Override
-        public void onClickCache() {
-
-        }
-
-        @Override
-        public void onClickCase() {
-
-        }
-
-        @Override
-        public void onClickSearch() {
-
-        }
-
-        @Override
-        public void onClickDefault() {
-            ReaderPanel rp = (ReaderPanel) getActivity().findViewById(R.id.reader_panel);
-            rp.setVisibility(View.GONE);
-        }
-    };
 
     IReaderPageAdapterNotify readerPageAdapterNotify = new IReaderPageAdapterNotify() {
         @Override
         public void update(int index) {
-            if (engine == null) {
-                tmpIndex = index;
+
+            String chap = BookCaseManager.getChapterText(novel.name,index);
+            if(chap.length() > 0){
+                NovelReaderFragment.this.adapter.addText(index, chap);
+                return;
+            }
+
+            if (NovelReaderFragment.this.engine == null) {
+                NovelReaderFragment.this.tmpIndex = index;
             } else {
-                engine.fetchChapter(novel.chapters.get(index), engineID, sessionID);
+                NovelReaderFragment.this.engine.fetchChapter(NovelReaderFragment.this.novel.chapters.get(index), NovelReaderFragment.this.engineID, NovelReaderFragment.this.sessionID);
             }
         }
     };
@@ -153,6 +134,7 @@ public class NovelReaderFragment extends Fragment {
             if (nRet != NO_ERROR) {
                 return;
             }
+            BookCaseManager.saveChapterText(novel.name,index,cont);
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -195,8 +177,6 @@ public class NovelReaderFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        initializePanel();
-
         Intent intent = new Intent(getActivity(), NovelEngineService.class);
         getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
@@ -241,11 +221,6 @@ public class NovelReaderFragment extends Fragment {
         this.adapter.setCurrentItem(curPage);
         vp.setAdapter(adapter);
         vp.setCurrentItem(curPage);
-    }
-
-    private void initializePanel() {
-        ReaderPanel rp = (ReaderPanel) getActivity().findViewById(R.id.reader_panel);
-        rp.setNotify(readPanelNotify);
     }
 
 //    private void test(ReaderPageAdapter adapter){

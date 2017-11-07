@@ -26,6 +26,7 @@ public class DBReaderNovel implements Serializable{
     public String updateDate;
     public String img;
     public String decs;
+    public int isInCase = 0;
 
     public void  Add(final String name, final String url){
         Chapter chapter = new Chapter();

@@ -15,10 +15,21 @@ public class MainActivity extends AppCompatActivity {
         Fresco.initialize(this);
         setContentView(R.layout.activity_main);
 
+        BookCaseManager.initialize();
+
         MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(),this.getApplicationContext());
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         vp.setAdapter(adapter);
-
+        int index = getIntent().getIntExtra(Common.TAG_MAIN_CATEGORY,-1);
+        if(index == -1){
+            if(BookCaseManager.getNovels().size() == 0){
+                index = 1;
+            }
+            else{
+                index = 0;
+            }
+        }
+        vp.setCurrentItem(index);
     }
 
 }

@@ -21,5 +21,9 @@
     <string name="panel_dict">目录</string>cache
     <string name="panel_cache">缓存</string>
     <string name="panel_case">书架</string>
+    <string name="prompt_title">提示</string>
+    <string name="prompt_msg">您确认要加入书架吗？</string>
+    <string name="prompt_ok">确认</string>
+    <string name="prompt_cancel">取消</string>
 
 </resources>
