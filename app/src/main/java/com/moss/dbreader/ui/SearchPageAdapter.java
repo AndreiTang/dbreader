@@ -75,6 +75,7 @@ public class SearchPageAdapter extends BaseAdapter {
                     intent.putExtra(Common.TAG_ENGINE_ID,engineID);
                     intent.putExtra(Common.TAG_CUR_PAGE,0);
                     fragment.getActivity().startActivity(intent);
+                    fragment.getActivity().finish();
                 }
             });
         }

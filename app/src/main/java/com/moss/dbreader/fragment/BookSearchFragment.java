@@ -129,19 +129,31 @@ public class BookSearchFragment extends Fragment {
         initializeSearchView();
         initializeListView();
         initializeProgressViews();
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
 
         Intent intent = new Intent(getActivity(), NovelEngineService.class);
         getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
+
     @Override
     public void onStop() {
         super.onStop();
+
         if (engine != null) {
             engine.cancel(sessionID);
             getActivity().unbindService(serviceConnection);
             engine = null;
         }
+
+        ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
+        lv.setAdapter(null);
+        lv.addFooterView(null);
+        this.searchPageAdapter = null;
     }
 
     private void initializeProgressViews() {

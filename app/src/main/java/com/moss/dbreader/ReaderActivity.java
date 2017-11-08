@@ -62,12 +62,15 @@ public class ReaderActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 novel.isInCase = 1;
                 BookCaseManager.add(novel);
+                BookCaseManager.saveDBReader(novel);
+                ReaderActivity.this.finish();
                 transferToMain(index);
             }
         });
         builder.setNegativeButton(R.string.prompt_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                ReaderActivity.this.finish();
                 transferToMain(index);
             }
         });

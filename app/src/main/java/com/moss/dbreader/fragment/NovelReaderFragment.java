@@ -175,8 +175,8 @@ public class NovelReaderFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onStart() {
+        super.onStart();
         Intent intent = new Intent(getActivity(), NovelEngineService.class);
         getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }

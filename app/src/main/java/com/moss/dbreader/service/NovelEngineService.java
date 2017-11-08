@@ -130,7 +130,7 @@ public class NovelEngineService extends Service {
                     commands.remove(i);
                 }
             }
-            if(sessionID != this.currSessionID && this.currSessionID !=-1){
+            if(sessionID == this.currSessionID && this.currSessionID !=-1){
                 for(i = 0 ; i < engines.size(); i++){
                     IFetchNovelEngine engine = engines.get(i);
                     engine.cancel();

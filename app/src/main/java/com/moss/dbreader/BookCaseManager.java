@@ -1,5 +1,6 @@
 package com.moss.dbreader;
 
+import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
@@ -14,6 +15,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 
@@ -23,15 +26,15 @@ import java.util.ArrayList;
 
 public class BookCaseManager {
 
-    static final String novelFolder = "/dbreader/novels/";
     static ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
+    static String appPath;
 
-    static public void initialize() {
+    static public void initialize(String appPath) {
         if (novels.size() > 0) {
             return;
         }
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + novelFolder;
-        File dir = new File(path);
+        BookCaseManager.appPath = appPath + "/";
+        File dir = new File(appPath);
         if (!dir.exists()) {
             dir.mkdirs();
             return;
@@ -54,8 +57,10 @@ public class BookCaseManager {
             file.flush();
             file.close();
         } catch (FileNotFoundException e) {
+            Log.i("Andrei","create file err");
             e.printStackTrace();
         } catch (IOException e) {
+            Log.i("Andrei", "Write file err" + e.toString());
             e.printStackTrace();
         }
     }
@@ -97,13 +102,13 @@ public class BookCaseManager {
     }
 
     static public String getNovelFolder(String novelName) {
-        File root = Environment.getExternalStorageDirectory();
-        String path = root.getAbsolutePath() + novelFolder  + novelName + "/";
+        String path = appPath + novelName ;
         File dir = new File(path);
         if (!dir.exists()) {
-            dir.mkdirs();
+            boolean ret = dir.mkdirs();
+            Log.i("Andrei","the create floder is " + ret);
         }
-        return path;
+        return path + "/";
     }
 
     static public DBReaderNovel readDBReader(String name) {
@@ -133,14 +138,24 @@ public class BookCaseManager {
         String path = getNovelFolder(novel.name) + "novel.json";
         Gson gson = new Gson();
         String strNovel = gson.toJson(novel, DBReaderNovel.class);
+        Log.i("Andrei","the file is " + path + " content is " + strNovel);
         try {
-            FileOutputStream file = new FileOutputStream(path);
-            file.write(strNovel.getBytes());
-            file.flush();
-            file.close();
+            File file = new File(path);
+            if(file.exists()){
+                file.delete();
+            }
+            file.createNewFile();
+            FileOutputStream fo = new FileOutputStream(file);
+            OutputStreamWriter fw = new OutputStreamWriter(fo);
+            fw.write(strNovel);
+            fw.close();
+            fo.flush();
+            fo.close();
         } catch (FileNotFoundException e) {
+            Log.i("Andrei","create file err");
             e.printStackTrace();
         } catch (IOException e) {
+            Log.i("Andrei","write file err" + e.toString());
             e.printStackTrace();
         }
     }
