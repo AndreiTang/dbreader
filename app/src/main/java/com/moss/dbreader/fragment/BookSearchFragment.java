@@ -138,7 +138,7 @@ public class BookSearchFragment extends Fragment {
     public void onStop() {
         super.onStop();
         if (engine != null) {
-            engine.cancel();
+            engine.cancel(sessionID);
             getActivity().unbindService(serviceConnection);
             engine = null;
         }
@@ -276,7 +276,7 @@ public class BookSearchFragment extends Fragment {
     }
 
     private void startSearch(String s) {
-        engine.cancel();
+        engine.cancel(sessionID);
         sessionID = engine.generateSessionID();
         ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
         if(lv.getFooterViewsCount() == 1){

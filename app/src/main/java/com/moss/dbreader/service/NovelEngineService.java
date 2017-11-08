@@ -25,6 +25,8 @@ public class NovelEngineService extends Service {
 
     private static int sessionID = 0;
 
+    private int currSessionID = -1;
+
     public class NovelEngineBinder extends Binder {
         public NovelEngine getNovelEngine() {
             return novelEngine;
@@ -64,8 +66,8 @@ public class NovelEngineService extends Service {
             commands.add(cmd);
         }
 
-        public void cancel(){
-            NovelEngineService.this.cancel();
+        public void cancel(int sessionID){
+            NovelEngineService.this.cancel(sessionID);
         }
 
         public void addNotify(IFetchNovelEngineNotify notify) {
@@ -119,12 +121,20 @@ public class NovelEngineService extends Service {
         thrd.start();
     }
 
-    private void cancel(){
+    private void cancel(int sessionID){
         synchronized (this){
-            commands.clear();
-            for(int i = 0 ; i < engines.size(); i++){
-                IFetchNovelEngine engine = engines.get(i);
-                engine.cancel();
+            int i = commands.size() - 1;
+            for(; i >= 0 ; i--){
+                NovelEngineCommand item = commands.get(i);
+                if(item.sessionID == sessionID){
+                    commands.remove(i);
+                }
+            }
+            if(sessionID != this.currSessionID && this.currSessionID !=-1){
+                for(i = 0 ; i < engines.size(); i++){
+                    IFetchNovelEngine engine = engines.get(i);
+                    engine.cancel();
+                }
             }
         }
     }
@@ -139,6 +149,7 @@ public class NovelEngineService extends Service {
             cmd = commands.remove(0);
             type = cmd.type;
         }
+        this.currSessionID = cmd.sessionID;
         switch (type) {
             case search:
                 procSearch((String) cmd.pars.get(0), cmd.sessionID);
@@ -152,6 +163,7 @@ public class NovelEngineService extends Service {
             default:
                 break;
         }
+        this.currSessionID = -1;
     }
 
     private void procSearch(final String name, int sessionID) {

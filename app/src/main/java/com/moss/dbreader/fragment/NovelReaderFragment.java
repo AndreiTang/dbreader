@@ -185,7 +185,7 @@ public class NovelReaderFragment extends Fragment {
     public void onStop() {
         super.onStop();
         if (this.engine != null) {
-            this.engine.cancel();
+            this.engine.cancel(this.sessionID);
             getActivity().unbindService(this.serviceConnection);
             this.engine = null;
         }
