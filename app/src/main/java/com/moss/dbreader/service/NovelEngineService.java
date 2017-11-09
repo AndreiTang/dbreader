@@ -36,7 +36,8 @@ public class NovelEngineService extends Service {
     public class NovelEngine {
 
         public int generateSessionID(){
-            return sessionID++;
+            sessionID++;
+            return sessionID;
         }
 
         public void searchNovel(final String name, int sessionID) {

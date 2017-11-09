@@ -98,11 +98,16 @@ public class NovelReaderFragment extends Fragment {
 
     IReaderPageAdapterNotify readerPageAdapterNotify = new IReaderPageAdapterNotify() {
         @Override
-        public void update(int index) {
+        public void update(final int index) {
 
-            String chap = BookCaseManager.getChapterText(novel.name,index);
+            final String chap = BookCaseManager.getChapterText(novel.name,index);
             if(chap.length() > 0){
-                NovelReaderFragment.this.adapter.addText(index, chap);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        NovelReaderFragment.this.adapter.addText(index, chap);
+                    }
+                });
                 return;
             }
 
@@ -151,6 +156,7 @@ public class NovelReaderFragment extends Fragment {
             NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) iBinder;
             NovelReaderFragment.this.engine = binder.getNovelEngine();
             NovelReaderFragment.this.engine.addNotify(fetchNovelEngineNotify);
+            NovelReaderFragment.this.sessionID = engine.generateSessionID();
             if (tmpIndex != -1) {
                 engine.fetchChapter(novel.chapters.get(tmpIndex), engineID, sessionID);
             }
@@ -163,10 +169,17 @@ public class NovelReaderFragment extends Fragment {
     };
 
 
+    @Override
+    public void  onActivityCreated(Bundle savedInstanceState){
+        super.onActivityCreated(savedInstanceState);
+        initializeViewPager();
+    }
+
+
     public void setNovelInfo(DBReaderNovel novel, int engineID, int curPage) {
         this.novel = novel;
         this.engineID = engineID;
-        initializeViewPager(curPage);
+        initializeAdapter(curPage);
     }
 
     @Override
@@ -191,7 +204,7 @@ public class NovelReaderFragment extends Fragment {
         }
     }
 
-    private void initializeViewPager(int curPage) {
+    private void initializeViewPager() {
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
         ArrayList<View> views = new ArrayList<View>();
         detector.setOnDoubleTapListener(doubleTapListener);
@@ -206,9 +219,11 @@ public class NovelReaderFragment extends Fragment {
                 }
             });
         }
-
         this.adapter = new ReaderPageAdapter(views, R.id.reader_text, R.id.reader_chapter_title, R.id.reader_chapter_page_no, 0, readerPageAdapterNotify);
+        vp.addOnPageChangeListener(adapter);
+    }
 
+    private void initializeAdapter(int curPage){
         for (int i = 0; i < this.novel.chapters.size(); i++) {
             ReaderPageAdapter.ReaderPage rp = new ReaderPageAdapter.ReaderPage();
             rp.begin = ReaderPageAdapter.FLAG_PREVIOUS_PAGE;
@@ -216,11 +231,11 @@ public class NovelReaderFragment extends Fragment {
             rp.name = this.novel.chapters.get(i).name;
             this.adapter.addPage(rp);
         }
-
-        vp.addOnPageChangeListener(adapter);
         this.adapter.setCurrentItem(curPage);
+        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
         vp.setAdapter(adapter);
         vp.setCurrentItem(curPage);
+
     }
 
 //    private void test(ReaderPageAdapter adapter){

@@ -183,6 +183,7 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         try {
             URL url = new URL(urlPath);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko");
             if (200 != urlConnection.getResponseCode()) {
                 return false;
             }

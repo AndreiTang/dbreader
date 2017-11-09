@@ -38,8 +38,13 @@
             android:layout_marginRight="15dp"
             android:textSize="20sp"
             android:textColor="#0091EA"/>
-
-
     </LinearLayout>
-
+    <GridView
+        android:layout_margin="15dp"
+        android:numColumns="auto_fit"
+        android:columnWidth="100dp"
+        android:stretchMode="spacingWidth"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/case_grid" />
 </LinearLayout>

@@ -52,10 +52,17 @@ public class BookCaseManager {
     static public void saveChapterText(String name, int index, String text) {
         String path = getNovelFolder(name) +  index + ".txt";
         try {
-            FileOutputStream file = new FileOutputStream(path);
-            file.write(text.getBytes());
-            file.flush();
-            file.close();
+            File file = new File(path);
+            if(file.exists()){
+                file.delete();
+            }
+            file.createNewFile();
+            FileOutputStream fo = new FileOutputStream(file);
+            OutputStreamWriter fw = new OutputStreamWriter(fo);
+            fw.write(text);
+            fw.close();
+            fo.flush();
+            fo.close();
         } catch (FileNotFoundException e) {
             Log.i("Andrei","create file err");
             e.printStackTrace();
@@ -72,6 +79,7 @@ public class BookCaseManager {
             File file = new File(path);
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line = reader.readLine();
+            chapText = line;
             while (line != null) {
                 chapText += "\n";
                 chapText += line;
@@ -83,7 +91,7 @@ public class BookCaseManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "";
+        return chapText;
     }
 
     static public void add(DBReaderNovel novel) {

@@ -89,14 +89,19 @@ public class ReaderActivity extends AppCompatActivity {
         BookCaseManager.saveDBReader(novel);
         BookCaseManager.add(novel);
 
+        ReaderPanel rp = (ReaderPanel)findViewById(R.id.reader_panel);
+        rp.setNotify(readPanelNotify);
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+
         Fragment fragment = this.getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
         if(fragment instanceof NovelReaderFragment){
             int engineID = getIntent().getIntExtra(Common.TAG_ENGINE_ID,0);
             int curPage = getIntent().getIntExtra(Common.TAG_CUR_PAGE,0);
             ((NovelReaderFragment)fragment).setNovelInfo(this.novel,engineID,curPage);
         }
-
-        ReaderPanel rp = (ReaderPanel)findViewById(R.id.reader_panel);
-        rp.setNotify(readPanelNotify);
     }
 }

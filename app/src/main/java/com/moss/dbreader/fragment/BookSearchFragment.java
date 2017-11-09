@@ -71,6 +71,7 @@ public class BookSearchFragment extends Fragment {
             }
             BookSearchFragment.this.novels = novels;
             BookSearchFragment.this.engineID = engineID;
+            BookSearchFragment.this.sessionID = sessionID;
             BookSearchFragment.this.fetchNovelDetails();
         }
 

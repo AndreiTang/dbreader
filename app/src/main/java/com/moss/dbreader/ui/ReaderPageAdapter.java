@@ -106,7 +106,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
 
     public void addText(int index, String text) {
 
-        Log.i("Andrei","addText index is " + index);
+        Log.i("Andrei","addText index is " + index + " " + usingViews.size());
         pageTexts.put(index, text);
         for(int i = 0 ; i < usingViews.size(); i++){
             View v = usingViews.get(i);
@@ -131,6 +131,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         }
         View view = views.get(0);
         views.remove(0);
+        usingViews.add(view);
         view.setTag(R.id.tag_pos, position);
         view.setTag(R.id.tag_chap_index, page.chapterIndex);
         view.setTag(R.id.tag_page_begin,page.begin);
@@ -155,7 +156,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             //v.setVisibility(View.VISIBLE);
             //tv.setVisibility(View.INVISIBLE);
         }
-        usingViews.add(view);
         ((ViewGroup) container).addView(view);
         return view;
     }
