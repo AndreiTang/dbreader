@@ -50,10 +50,10 @@ public class BookCaseManager {
     }
 
     static public void saveChapterText(String name, int index, String text) {
-        String path = getNovelFolder(name) +  index + ".txt";
+        String path = getNovelFolder(name) + index + ".txt";
         try {
             File file = new File(path);
-            if(file.exists()){
+            if (file.exists()) {
                 file.delete();
             }
             file.createNewFile();
@@ -64,7 +64,7 @@ public class BookCaseManager {
             fo.flush();
             fo.close();
         } catch (FileNotFoundException e) {
-            Log.i("Andrei","create file err");
+            Log.i("Andrei", "create file err");
             e.printStackTrace();
         } catch (IOException e) {
             Log.i("Andrei", "Write file err" + e.toString());
@@ -73,8 +73,8 @@ public class BookCaseManager {
     }
 
     static public String getChapterText(String name, int index) {
-        String path = getNovelFolder(name) +index + ".txt";
-        String chapText="";
+        String path = getNovelFolder(name) + index + ".txt";
+        String chapText = "";
         try {
             File file = new File(path);
             BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -94,15 +94,20 @@ public class BookCaseManager {
         return chapText;
     }
 
-    static public void add(DBReaderNovel novel) {
-        for(int i = 0 ; i < novels.size(); i++){
+    static public void add(DBReaderNovel novel, boolean isFirst) {
+        for (int i = 0; i < novels.size(); i++) {
             DBReaderNovel item = novels.get(i);
-            if(item.name.compareTo(novel.name) == 0){
+            if (item.name.compareTo(novel.name) == 0) {
                 novels.remove(i);
-               break;
+                break;
             }
         }
-        novels.add(novel);
+        if (isFirst) {
+            novels.add(0, novel);
+        } else {
+            novels.add(novel);
+
+        }
     }
 
     static public ArrayList<DBReaderNovel> getNovels() {
@@ -110,11 +115,11 @@ public class BookCaseManager {
     }
 
     static public String getNovelFolder(String novelName) {
-        String path = appPath + novelName ;
+        String path = appPath + novelName;
         File dir = new File(path);
         if (!dir.exists()) {
             boolean ret = dir.mkdirs();
-            Log.i("Andrei","the create floder is " + ret);
+            Log.i("Andrei", "the create floder is " + ret);
         }
         return path + "/";
     }
@@ -146,10 +151,10 @@ public class BookCaseManager {
         String path = getNovelFolder(novel.name) + "novel.json";
         Gson gson = new Gson();
         String strNovel = gson.toJson(novel, DBReaderNovel.class);
-        Log.i("Andrei","the file is " + path + " content is " + strNovel);
+        Log.i("Andrei", "the file is " + path + " content is " + strNovel);
         try {
             File file = new File(path);
-            if(file.exists()){
+            if (file.exists()) {
                 file.delete();
             }
             file.createNewFile();
@@ -160,10 +165,10 @@ public class BookCaseManager {
             fo.flush();
             fo.close();
         } catch (FileNotFoundException e) {
-            Log.i("Andrei","create file err");
+            Log.i("Andrei", "create file err");
             e.printStackTrace();
         } catch (IOException e) {
-            Log.i("Andrei","write file err" + e.toString());
+            Log.i("Andrei", "write file err" + e.toString());
             e.printStackTrace();
         }
     }

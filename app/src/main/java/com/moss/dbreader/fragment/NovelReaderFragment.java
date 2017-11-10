@@ -36,7 +36,7 @@ import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
 public class NovelReaderFragment extends Fragment {
 
     private NovelEngineService.NovelEngine engine = null;
-    private int engineID = -1;
+    //private int engineID = -1;
     private int sessionID = 0;
     private DBReaderNovel novel;
     private ReaderPageAdapter adapter = null;
@@ -114,7 +114,7 @@ public class NovelReaderFragment extends Fragment {
             if (NovelReaderFragment.this.engine == null) {
                 NovelReaderFragment.this.tmpIndex = index;
             } else {
-                NovelReaderFragment.this.engine.fetchChapter(NovelReaderFragment.this.novel.chapters.get(index), NovelReaderFragment.this.engineID, NovelReaderFragment.this.sessionID);
+                NovelReaderFragment.this.engine.fetchChapter(NovelReaderFragment.this.novel.chapters.get(index), NovelReaderFragment.this.novel.engineID, NovelReaderFragment.this.sessionID);
             }
         }
     };
@@ -158,7 +158,7 @@ public class NovelReaderFragment extends Fragment {
             NovelReaderFragment.this.engine.addNotify(fetchNovelEngineNotify);
             NovelReaderFragment.this.sessionID = engine.generateSessionID();
             if (tmpIndex != -1) {
-                engine.fetchChapter(novel.chapters.get(tmpIndex), engineID, sessionID);
+                engine.fetchChapter(novel.chapters.get(tmpIndex), NovelReaderFragment.this.novel.engineID, sessionID);
             }
         }
 
@@ -176,10 +176,9 @@ public class NovelReaderFragment extends Fragment {
     }
 
 
-    public void setNovelInfo(DBReaderNovel novel, int engineID, int curPage) {
+    public void setNovelInfo(DBReaderNovel novel) {
         this.novel = novel;
-        this.engineID = engineID;
-        initializeAdapter(curPage);
+        initializeAdapter(novel.currPage);
     }
 
     @Override

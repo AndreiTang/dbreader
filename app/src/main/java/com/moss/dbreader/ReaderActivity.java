@@ -3,6 +3,7 @@ package com.moss.dbreader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.View;
 
 import com.moss.dbreader.fragment.NovelReaderFragment;
 import com.moss.dbreader.service.DBReaderNovel;
+import com.moss.dbreader.ui.ReaderPageAdapter;
 import com.moss.dbreader.ui.ReaderPanel;
 
 public class ReaderActivity extends AppCompatActivity {
@@ -61,8 +63,7 @@ public class ReaderActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 novel.isInCase = 1;
-                BookCaseManager.add(novel);
-                BookCaseManager.saveDBReader(novel);
+                saveNovel();
                 ReaderActivity.this.finish();
                 transferToMain(index);
             }
@@ -79,6 +80,17 @@ public class ReaderActivity extends AppCompatActivity {
 
     }
 
+    private void saveNovel(){
+        ViewPager vp = (ViewPager)findViewById(R.id.reader_viewpager);
+        int curr = vp.getCurrentItem();
+        ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
+        ReaderPageAdapter.ReaderPage rp = adapter.getReaderPage(curr);
+        novel.currPage = rp.chapterIndex;
+
+        BookCaseManager.add(novel,true);
+        BookCaseManager.saveDBReader(novel);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,7 +99,7 @@ public class ReaderActivity extends AppCompatActivity {
         this.novel = (DBReaderNovel)getIntent().getSerializableExtra("novel");
 
         BookCaseManager.saveDBReader(novel);
-        BookCaseManager.add(novel);
+        BookCaseManager.add(novel,false);
 
         ReaderPanel rp = (ReaderPanel)findViewById(R.id.reader_panel);
         rp.setNotify(readPanelNotify);
@@ -98,10 +110,6 @@ public class ReaderActivity extends AppCompatActivity {
         super.onStart();
 
         Fragment fragment = this.getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
-        if(fragment instanceof NovelReaderFragment){
-            int engineID = getIntent().getIntExtra(Common.TAG_ENGINE_ID,0);
-            int curPage = getIntent().getIntExtra(Common.TAG_CUR_PAGE,0);
-            ((NovelReaderFragment)fragment).setNovelInfo(this.novel,engineID,curPage);
-        }
+        ((NovelReaderFragment)fragment).setNovelInfo(this.novel);
     }
 }

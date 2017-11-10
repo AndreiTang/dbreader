@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.moss.dbreader.Common;
+import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
 import com.moss.dbreader.ReaderActivity;
 import com.moss.dbreader.service.DBReaderNovel;
@@ -70,12 +71,9 @@ public class SearchPageAdapter extends BaseAdapter {
                 public void onClick(View v) {
                     int pos = (Integer) v.getTag(R.id.tag_pos);
                     DBReaderNovel novel = novels.get(pos);
-                    Intent intent = new Intent(fragment.getActivity(), ReaderActivity.class);
-                    intent.putExtra(Common.TAG_NOVEL,novel);
-                    intent.putExtra(Common.TAG_ENGINE_ID,engineID);
-                    intent.putExtra(Common.TAG_CUR_PAGE,0);
-                    fragment.getActivity().startActivity(intent);
-                    fragment.getActivity().finish();
+                    novel.engineID = SearchPageAdapter.this.engineID;
+                    novel.currPage = 0;
+                    ((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
                 }
             });
         }

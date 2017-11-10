@@ -200,7 +200,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         return null;
     }
 
-    private ReaderPage getReaderPage(int pos) {
+    public ReaderPage getReaderPage(int pos) {
         return pages.get(pos);
     }
 
