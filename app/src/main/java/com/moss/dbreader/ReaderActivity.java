@@ -86,6 +86,7 @@ public class ReaderActivity extends AppCompatActivity {
         ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
         ReaderPageAdapter.ReaderPage rp = adapter.getReaderPage(curr);
         novel.currPage = rp.chapterIndex;
+        novel.isInCase = 1;
 
         BookCaseManager.add(novel,true);
         BookCaseManager.saveDBReader(novel);

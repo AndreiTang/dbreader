@@ -26,15 +26,7 @@ public class MainActivity extends AppCompatActivity {
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         vp.setAdapter(adapter);
 
-        int count = 0;
-        ArrayList<DBReaderNovel> novels = BookCaseManager.getNovels();
-        for(int i = 0 ; i < novels.size(); i++){
-            DBReaderNovel novel = novels.get(i);
-            if(novel.isInCase == 1){
-                count++;
-            }
-        }
-
+        int count  = BookCaseManager.fetchNovelsInBookCase().size();
         int index = getIntent().getIntExtra(Common.TAG_MAIN_CATEGORY,-1);
         if(index == -1){
             if(count == 0){

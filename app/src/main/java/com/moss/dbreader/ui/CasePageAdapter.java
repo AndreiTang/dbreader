@@ -32,7 +32,7 @@ public class CasePageAdapter extends BaseAdapter {
     public CasePageAdapter(Context context, Fragment fragment){
         this.context = context;
         this.fragment = fragment;
-        this.novels = BookCaseManager.getNovels();
+        this.novels = BookCaseManager.fetchNovelsInBookCase();
     }
 
     @Override

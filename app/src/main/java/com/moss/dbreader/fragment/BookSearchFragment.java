@@ -203,8 +203,6 @@ public class BookSearchFragment extends Fragment {
             }
         });
 
-
-
     }
 
     private void initializeListView() {

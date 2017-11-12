@@ -5,32 +5,65 @@
     android:orientation="vertical">
 
     <TextView
-        android:layout_width="match_parent"
-        android:paddingLeft="20dp"
-        android:textSize="15sp"
-        android:textColor="#757575"
-        android:layout_height="50dp"
         android:id="@+id/reader_chapter_title"
-        android:gravity="left|center_vertical"
-        android:layout_weight="0"/>
-    <TextView
-        android:id="@+id/reader_text"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:lineSpacingMultiplier="1.7"
+        android:layout_height="50dp"
+        android:layout_weight="0"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="20dp"
+        android:textColor="#757575"
+        android:textSize="15sp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_weight="1"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:text="TextView"
-        android:textColor="#000000"
-        android:textSize="18sp" />
+        android:layout_height="0dp">
+        <TextView
+            android:id="@+id/reader_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:lineSpacingMultiplier="1.7"
+            android:text="TextView"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/reader_mask"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="match_parent">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/reader_progress"
+                android:layout_gravity="center"
+                android:layout_width="116dp"
+                android:layout_height="20dp"/>
+
+            <TextView
+                android:textSize="14sp"
+                android:textColor="#9E9E9E"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:text="@string/book_loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+
+    </FrameLayout>
+
+
 
     <TextView
-        android:layout_width="match_parent"
-        android:textSize="15sp"
-        android:textColor="#757575"
-        android:layout_height="50dp"
         android:id="@+id/reader_chapter_page_no"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_weight="0"
         android:gravity="center"
-        android:layout_weight="0"/>
+        android:textColor="#757575"
+        android:textSize="15sp" />
 </LinearLayout>

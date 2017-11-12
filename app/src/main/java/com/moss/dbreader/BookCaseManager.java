@@ -2,6 +2,7 @@ package com.moss.dbreader;
 
 import android.content.Context;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -19,6 +20,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by tangqif on 10/15/2017.
@@ -102,6 +104,7 @@ public class BookCaseManager {
                 break;
             }
         }
+        novel.updateTime = System.currentTimeMillis();
         if (isFirst) {
             novels.add(0, novel);
         } else {
@@ -122,6 +125,18 @@ public class BookCaseManager {
             Log.i("Andrei", "the create floder is " + ret);
         }
         return path + "/";
+    }
+
+    static public ArrayList<DBReaderNovel> fetchNovelsInBookCase(){
+        ArrayList<DBReaderNovel> bookCase = new ArrayList<DBReaderNovel>();
+        for(int i = 0 ;i < BookCaseManager.novels.size(); i++){
+            DBReaderNovel nv = BookCaseManager.novels.get(i);
+            if(nv.isInCase == 1){
+                bookCase.add(nv);
+            }
+        }
+        Collections.sort(bookCase);
+        return bookCase;
     }
 
     static public DBReaderNovel readDBReader(String name) {

@@ -16,7 +16,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -183,7 +185,9 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         try {
             URL url = new URL(urlPath);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko");
+            urlConnection.setConnectTimeout(5000);
+            urlConnection.setReadTimeout(5000);
+            //urlConnection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko");
             if (200 != urlConnection.getResponseCode()) {
                 return false;
             }

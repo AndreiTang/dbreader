@@ -25,5 +25,6 @@
     <string name="prompt_msg">您确认要加入书架吗？</string>
     <string name="prompt_ok">确认</string>
     <string name="prompt_cancel">取消</string>
+    <string name="book_loading">正在获取中...</string>
 
 </resources>
