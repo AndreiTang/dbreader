@@ -26,5 +26,11 @@
     <string name="prompt_ok">确认</string>
     <string name="prompt_cancel">取消</string>
     <string name="book_loading">正在获取中...</string>
+    <string name="book_cover_desc">简介：</string>
+    <string name="book_cover_prev_page">上一页</string>
+    <string name="book_cover_last_page">下一页</string>
+    <string name="book_cover_list_page">目录列表切换</string>
+
+
 
 </resources>
