@@ -181,7 +181,7 @@ public class NovelReaderFragment extends Fragment {
     }
 
 
-    public void setNovelInfo(DBReaderNovel novel) {
+    public void setNovel(DBReaderNovel novel) {
         this.novel = novel;
         initializeAdapter(novel.currPage);
     }
@@ -212,7 +212,7 @@ public class NovelReaderFragment extends Fragment {
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
         ArrayList<View> views = new ArrayList<View>();
         detector.setOnDoubleTapListener(doubleTapListener);
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 8; i++) {
             View v = getActivity().getLayoutInflater().inflate(R.layout.view_reader, null);
             views.add(v);
             initializeProgressBar(v);

@@ -5,6 +5,7 @@
     <item name="tag_chap_index" type="id">chap_index</item>
     <item name="tag_need_update" type="id">0</item>
     <item name="tag_page_begin" type="id">0</item>
+    <item name="tag_chapter" type="id">chapter</item>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -29,7 +30,8 @@
     <string name="book_cover_desc">简介：</string>
     <string name="book_cover_prev_page">上一页</string>
     <string name="book_cover_last_page">下一页</string>
-    <string name="book_cover_list_page">目录列表切换</string>
+    <string name="book_cover_list_page">目录列表</string>
+    <string name="book_cover_exit">回退</string>
 
 
 

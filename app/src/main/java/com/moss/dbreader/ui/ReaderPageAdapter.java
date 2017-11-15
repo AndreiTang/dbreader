@@ -130,6 +130,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         if (page == null) {
             return super.instantiateItem(container, position);
         }
+        Log.i("Andrei", "views is "+ views.size() + " " + usingViews.size());
         View view = views.get(0);
         views.remove(0);
         usingViews.add(view);
@@ -188,6 +189,16 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         usingViews.remove(object);
         ((ViewPager) container).removeView((View) object);
         views.add((View) object);
+    }
+
+    public int getFirstPageOfChapterIndex(int chapIndex){
+        for (int i = 0; i < pages.size(); i++) {
+            ReaderPage page = pages.get(i);
+            if (page.chapterIndex == chapIndex && page.begin <= 0) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 

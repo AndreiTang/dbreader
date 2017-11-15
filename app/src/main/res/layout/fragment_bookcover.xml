@@ -2,133 +2,131 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:id="@+id/book_cover"
+    android:visibility="gone"
+    android:orientation="horizontal">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:layout_weight="0"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/novel_cover"
-            android:layout_width="80dp"
-            android:layout_height="100dp"
-            android:layout_weight="0"
-            android:background="#EEEEEE" />
-
+        android:layout_width="0dp"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:background="#EEEEEEEE"
+        android:layout_weight="1">
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="100dp"
-            android:layout_marginLeft="10dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:layout_weight="0"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/book_cover_img"
+                android:layout_width="60dp"
+                android:layout_height="75dp"
+                android:layout_weight="0"
+                android:background="#EEEEEE" />
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="75dp"
+                android:layout_marginLeft="10dp"
                 android:layout_weight="1"
-                android:orientation="horizontal">
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/book_cover_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="top"
+                        android:textColor="#000000"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/book_cover_type"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:gravity="center_vertical|right"
+                        android:paddingRight="5dp"
+                        android:textSize="19sp" />
+                </LinearLayout>
 
                 <TextView
-                    android:id="@+id/book_cover_name"
+                    android:id="@+id/book_cover_duration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="top"
-                    android:textColor="#000000"
+                    android:gravity="bottom"
+                    android:text="1小时56分"
                     android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/book_cover_type"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:gravity="center_vertical|right"
-                    android:paddingRight="5dp"
-                    android:textSize="13sp" />
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/book_cover_author"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:textColor="#424242"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/book_cover_duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="bottom"
-                android:text="1小时56分"
-                android:textSize="18sp" />
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="17dp"
+            android:layout_marginRight="17dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/book_cover_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_weight="0"
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/book_cover_prev_page"
+                android:textSize="16sp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/book_cover_list_page"
+                android:textSize="16sp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/book_cover_last_page"
+                android:textSize="16sp" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_weight="0"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="left"
-            android:text="@string/book_cover_desc"
-            android:textSize="18sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:ellipsize="end"
-            android:maxLines="3"
-            android:textSize="18dp" />
-
+        android:id="@+id/book_cover_mask"
+        android:orientation="vertical"
+        android:background="#75757575"
+        android:layout_weight = "0"
+        android:layout_width="80dp"
+        android:layout_height="match_parent">
     </LinearLayout>
-
-    <ListView
-        android:id="@+id/book_cover_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:orientation="horizontal">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/book_cover_prev_page"
-            android:textSize="18sp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/book_cover_list_page"
-            android:textSize="18sp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/book_cover_last_page"
-            android:textSize="18sp" />
-    </LinearLayout>
-
 
 </LinearLayout>

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.moss.dbreader.fragment.BookCoverFragment;
 import com.moss.dbreader.fragment.NovelReaderFragment;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.ui.ReaderPageAdapter;
@@ -24,6 +25,10 @@ public class ReaderActivity extends AppCompatActivity {
 
         @Override
         public void onClickDict() {
+            ReaderPanel rp = (ReaderPanel)findViewById(R.id.reader_panel);
+            rp.setVisibility(View.GONE);
+            Fragment fragment = ReaderActivity.this.getSupportFragmentManager().findFragmentById(R.id.book_cover_fragment);
+            fragment.getView().setVisibility(View.VISIBLE);
 
         }
 
@@ -48,6 +53,16 @@ public class ReaderActivity extends AppCompatActivity {
             rp.setVisibility(View.GONE);
         }
     };
+
+    public void changeChapter(DBReaderNovel.Chapter chapter){
+        ViewPager vp = (ViewPager)findViewById(R.id.reader_viewpager);
+        ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
+        int curIndex = adapter.getFirstPageOfChapterIndex(chapter.index);
+        if(curIndex != -1){
+            adapter.setCurrentItem(curIndex);
+            vp.setCurrentItem(curIndex);
+        }
+    }
 
     private void transferToMain(int index){
         Intent intent = new Intent(this, MainActivity.class);
@@ -109,8 +124,9 @@ public class ReaderActivity extends AppCompatActivity {
     @Override
     protected void onStart(){
         super.onStart();
-
         Fragment fragment = this.getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
-        ((NovelReaderFragment)fragment).setNovelInfo(this.novel);
+        ((NovelReaderFragment)fragment).setNovel(this.novel);
+        fragment = this.getSupportFragmentManager().findFragmentById(R.id.book_cover_fragment);
+        ((BookCoverFragment)fragment).setNovel(this.novel);
     }
 }
