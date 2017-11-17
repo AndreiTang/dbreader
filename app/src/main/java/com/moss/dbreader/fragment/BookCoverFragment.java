@@ -2,6 +2,7 @@ package com.moss.dbreader.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,11 @@ public class BookCoverFragment extends Fragment {
        lv.setAdapter(adapter);
    }
 
+   public void setSelection(int curIndex){
+       ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
+       lv.setSelection(curIndex);
+   }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root =  inflater.inflate(R.layout.fragment_bookcover,container,false);
@@ -60,6 +66,37 @@ public class BookCoverFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 BookCoverFragment.this.getView().setVisibility(View.GONE);
+            }
+        });
+        View v = getActivity().findViewById(R.id.book_cover_prev);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
+                int begin = lv.getFirstVisiblePosition();
+                int end = lv.getLastVisiblePosition();
+                if(begin == 0){
+                    return;
+                }
+                int countInPage = end - begin + 1;
+                int cur = begin - countInPage;
+                if(cur < 0){
+                    cur = 0;
+                }
+                lv.setSelection(cur);
+            }
+        });
+
+        v = getActivity().findViewById(R.id.book_cover_next);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
+                int end = lv.getLastVisiblePosition();
+                if(end == novel.chapters.size()-1){
+                    return;
+                }
+                lv.setSelection(end+1);
             }
         });
     }

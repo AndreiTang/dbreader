@@ -48,7 +48,14 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
 
             Elements ems = doc.select("em#pagestats");
             if (ems.size() == 0) {
-                return ERROR_NO_RESULT;
+                DBReaderNovel novel = new DBReaderNovel();
+                if (fetchNovelByDoc(doc, novel) == NO_ERROR) {
+                    nvs.add(novel);
+                    return NO_ERROR;
+                }
+                else{
+                    return ERROR_NO_RESULT;
+                }
             }
             String pages = ems.first().text();
             int begin = pages.indexOf('/');
@@ -77,12 +84,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
             }
             if (nvs.size() > 0) {
                 return NO_ERROR;
-            } else {
-                DBReaderNovel novel = new DBReaderNovel();
-                if (fetchNovelFromDoc(doc, novel) == NO_ERROR) {
-                    nvs.add(novel);
-                    return NO_ERROR;
-                }
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -129,8 +130,7 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         isCancel = false;
         try {
             Document doc = Jsoup.connect(novel.url).timeout(3000).get();
-            novel.decs = fetchNovelDecs(doc);
-            return fetchNovelFromDoc(doc, novel);
+            return fetchNovelByDoc(doc,novel);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -141,9 +141,22 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         isCancel = true;
     }
 
-    private String fetchNovelDecs(Document doc) {
+    private int fetchNovelByDoc(Document doc,DBReaderNovel novel){
+        novel.decs = fetchNovelDecs(doc);
+        if(novel.author == null || novel.author.isEmpty()){
+            novel.author = fetchNovelAuthor(doc);
+        }
+        if(novel.type == null || novel.type.isEmpty()){
+            novel.type = fetchNovelType(doc);
+        }
+        return fetchNovelFromDoc(doc, novel);
+    }
+
+    private String fetchNovelType(Document doc){
         String html = doc.outerHtml();
-        String head = "内容简介：</span>";
+        html = html.replace("&nbsp;","");
+        html = html.replace(" ","");
+        String head = "文章状态：";
         int begin = html.indexOf(head);
         if (begin == -1) {
             return "";
@@ -151,12 +164,44 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         begin += head.length();
         int end = html.indexOf("</td>", begin);
         String str = html.substring(begin, end);
+        str = str.replace(" ", "");
+        return str;
+    }
+
+    private String fetchNovelAuthor(Document doc){
+        String html = doc.outerHtml();
+        html = html.replace("&nbsp;","");
+        html = html.replace(" ","");
+        String head = "作者：";
+        int begin = html.indexOf(head);
+        if (begin == -1) {
+            return "";
+        }
+        begin += head.length();
+        int end = html.indexOf("</td>", begin);
+        String str = html.substring(begin, end);
+        str = str.replace(" ", "");
+        return str;
+    }
+
+    private String fetchNovelDecs(Document doc) {
+        String html = doc.outerHtml();
+        String head = "内容简介：";
+        int begin = html.indexOf(head);
+        if (begin == -1) {
+            return "";
+        }
+        begin += head.length();
+        int end = html.indexOf("</td>", begin);
+        String str = html.substring(begin, end);
+        str = str.replace("</span>", "");
         str = str.replace("&nbsp;", "");
         str = str.replace("<br />", "");
         str = str.replace("\n", "");
         str = str.replace("<br>", "");
         str = str.replace("</div>", "");
         str = str.replace(" ", "");
+        str = str.replace("\r", "");
         return str;
     }
 

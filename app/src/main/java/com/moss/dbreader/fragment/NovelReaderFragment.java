@@ -206,7 +206,28 @@ public class NovelReaderFragment extends Fragment {
             getActivity().unbindService(this.serviceConnection);
             this.engine = null;
         }
+
+
     }
+
+    public int getCurrentChapterIndex(){
+        ViewPager vp = (ViewPager)getActivity().findViewById(R.id.reader_viewpager);
+        int curr = vp.getCurrentItem();
+        ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
+        ReaderPageAdapter.ReaderPage rp = adapter.getReaderPage(curr);
+        return rp.chapterIndex;
+    }
+
+    public void changeChapter(DBReaderNovel.Chapter chapter) {
+        ViewPager vp = (ViewPager)getActivity().findViewById(R.id.reader_viewpager);
+        ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
+        int curIndex = adapter.getFirstPageOfChapterIndex(chapter.index);
+        if (curIndex != -1) {
+            adapter.setCurrentItem(curIndex);
+            vp.setCurrentItem(curIndex);
+        }
+    }
+
 
     private void initializeViewPager() {
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);

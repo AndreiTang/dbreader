@@ -18,18 +18,19 @@ import com.moss.dbreader.ui.ReaderPanel;
 
 public class ReaderActivity extends AppCompatActivity {
 
-
-    private DBReaderNovel novel;
-
     ReaderPanel.IReadPanelNotify readPanelNotify = new ReaderPanel.IReadPanelNotify() {
 
         @Override
         public void onClickDict() {
-            ReaderPanel rp = (ReaderPanel)findViewById(R.id.reader_panel);
+            ReaderPanel rp = (ReaderPanel) findViewById(R.id.reader_panel);
             rp.setVisibility(View.GONE);
-            Fragment fragment = ReaderActivity.this.getSupportFragmentManager().findFragmentById(R.id.book_cover_fragment);
-            fragment.getView().setVisibility(View.VISIBLE);
 
+            NovelReaderFragment novelReaderfragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
+            int currIndex = novelReaderfragment.getCurrentChapterIndex();
+
+            BookCoverFragment bookCoverfragment = (BookCoverFragment) ReaderActivity.this.getSupportFragmentManager().findFragmentById(R.id.book_cover_fragment);
+            bookCoverfragment.getView().setVisibility(View.VISIBLE);
+            bookCoverfragment.setSelection(currIndex);
         }
 
         @Override
@@ -39,12 +40,12 @@ public class ReaderActivity extends AppCompatActivity {
 
         @Override
         public void onClickCase() {
-            popupDlg(0);
+            exitReader(-0);
         }
 
         @Override
         public void onClickSearch() {
-            popupDlg(1);
+            exitReader(1);
         }
 
         @Override
@@ -53,24 +54,53 @@ public class ReaderActivity extends AppCompatActivity {
             rp.setVisibility(View.GONE);
         }
     };
+/////////////////////////////////////////////////////
+    private DBReaderNovel novel;
 
-    public void changeChapter(DBReaderNovel.Chapter chapter){
-        ViewPager vp = (ViewPager)findViewById(R.id.reader_viewpager);
-        ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
-        int curIndex = adapter.getFirstPageOfChapterIndex(chapter.index);
-        if(curIndex != -1){
-            adapter.setCurrentItem(curIndex);
-            vp.setCurrentItem(curIndex);
-        }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_reader);
+
+        this.novel = (DBReaderNovel) getIntent().getSerializableExtra("novel");
+
+        ReaderPanel rp = (ReaderPanel) findViewById(R.id.reader_panel);
+        rp.setNotify(readPanelNotify);
     }
 
-    private void transferToMain(int index){
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Fragment fragment = this.getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
+        ((NovelReaderFragment) fragment).setNovel(this.novel);
+        fragment = this.getSupportFragmentManager().findFragmentById(R.id.book_cover_fragment);
+        ((BookCoverFragment) fragment).setNovel(this.novel);
+    }
+
+    @Override
+    protected void onPause() {
+        saveNovel();
+        super.onPause();
+    }
+
+    @Override
+    public void onBackPressed(){
+        exitReader(-1);
+    }
+
+    public void changeChapter(DBReaderNovel.Chapter chapter) {
+        NovelReaderFragment novelReaderfragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
+        novelReaderfragment.changeChapter(chapter);
+    }
+
+    private void transferToMain(int index) {
+        finish();
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(Common.TAG_MAIN_CATEGORY,index);
+        intent.putExtra(Common.TAG_MAIN_CATEGORY, index);
         startActivity(intent);
     }
 
-    private void popupDlg(final int index){
+    private void popupDlg(final int index) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.prompt_title);
         builder.setMessage(R.string.prompt_msg);
@@ -78,15 +108,12 @@ public class ReaderActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 novel.isInCase = 1;
-                saveNovel();
-                ReaderActivity.this.finish();
                 transferToMain(index);
             }
         });
         builder.setNegativeButton(R.string.prompt_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ReaderActivity.this.finish();
                 transferToMain(index);
             }
         });
@@ -95,38 +122,20 @@ public class ReaderActivity extends AppCompatActivity {
 
     }
 
-    private void saveNovel(){
-        ViewPager vp = (ViewPager)findViewById(R.id.reader_viewpager);
-        int curr = vp.getCurrentItem();
-        ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
-        ReaderPageAdapter.ReaderPage rp = adapter.getReaderPage(curr);
-        novel.currPage = rp.chapterIndex;
-        novel.isInCase = 1;
-
-        BookCaseManager.add(novel,true);
+    private void saveNovel() {
+        NovelReaderFragment fragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
+        novel.currPage = fragment.getCurrentChapterIndex();
+        BookCaseManager.add(novel, true);
         BookCaseManager.saveDBReader(novel);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reader);
 
-        this.novel = (DBReaderNovel)getIntent().getSerializableExtra("novel");
-
-        BookCaseManager.saveDBReader(novel);
-        BookCaseManager.add(novel,false);
-
-        ReaderPanel rp = (ReaderPanel)findViewById(R.id.reader_panel);
-        rp.setNotify(readPanelNotify);
-    }
-
-    @Override
-    protected void onStart(){
-        super.onStart();
-        Fragment fragment = this.getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
-        ((NovelReaderFragment)fragment).setNovel(this.novel);
-        fragment = this.getSupportFragmentManager().findFragmentById(R.id.book_cover_fragment);
-        ((BookCoverFragment)fragment).setNovel(this.novel);
+    private void exitReader(int index){
+        if(ReaderActivity.this.novel.isInCase == 0){
+            popupDlg(index);
+        }
+        else{
+            transferToMain(index);
+        }
     }
 }

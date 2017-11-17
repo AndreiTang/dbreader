@@ -44,7 +44,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     private int titleId;
     private ArrayList<View> usingViews = new ArrayList<View>();
     IReaderPageAdapterNotify readerPageAdapterNotify = null;
-    private static final int TITLE_FONT_SIZE_SP = 22;
+    private static final int TITLE_FONT_SIZE_SP = 18;
     public static final int FLAG_CURR_PAGE = -1;
     public static final int FLAG_PREVIOUS_PAGE = -2;
 
@@ -304,6 +304,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                     if (begin == 0) {
                         i = i - 2;
                     }
+                    i--;
                 }
                 int end = tv.getLayout().getLineEnd(i);
                 ReaderPage rp = new ReaderPage();

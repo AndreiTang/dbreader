@@ -36,6 +36,7 @@ public class BookCaseManager {
             return;
         }
         BookCaseManager.appPath = appPath + "/";
+        Log.i("Andrei","path is "+appPath);
         File dir = new File(appPath);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -82,10 +83,9 @@ public class BookCaseManager {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line = reader.readLine();
             chapText = line;
-            while (line != null) {
+            while ((line = reader.readLine())!=null) {
                 chapText += "\n";
                 chapText += line;
-                line = reader.readLine();
             }
             reader.close();
         } catch (FileNotFoundException e) {
@@ -99,6 +99,11 @@ public class BookCaseManager {
     static public void add(DBReaderNovel novel, boolean isFirst) {
         for (int i = 0; i < novels.size(); i++) {
             DBReaderNovel item = novels.get(i);
+            if(item == null){
+                novels.remove(i);
+                i--;
+                continue;
+            }
             if (item.name.compareTo(novel.name) == 0) {
                 novels.remove(i);
                 break;
@@ -131,7 +136,7 @@ public class BookCaseManager {
         ArrayList<DBReaderNovel> bookCase = new ArrayList<DBReaderNovel>();
         for(int i = 0 ;i < BookCaseManager.novels.size(); i++){
             DBReaderNovel nv = BookCaseManager.novels.get(i);
-            if(nv.isInCase == 1){
+            if(nv != null && nv.isInCase == 1){
                 bookCase.add(nv);
             }
         }
@@ -166,7 +171,6 @@ public class BookCaseManager {
         String path = getNovelFolder(novel.name) + "novel.json";
         Gson gson = new Gson();
         String strNovel = gson.toJson(novel, DBReaderNovel.class);
-        Log.i("Andrei", "the file is " + path + " content is " + strNovel);
         try {
             File file = new File(path);
             if (file.exists()) {

@@ -72,7 +72,17 @@ public class BookSearchFragment extends Fragment {
             BookSearchFragment.this.novels = novels;
             BookSearchFragment.this.engineID = engineID;
             BookSearchFragment.this.sessionID = sessionID;
-            BookSearchFragment.this.fetchNovelDetails();
+            if(novels.size() == 1){
+                tmpNovels.clear();
+                DBReaderNovel novel = BookSearchFragment.this.novels.get(0);
+                BookSearchFragment.this.tmpNovels.add(novel);
+                BookSearchFragment.this.novels.remove(0);
+                showSearchResult();
+            }
+            else{
+                BookSearchFragment.this.fetchNovelDetails();
+            }
+
         }
 
         @Override
