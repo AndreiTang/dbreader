@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.moss.dbreader.R;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -27,7 +28,8 @@ import java.util.HashMap;
 public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListener {
 
 
-    static public class ReaderPage {
+    static public class ReaderPage implements Serializable {
+        private static final long serialVersionUID = -3964162394765715002L;
         public int chapterIndex;
         public int begin;
         public int end;
@@ -117,6 +119,13 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                 initPageText(page, (TextView) v.findViewById(textViewId));
                 break;
             }
+            int pos = (Integer)v.getTag(R.id.tag_pos);
+            page = this.getReaderPage(pos);
+            if(chapIndex == index && page.begin >=0){
+                View mask = v.findViewById(maskViewId);
+                mask.setVisibility(View.GONE);
+                setPageText(page,(TextView) v.findViewById(textViewId));
+            }
         }
     }
 
@@ -124,13 +133,14 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         return pageTexts;
     }
 
+    public ArrayList<ReaderPage> getPages(){return pages;}
+
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         ReaderPage page = getReaderPage(position);
         if (page == null) {
             return super.instantiateItem(container, position);
         }
-        Log.i("Andrei", "views is "+ views.size() + " " + usingViews.size());
         View view = views.get(0);
         views.remove(0);
         usingViews.add(view);
@@ -153,10 +163,10 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             mask.setVisibility(View.GONE);
         } else {
             tv.setText("");
-            if (page.begin == FLAG_CURR_PAGE) {
+            mask.setVisibility(View.VISIBLE);
+            if (page.begin == FLAG_CURR_PAGE || page.begin >= 0) {
                 readerPageAdapterNotify.update(page.chapterIndex);
             }
-            mask.setVisibility(View.VISIBLE);
         }
         ((ViewGroup) container).addView(view);
         return view;
@@ -300,11 +310,13 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             tv.getLineBounds(i, rc);
             h += rc.height();
             if (h > tvHigh || i == count - 1) {
-                if (i < count - 1) {
+                if (h > tvHigh ) {
                     if (begin == 0) {
                         i = i - 2;
                     }
-                    i--;
+                    else{
+                        i--;
+                    }
                 }
                 int end = tv.getLayout().getLineEnd(i);
                 ReaderPage rp = new ReaderPage();
@@ -322,10 +334,11 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
     private void setPageText(final ReaderPage page, TextView tv) {
-        String text = pageTexts.get(page.chapterIndex);
+        String text = this.pageTexts.get(page.chapterIndex);
         if (text.indexOf(page.name) == -1) {
-            text = page.name + "\n" + pageTexts.get(page.chapterIndex);
+            text = page.name + "\n" + this.pageTexts.get(page.chapterIndex);
         }
+        int len = text.length();
         text = text.substring(page.begin, page.end);
         if (page.begin == 0) {
             int end = text.indexOf('\n');
@@ -337,7 +350,10 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             tv.setGravity(Gravity.BOTTOM);
         } else {
             tv.setText(text);
-            tv.setGravity(Gravity.TOP);
+            tv.setGravity(Gravity.CENTER_VERTICAL);
+            if(len == page.end){
+                tv.setGravity(Gravity.TOP);
+            }
         }
     }
 }

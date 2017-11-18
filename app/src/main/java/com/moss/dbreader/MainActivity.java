@@ -48,4 +48,9 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
+    @Override
+    public void onBackPressed(){
+        System.exit(0);
+    }
+
 }

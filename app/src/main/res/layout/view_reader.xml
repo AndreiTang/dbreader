@@ -10,7 +10,7 @@
         android:layout_height="30dp"
         android:layout_weight="0"
         android:gravity="left|bottom"
-        android:paddingLeft="20dp"
+        android:paddingLeft="15dp"
         android:textColor="#757575"
         android:textSize="12sp" />
 

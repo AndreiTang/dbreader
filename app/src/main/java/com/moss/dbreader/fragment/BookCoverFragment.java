@@ -29,22 +29,6 @@ public class BookCoverFragment extends Fragment {
 
    public void setNovel(DBReaderNovel novel){
        this.novel = novel;
-
-       ImageView img = (ImageView) getActivity().findViewById(R.id.book_cover_img);
-       Glide.with(this).clear(img);
-       Glide.with(this).load(novel.img).apply(fitCenterTransform()).into(img);
-
-       TextView tv = (TextView)getActivity().findViewById(R.id.book_cover_name);
-       tv.setText(novel.name);
-
-       tv = (TextView)getActivity().findViewById(R.id.book_cover_type);
-       tv.setText(novel.type);
-
-
-       ChapterAdapter adapter = new ChapterAdapter(getContext(),this,this.novel.chapters);
-       ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
-       lv.setVerticalScrollBarEnabled(false);
-       lv.setAdapter(adapter);
    }
 
    public void setSelection(int curIndex){
@@ -61,6 +45,30 @@ public class BookCoverFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
+        initializeMask();
+        initializeBottomPanel();
+        initializeChapters();
+    }
+
+    private void initializeChapters(){
+        ImageView img = (ImageView) getActivity().findViewById(R.id.book_cover_img);
+        Glide.with(this).clear(img);
+        Glide.with(this).load(novel.img).apply(fitCenterTransform()).into(img);
+
+        TextView tv = (TextView)getActivity().findViewById(R.id.book_cover_name);
+        tv.setText(novel.name);
+
+        tv = (TextView)getActivity().findViewById(R.id.book_cover_type);
+        tv.setText(novel.type);
+
+
+        ChapterAdapter adapter = new ChapterAdapter(getContext(),this,this.novel.chapters);
+        ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
+        lv.setVerticalScrollBarEnabled(false);
+        lv.setAdapter(adapter);
+    }
+
+    private void initializeMask(){
         View mask = getActivity().findViewById(R.id.book_cover_mask);
         mask.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,6 +76,9 @@ public class BookCoverFragment extends Fragment {
                 BookCoverFragment.this.getView().setVisibility(View.GONE);
             }
         });
+    }
+
+    private void initializeBottomPanel(){
         View v = getActivity().findViewById(R.id.book_cover_prev);
         v.setOnClickListener(new View.OnClickListener() {
             @Override

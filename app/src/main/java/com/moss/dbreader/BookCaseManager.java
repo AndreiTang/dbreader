@@ -6,7 +6,9 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.moss.dbreader.service.DBReaderNovel;
+import com.moss.dbreader.ui.ReaderPageAdapter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,6 +23,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by tangqif on 10/15/2017.
@@ -142,6 +145,52 @@ public class BookCaseManager {
         }
         Collections.sort(bookCase);
         return bookCase;
+    }
+
+    static public void saveReaderPages(String name , ArrayList<ReaderPageAdapter.ReaderPage> rps){
+        String path = getNovelFolder(name) + "rps.json";
+        Gson gson = new Gson();
+        String strRps = gson.toJson(rps);
+        try {
+            File file = new File(path);
+            if (file.exists()) {
+                file.delete();
+            }
+            file.createNewFile();
+            FileOutputStream fo = new FileOutputStream(file);
+            OutputStreamWriter fw = new OutputStreamWriter(fo);
+            fw.write(strRps);
+            fw.close();
+            fo.flush();
+            fo.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    static public ArrayList<ReaderPageAdapter.ReaderPage> readReaderPages(String name){
+        String path = getNovelFolder(name) + "rps.json";
+        String strRps = "";
+        try {
+            File file = new File(path);
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                strRps += line + "\n";
+            }
+            reader.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (strRps.isEmpty()) {
+            return null;
+        }
+        Gson gson = new Gson();
+        return gson.fromJson(strRps,new TypeToken<ArrayList<ReaderPageAdapter.ReaderPage>>(){}.getType());
     }
 
     static public DBReaderNovel readDBReader(String name) {

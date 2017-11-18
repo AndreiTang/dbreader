@@ -66,21 +66,12 @@ public class ReaderActivity extends AppCompatActivity {
 
         ReaderPanel rp = (ReaderPanel) findViewById(R.id.reader_panel);
         rp.setNotify(readPanelNotify);
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
         Fragment fragment = this.getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
         ((NovelReaderFragment) fragment).setNovel(this.novel);
         fragment = this.getSupportFragmentManager().findFragmentById(R.id.book_cover_fragment);
         ((BookCoverFragment) fragment).setNovel(this.novel);
-    }
 
-    @Override
-    protected void onPause() {
-        saveNovel();
-        super.onPause();
     }
 
     @Override
@@ -120,13 +111,6 @@ public class ReaderActivity extends AppCompatActivity {
 
         builder.create().show();
 
-    }
-
-    private void saveNovel() {
-        NovelReaderFragment fragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
-        novel.currPage = fragment.getCurrentChapterIndex();
-        BookCaseManager.add(novel, true);
-        BookCaseManager.saveDBReader(novel);
     }
 
 

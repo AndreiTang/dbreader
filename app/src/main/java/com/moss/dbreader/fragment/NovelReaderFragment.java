@@ -40,14 +40,8 @@ import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
 
 public class NovelReaderFragment extends Fragment {
 
-    private NovelEngineService.NovelEngine engine = null;
-    //private int engineID = -1;
-    private int sessionID = 0;
-    private DBReaderNovel novel;
-    private ReaderPageAdapter adapter = null;
-    private int tmpIndex = -1;
 
-    private GestureDetector.OnDoubleTapListener doubleTapListener = new GestureDetector.OnDoubleTapListener(){
+    private GestureDetector.OnDoubleTapListener doubleTapListener = new GestureDetector.OnDoubleTapListener() {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -100,13 +94,12 @@ public class NovelReaderFragment extends Fragment {
     });
 
 
-
     IReaderPageAdapterNotify readerPageAdapterNotify = new IReaderPageAdapterNotify() {
         @Override
         public void update(final int index) {
 
-            final String chap = BookCaseManager.getChapterText(novel.name,index);
-            if(chap.length() > 0){
+            final String chap = BookCaseManager.getChapterText(novel.name, index);
+            if (chap.length() > 0) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -144,7 +137,7 @@ public class NovelReaderFragment extends Fragment {
             if (nRet != NO_ERROR) {
                 return;
             }
-            BookCaseManager.saveChapterText(novel.name,index,cont);
+            BookCaseManager.saveChapterText(novel.name, index, cont);
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -172,23 +165,63 @@ public class NovelReaderFragment extends Fragment {
             NovelReaderFragment.this.engine.removeNotify(fetchNovelEngineNotify);
         }
     };
+    /////////////////////////////////////////////////////////////////////////
+    private NovelEngineService.NovelEngine engine = null;
+    //private int engineID = -1;
+    private int sessionID = 0;
+    private DBReaderNovel novel;
+    private ReaderPageAdapter adapter = null;
+    private int tmpIndex = -1;
 
+    private final static String TAG_PAGES = "tag_pages";
+    private final static String TAG_CURR_PAGE = "tag_cur_page";
+    private final static String TAG_NOVEL = "tag_novel";
 
     @Override
-    public void  onActivityCreated(Bundle savedInstanceState){
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         initializeViewPager();
+
+        if (savedInstanceState != null) {
+            Log.i("Andrei","recovery from saveins");
+            onRestoreInstanceState(savedInstanceState);
+        }
+        else{
+            initializeAdapter(novel.currPage);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (adapter == null) {
+            return;
+        }
+
+        Log.i("Andrei", "run onSaveInstanceState");
+
+        ArrayList<ReaderPageAdapter.ReaderPage> rps = new ArrayList<ReaderPageAdapter.ReaderPage>();
+        int count = adapter.getCount();
+        for (int i = 0; i < count; i++) {
+            ReaderPageAdapter.ReaderPage rp = adapter.getReaderPage(i);
+            rps.add(rp);
+        }
+        outState.putSerializable(NovelReaderFragment.this.TAG_PAGES, rps);
+
+        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
+        int curr = vp.getCurrentItem();
+        outState.putInt(NovelReaderFragment.TAG_CURR_PAGE, curr);
+        outState.putSerializable(NovelReaderFragment.TAG_NOVEL, this.novel);
     }
 
 
     public void setNovel(DBReaderNovel novel) {
         this.novel = novel;
-        initializeAdapter(novel.currPage);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_novelreader, container, false);
+        return  inflater.inflate(R.layout.fragment_novelreader, container, false);
     }
 
     @Override
@@ -204,14 +237,24 @@ public class NovelReaderFragment extends Fragment {
         if (this.engine != null) {
             this.engine.cancel(this.sessionID);
             getActivity().unbindService(this.serviceConnection);
+            NovelReaderFragment.this.engine.removeNotify(fetchNovelEngineNotify);
             this.engine = null;
         }
 
-
     }
 
-    public int getCurrentChapterIndex(){
-        ViewPager vp = (ViewPager)getActivity().findViewById(R.id.reader_viewpager);
+    @Override
+    public void onPause(){
+        super.onPause();
+        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
+        this.novel.currPage = vp.getCurrentItem();
+        BookCaseManager.saveReaderPages(this.novel.name,this.adapter.getPages());
+        BookCaseManager.add(novel, true);
+        BookCaseManager.saveDBReader(novel);
+    }
+
+    public int getCurrentChapterIndex() {
+        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
         int curr = vp.getCurrentItem();
         ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
         ReaderPageAdapter.ReaderPage rp = adapter.getReaderPage(curr);
@@ -219,13 +262,28 @@ public class NovelReaderFragment extends Fragment {
     }
 
     public void changeChapter(DBReaderNovel.Chapter chapter) {
-        ViewPager vp = (ViewPager)getActivity().findViewById(R.id.reader_viewpager);
+        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
         ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
         int curIndex = adapter.getFirstPageOfChapterIndex(chapter.index);
         if (curIndex != -1) {
             adapter.setCurrentItem(curIndex);
             vp.setCurrentItem(curIndex);
         }
+    }
+
+    private void onRestoreInstanceState(Bundle outState) {
+        ArrayList<ReaderPageAdapter.ReaderPage> rpList = (ArrayList<ReaderPageAdapter.ReaderPage>) outState.getSerializable(NovelReaderFragment.TAG_PAGES);
+        for (int i = 0; i < rpList.size(); i++) {
+            this.adapter.addPage(rpList.get(i));
+        }
+
+        this.novel = (DBReaderNovel) outState.getSerializable(NovelReaderFragment.TAG_NOVEL);
+
+        int curPage = outState.getInt(NovelReaderFragment.TAG_CURR_PAGE);
+
+        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
+        vp.setAdapter(adapter);
+        vp.setCurrentItem(curPage);
     }
 
 
@@ -249,7 +307,7 @@ public class NovelReaderFragment extends Fragment {
         vp.addOnPageChangeListener(adapter);
     }
 
-    private void initializeProgressBar(View v){
+    private void initializeProgressBar(View v) {
         SimpleDraweeView pv = (SimpleDraweeView) v.findViewById(R.id.reader_progress);
         Uri uri = Uri.parse("res://" + getContext().getPackageName() + "/" + R.drawable.progress_big);
         DraweeController controller = Fresco.newDraweeControllerBuilder()
@@ -259,8 +317,17 @@ public class NovelReaderFragment extends Fragment {
         pv.setController(controller);
     }
 
-    private void initializeAdapter(int curPage){
-        for (int i = 0; i < this.novel.chapters.size(); i++) {
+    private void initializeAdapter(int curPage) {
+        int i = 0;
+        ArrayList<ReaderPageAdapter.ReaderPage> rps =  BookCaseManager.readReaderPages(this.novel.name);
+        if(rps != null){
+            for(i = 0 ; i < rps.size(); i++){
+                this.adapter.addPage(rps.get(i));
+            }
+            ReaderPageAdapter.ReaderPage rp = rps.get(rps.size()-1);
+            i = rp.chapterIndex;
+        }
+        for (; i < this.novel.chapters.size(); i++) {
             ReaderPageAdapter.ReaderPage rp = new ReaderPageAdapter.ReaderPage();
             rp.begin = ReaderPageAdapter.FLAG_PREVIOUS_PAGE;
             rp.chapterIndex = i;
