@@ -165,6 +165,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             tv.setText("");
             mask.setVisibility(View.VISIBLE);
             if (page.begin == FLAG_CURR_PAGE || page.begin >= 0) {
+                Log.i("Andrei","the fresh page is " + page.name);
                 readerPageAdapterNotify.update(page.chapterIndex);
             }
         }
@@ -269,7 +270,9 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                 allocatePages(page, tv, tvHigh);
                 ReaderPage rp = getFirstPageOfChapter(page.chapterIndex + 1);
                 if (rp != null && rp.begin == FLAG_PREVIOUS_PAGE) {
+                    Log.i("Andrei","reinit page is " + rp.name);
                     rp.begin = FLAG_CURR_PAGE;
+                    readerPageAdapterNotify.update(rp.chapterIndex);
                 }
                 updatePages();
                 ReaderPageAdapter.this.notifyDataSetChanged();
