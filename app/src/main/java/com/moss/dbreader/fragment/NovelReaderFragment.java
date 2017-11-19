@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -15,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
@@ -187,26 +189,26 @@ public class NovelReaderFragment extends Fragment {
             onRestoreInstanceState(savedInstanceState);
         }
         else{
-            initializeAdapter(novel.currPage);
+            initializeAdapter();
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (adapter == null) {
+        if (this.adapter == null) {
             return;
         }
 
         Log.i("Andrei", "run onSaveInstanceState");
 
         ArrayList<ReaderPageAdapter.ReaderPage> rps = new ArrayList<ReaderPageAdapter.ReaderPage>();
-        int count = adapter.getCount();
+        int count = this.adapter.getCount();
         for (int i = 0; i < count; i++) {
-            ReaderPageAdapter.ReaderPage rp = adapter.getReaderPage(i);
+            ReaderPageAdapter.ReaderPage rp = this.adapter.getReaderPage(i);
             rps.add(rp);
         }
-        outState.putSerializable(NovelReaderFragment.this.TAG_PAGES, rps);
+        outState.putSerializable(NovelReaderFragment.TAG_PAGES, rps);
 
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
         int curr = vp.getCurrentItem();
@@ -317,8 +319,9 @@ public class NovelReaderFragment extends Fragment {
         pv.setController(controller);
     }
 
-    private void initializeAdapter(int curPage) {
+    private void initializeAdapter() {
         int i = 0;
+        int curPage = this.novel.currPage;
         ArrayList<ReaderPageAdapter.ReaderPage> rps =  BookCaseManager.readReaderPages(this.novel.name);
         if(rps != null){
             for(i = 0 ; i < rps.size(); i++){

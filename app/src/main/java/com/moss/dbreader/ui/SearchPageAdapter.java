@@ -27,13 +27,11 @@ import java.util.ArrayList;
 public class SearchPageAdapter extends BaseAdapter {
 
     private ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
-    private Context context;
     private Fragment fragment;
     private int engineID;
     private ArrayList<View> views = new ArrayList<View>();
 
-    public SearchPageAdapter(Context context, Fragment fragment, int engineID){
-        this.context = context;
+    public SearchPageAdapter(Fragment fragment, int engineID){
         this.fragment = fragment;
         this.engineID = engineID;
     }
@@ -64,7 +62,8 @@ public class SearchPageAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.view_search,viewGroup,false);
+            //view = LayoutInflater.from(context).inflate(R.layout.view_search,viewGroup,false);
+            view = fragment.getActivity().getLayoutInflater().inflate(R.layout.view_search,viewGroup,false);
             views.add(view);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -25,12 +25,10 @@ import static com.bumptech.glide.request.RequestOptions.fitCenterTransform;
 
 public class CasePageAdapter extends BaseAdapter {
 
-    private Context context;
     private Fragment fragment;
     private ArrayList<DBReaderNovel> novels;
 
-    public CasePageAdapter(Context context, Fragment fragment){
-        this.context = context;
+    public CasePageAdapter(Fragment fragment){
         this.fragment = fragment;
         this.novels = BookCaseManager.fetchNovelsInBookCase();
     }
@@ -53,7 +51,7 @@ public class CasePageAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.view_case,parent,false);
+            view = this.fragment.getActivity().getLayoutInflater().inflate(R.layout.view_case,parent,false);
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

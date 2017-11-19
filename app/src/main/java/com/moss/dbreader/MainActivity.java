@@ -2,6 +2,7 @@ package com.moss.dbreader;
 
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
         BookCaseManager.initialize(getApplicationContext().getFilesDir().getAbsolutePath());
         super.onCreate(savedInstanceState);
         Fresco.initialize(this);
+        FontOverride.setDefaultFont(getApplicationContext(), "MONOSPACE","fonts/xinkai.ttf");
         setContentView(R.layout.activity_main);
 
         MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(),this.getApplicationContext());

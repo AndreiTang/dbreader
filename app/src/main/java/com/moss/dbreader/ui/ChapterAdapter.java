@@ -23,12 +23,10 @@ import java.util.zip.Inflater;
 public class ChapterAdapter extends BaseAdapter {
 
     private ArrayList<DBReaderNovel.Chapter> chapters = null;
-    private Context context;
     private Fragment fragment;
 
-    public ChapterAdapter(Context context, Fragment fragment, ArrayList<DBReaderNovel.Chapter> chapters){
+    public ChapterAdapter(Fragment fragment, ArrayList<DBReaderNovel.Chapter> chapters){
         this.chapters = chapters;
-        this.context = context;
         this.fragment = fragment;
     }
 
@@ -51,7 +49,7 @@ public class ChapterAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         DBReaderNovel.Chapter chapter = this.chapters.get(position);
         if(convertView == null){
-            convertView = LayoutInflater.from(this.context).inflate(R.layout.view_chapter,parent,false);
+            convertView = this.fragment.getActivity().getLayoutInflater().inflate(R.layout.view_chapter,parent,false);
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

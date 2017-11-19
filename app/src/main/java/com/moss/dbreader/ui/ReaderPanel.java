@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -123,6 +124,8 @@ public class ReaderPanel extends View {
     private void drawTexts(Canvas canvas) {
         Paint paint = new Paint();
         int ts = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 18, getResources().getDisplayMetrics());
+        Typeface typeface = Typeface.createFromAsset(getContext().getAssets(),"fonts/xinkai.ttf");
+        paint.setTypeface(typeface);
         paint.setStrokeWidth(3);
         paint.setTextSize(ts);
         paint.setColor(Color.parseColor("#000000"));

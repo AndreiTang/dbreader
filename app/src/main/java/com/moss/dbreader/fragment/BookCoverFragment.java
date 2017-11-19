@@ -62,7 +62,7 @@ public class BookCoverFragment extends Fragment {
         tv.setText(novel.type);
 
 
-        ChapterAdapter adapter = new ChapterAdapter(getContext(),this,this.novel.chapters);
+        ChapterAdapter adapter = new ChapterAdapter(this,this.novel.chapters);
         ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
         lv.setVerticalScrollBarEnabled(false);
         lv.setAdapter(adapter);

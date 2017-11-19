@@ -23,7 +23,7 @@ public class BookCaseFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        CasePageAdapter cp = new CasePageAdapter(getContext(),this);
+        CasePageAdapter cp = new CasePageAdapter(this);
         GridView gv = (GridView)getActivity().findViewById(R.id.case_grid);
         gv.setAdapter(cp);
     }

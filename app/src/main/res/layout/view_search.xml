@@ -26,7 +26,7 @@
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textColor="#000000"
                 android:gravity="top"
                 android:id="@+id/search_novel_name"/>
@@ -35,7 +35,7 @@
                 android:gravity="bottom|right"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:textColor="#424242"
                 android:paddingRight="5dp"
                 android:id="@+id/search_novel_type"/>
@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#424242"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:id="@+id/search_novel_author"/>
         <LinearLayout
             android:layout_weight="0"
@@ -61,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#616161"
-                android:textSize="13sp"
+                android:textSize="15sp"
                 android:ellipsize="end"
                 android:id="@+id/search_novel_decs"/>
             <TextView
