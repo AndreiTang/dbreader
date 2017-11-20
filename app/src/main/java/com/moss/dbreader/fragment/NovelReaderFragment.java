@@ -156,6 +156,7 @@ public class NovelReaderFragment extends Fragment {
             if (nRet != NO_ERROR) {
                 return;
             }
+            Log.i("Andrei", "Cache " + novelName + " " + index);
             BookCaseManager.saveChapterText(novelName,index,cont);
         }
 
