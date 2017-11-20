@@ -7,7 +7,9 @@ import android.content.ServiceConnection;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -104,7 +106,8 @@ public class NovelReaderFragment extends Fragment {
 
             final String chap = BookCaseManager.getChapterText(novel.name, index);
             if (chap.length() > 0) {
-                getActivity().runOnUiThread(new Runnable() {
+                Handler h = new Handler(Looper.getMainLooper());
+                h.post(new Runnable() {
                     @Override
                     public void run() {
                         NovelReaderFragment.this.adapter.addText(index, chap);
@@ -153,18 +156,24 @@ public class NovelReaderFragment extends Fragment {
 
         @Override
         public void OnCacheChapter(int nRet, String novelName, int index, String cont) {
+            Log.i("Andrei", "Cache " + novelName + " " + index + " ret:" + nRet);
             if (nRet != NO_ERROR) {
                 return;
             }
-            Log.i("Andrei", "Cache " + novelName + " " + index);
-            BookCaseManager.saveChapterText(novelName,index,cont);
+            BookCaseManager.saveChapterText(novelName, index, cont);
         }
 
         @Override
-        public void OnCacheChapterComplete(String novelName) {
-            String msg = getActivity().getResources().getString(R.string.cache_complete);
-            msg = novelName + " " + msg;
-            Toast.makeText(NovelReaderFragment.this.getActivity(),msg,Toast.LENGTH_LONG);
+        public void OnCacheChapterComplete(final String novelName) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i("Andrei",novelName + " cache finish");
+                    String msg = getActivity().getResources().getString(R.string.cache_complete);
+                    msg = novelName + " " + msg;
+                    Toast.makeText(NovelReaderFragment.this.getActivity(), msg, Toast.LENGTH_LONG).show();
+                }
+            });
         }
     };
 
@@ -203,10 +212,9 @@ public class NovelReaderFragment extends Fragment {
         initializeViewPager();
 
         if (savedInstanceState != null) {
-            Log.i("Andrei","recovery from saveins");
+            Log.i("Andrei", "recovery from saveins");
             onRestoreInstanceState(savedInstanceState);
-        }
-        else{
+        } else {
             initializeAdapter();
         }
     }
@@ -241,7 +249,7 @@ public class NovelReaderFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return  inflater.inflate(R.layout.fragment_novelreader, container, false);
+        return inflater.inflate(R.layout.fragment_novelreader, container, false);
     }
 
     @Override
@@ -264,24 +272,24 @@ public class NovelReaderFragment extends Fragment {
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
         this.novel.currPage = vp.getCurrentItem();
-        BookCaseManager.saveReaderPages(this.novel.name,this.adapter.getPages());
+        BookCaseManager.saveReaderPages(this.novel.name, this.adapter.getPages());
         BookCaseManager.add(novel, true);
         BookCaseManager.saveDBReader(novel);
     }
 
-    public void cacheChapters(){
+    public void cacheChapters() {
         ArrayList<DBReaderNovel.Chapter> chapters = new ArrayList<DBReaderNovel.Chapter>();
-        for(int i = 0; i < this.novel.chapters.size(); i++){
+        for (int i = 0; i < this.novel.chapters.size(); i++) {
             DBReaderNovel.Chapter item = this.novel.chapters.get(i);
-            if(!BookCaseManager.isChapterExist(item.name,item.index)){
+            if (!BookCaseManager.isChapterExist(this.novel.name, item.index)) {
                 chapters.add(item);
             }
         }
-        engine.cacheChapters(this.novel.name,chapters,this.novel.engineID);
+        engine.cacheChapters(this.novel.name, chapters, this.novel.engineID);
     }
 
     public int getCurrentChapterIndex() {
@@ -351,12 +359,12 @@ public class NovelReaderFragment extends Fragment {
     private void initializeAdapter() {
         int i = 0;
         int curPage = this.novel.currPage;
-        ArrayList<ReaderPageAdapter.ReaderPage> rps =  BookCaseManager.readReaderPages(this.novel.name);
-        if(rps != null){
-            for(i = 0 ; i < rps.size(); i++){
+        ArrayList<ReaderPageAdapter.ReaderPage> rps = BookCaseManager.readReaderPages(this.novel.name);
+        if (rps != null) {
+            for (i = 0; i < rps.size(); i++) {
                 this.adapter.addPage(rps.get(i));
             }
-            ReaderPageAdapter.ReaderPage rp = rps.get(rps.size()-1);
+            ReaderPageAdapter.ReaderPage rp = rps.get(rps.size() - 1);
             i = rp.chapterIndex;
         }
         for (; i < this.novel.chapters.size(); i++) {

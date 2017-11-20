@@ -82,18 +82,16 @@ public class NovelEngineService extends Service {
             NovelEngineService.this.cacheIDs.put(sid,chapters.size());
             Log.i("Andrei","Service cache " + novelName + " " + chapters.size());
             for(int i = 0 ; i < chapters.size(); i++){
-
                 DBReaderNovel.Chapter chapter = chapters.get(i);
-
                 NovelEngineCommand cmd = new NovelEngineCommand();
                 cmd.type = cacheChapter;
                 cmd.engineCode = engineID;
                 cmd.sessionID = sid;
                 cmd.pars.add(chapter);
                 cmd.pars.add(novelName);
-                commands.add(cmd);
+                NovelEngineService.this.cacheCommands.add(cmd);
             }
-            initialize();
+            initializeCache();
         }
 
         public void cancel(int sessionID){
@@ -113,14 +111,21 @@ public class NovelEngineService extends Service {
     private Binder binder = new NovelEngineBinder();
     private ArrayList<IFetchNovelEngine> engines = new ArrayList<IFetchNovelEngine>();
     private ArrayList<NovelEngineCommand> commands = new ArrayList<NovelEngineCommand>();
+    private ArrayList<NovelEngineCommand> cacheCommands = new ArrayList<NovelEngineCommand>();
     private ArrayList<IFetchNovelEngineNotify> notifies = new ArrayList<IFetchNovelEngineNotify>();
     private Thread thrd = null;
+    private Thread thrdCache = null;
 
     @Override
     public void onDestroy() {
         if(this.thrd != null){
             thrd.interrupt();
             this.thrd = null;
+        }
+
+        if(this.thrdCache == null){
+            this.thrdCache.interrupt();
+            this.thrdCache = null;
         }
         super.onDestroy();
     }
@@ -164,6 +169,39 @@ public class NovelEngineService extends Service {
         this.thrd.start();
     }
 
+    private void initializeCache(){
+        if(this.thrdCache != null){
+            return;
+        }
+        this.thrdCache = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int i = 100;
+                    while (!Thread.currentThread().isInterrupted()) {
+                        procCache();
+                        Thread.sleep(1000);
+                        if(cacheCommands.size() == 0){
+                            i--;
+                        }
+                        else{
+                            i = 100;
+                        }
+                        if(i <= 0){
+                            break;
+                        }
+                    }
+
+                } catch (Exception e) {
+                    String err = e.getMessage();
+                }
+                NovelEngineService.this.thrdCache = null;
+                Log.i("Andrei", "Cache Service thread exit");
+            }
+        });
+        this.thrdCache.start();
+    }
+
     private void cancel(int sessionID){
         synchronized (this){
             int i = commands.size() - 1;
@@ -179,6 +217,17 @@ public class NovelEngineService extends Service {
                     engine.cancel();
                 }
             }
+        }
+    }
+
+    private void procCache(){
+        NovelEngineCommand cmd = null;
+        synchronized (this){
+            if (cacheCommands.size() == 0) {
+                return;
+            }
+            cmd = cacheCommands.remove(0);
+            procCacheChapter((String)cmd.pars.get(1),(DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
         }
     }
 
@@ -277,7 +326,6 @@ public class NovelEngineService extends Service {
             for (int i = 0; i < notifies.size(); i++) {
                 notifies.get(i).OnCacheChapterComplete(novelName);
             }
-
         }
         else{
             this.cacheIDs.put(sessionID,count);

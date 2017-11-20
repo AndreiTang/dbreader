@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
+import com.moss.dbreader.BookCaseManager;
 import com.moss.dbreader.R;
 
 import java.io.Serializable;
@@ -46,7 +47,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     private int titleId;
     private ArrayList<View> usingViews = new ArrayList<View>();
     IReaderPageAdapterNotify readerPageAdapterNotify = null;
-    private static final int TITLE_FONT_SIZE_SP = 18;
+    private static final int TITLE_FONT_SIZE_SP = 20;
     public static final int FLAG_CURR_PAGE = -1;
     public static final int FLAG_PREVIOUS_PAGE = -2;
 
@@ -108,8 +109,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
     public void addText(int index, String text) {
-
-        Log.i("Andrei", "addText index is " + index + " " + usingViews.size());
         pageTexts.put(index, text);
         for (int i = 0; i < usingViews.size(); i++) {
             View v = usingViews.get(i);
@@ -268,14 +267,15 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                 tv.getViewTreeObserver().removeOnPreDrawListener(this);
                 int tvHigh = tv.getHeight();
                 allocatePages(page, tv, tvHigh);
+                updatePages();
+                ReaderPageAdapter.this.notifyDataSetChanged();
                 ReaderPage rp = getFirstPageOfChapter(page.chapterIndex + 1);
                 if (rp != null && rp.begin == FLAG_PREVIOUS_PAGE) {
                     Log.i("Andrei","reinit page is " + rp.name);
                     rp.begin = FLAG_CURR_PAGE;
                     readerPageAdapterNotify.update(rp.chapterIndex);
+                    Log.i("Andrei", "readerPageAdapterNotify finish at " + rp.name);
                 }
-                updatePages();
-                ReaderPageAdapter.this.notifyDataSetChanged();
                 return false;
             }
         });
@@ -300,6 +300,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             ReaderPage rp = getReaderPage(pos);
             if (rp.begin != begin || rp.chapterIndex != chap) {
                 v.setTag(R.id.tag_need_update, 1);
+                v.setTag(R.id.tag_chap_index,rp.chapterIndex);
             }
         }
     }

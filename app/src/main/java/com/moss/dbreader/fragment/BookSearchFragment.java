@@ -115,10 +115,15 @@ public class BookSearchFragment extends Fragment {
         }
 
         @Override
-        public void OnCacheChapterComplete(String novelName) {
-            String msg = getActivity().getResources().getString(R.string.cache_complete);
-            msg = novelName + " " + msg;
-            Toast.makeText(BookSearchFragment.this.getActivity(),msg,Toast.LENGTH_LONG);
+        public void OnCacheChapterComplete(final String novelName) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String msg = getActivity().getResources().getString(R.string.cache_complete);
+                    msg = novelName + " " + msg;
+                    Toast.makeText(BookSearchFragment.this.getActivity(), msg, Toast.LENGTH_LONG);
+                }
+            });
         }
     };
 
@@ -132,7 +137,7 @@ public class BookSearchFragment extends Fragment {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            engine.removeNotify(notify);
+
         }
     };
 
@@ -171,9 +176,9 @@ public class BookSearchFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-
         if (engine != null) {
             engine.cancel(sessionID);
+            engine.removeNotify(notify);
             getActivity().unbindService(serviceConnection);
             engine = null;
         }
