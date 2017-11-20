@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public class NovelEngineCommand {
     public enum CommandType {
-        search, fetchNovel,fetchChapter;
+        search, fetchNovel,fetchChapter,cacheChapter;
     };
     public int sessionID;
     public CommandType type;

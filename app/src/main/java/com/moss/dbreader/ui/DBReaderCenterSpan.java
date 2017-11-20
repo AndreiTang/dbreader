@@ -36,8 +36,8 @@ public class DBReaderCenterSpan  extends ReplacementSpan {
         charSequence = charSequence.subSequence(i, i1);
         Paint p = GetCustomerTextPaint(paint);
         int w = canvas.getWidth();
-        int x = (w- (int)p.measureText(charSequence.toString()))/2;
-        x -= margin;
+        int x = (w-2*margin- (int)p.measureText(charSequence.toString()))/2;
+        x += margin;
         canvas.drawText(charSequence.toString(),x,i3,p);
     }
 

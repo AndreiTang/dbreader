@@ -17,12 +17,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.moss.dbreader.BookCaseManager;
 import com.moss.dbreader.R;
+import com.moss.dbreader.ReaderActivity;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelEngineService;
@@ -148,6 +150,21 @@ public class NovelReaderFragment extends Fragment {
             });
 
         }
+
+        @Override
+        public void OnCacheChapter(int nRet, String novelName, int index, String cont) {
+            if (nRet != NO_ERROR) {
+                return;
+            }
+            BookCaseManager.saveChapterText(novelName,index,cont);
+        }
+
+        @Override
+        public void OnCacheChapterComplete(String novelName) {
+            String msg = getActivity().getResources().getString(R.string.cache_complete);
+            msg = novelName + " " + msg;
+            Toast.makeText(NovelReaderFragment.this.getActivity(),msg,Toast.LENGTH_LONG);
+        }
     };
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -253,6 +270,17 @@ public class NovelReaderFragment extends Fragment {
         BookCaseManager.saveReaderPages(this.novel.name,this.adapter.getPages());
         BookCaseManager.add(novel, true);
         BookCaseManager.saveDBReader(novel);
+    }
+
+    public void cacheChapters(){
+        ArrayList<DBReaderNovel.Chapter> chapters = new ArrayList<DBReaderNovel.Chapter>();
+        for(int i = 0; i < this.novel.chapters.size(); i++){
+            DBReaderNovel.Chapter item = this.novel.chapters.get(i);
+            if(!BookCaseManager.isChapterExist(item.name,item.index)){
+                chapters.add(item);
+            }
+        }
+        engine.cacheChapters(this.novel.name,chapters,this.novel.engineID);
     }
 
     public int getCurrentChapterIndex() {

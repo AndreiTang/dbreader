@@ -78,6 +78,15 @@ public class BookCaseManager {
         }
     }
 
+    static public boolean isChapterExist(String name, int index){
+        String path = getNovelFolder(name) + index + ".txt";
+        File file = new File(path);
+        if(file.exists()){
+            return true;
+        }
+        return false;
+    }
+
     static public String getChapterText(String name, int index) {
         String path = getNovelFolder(name) + index + ".txt";
         String chapText = "";

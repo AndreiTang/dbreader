@@ -10,4 +10,6 @@ public interface IFetchNovelEngineNotify {
     void OnSearchNovels(final  int nRet, final int engineID, final int sessionID, final ArrayList<DBReaderNovel> novels);
     void OnFetchNovel(final  int nRet, final int sessionID, final DBReaderNovel novel);
     void OnFetchChapter(final int nRet,final int sessionID,final int index, final String cont);
+    void OnCacheChapter(final int nRet,final String novelName,final int index, final String cont);
+    void OnCacheChapterComplete(final String novelName);
 }

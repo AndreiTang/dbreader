@@ -35,7 +35,8 @@ public class ReaderActivity extends AppCompatActivity {
 
         @Override
         public void onClickCache() {
-
+            NovelReaderFragment novelReaderfragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
+            novelReaderfragment.cacheChapters();
         }
 
         @Override

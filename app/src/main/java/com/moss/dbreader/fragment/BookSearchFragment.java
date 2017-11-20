@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
@@ -102,6 +103,22 @@ public class BookSearchFragment extends Fragment {
 
         @Override
         public void OnFetchChapter(int nRet, int sessionID, int index, String cont) {
+
+        }
+
+        @Override
+        public void OnCacheChapter(int nRet, String novelName, int index, String cont) {
+            if (nRet != NO_ERROR) {
+                return;
+            }
+            BookCaseManager.saveChapterText(novelName,index,cont);
+        }
+
+        @Override
+        public void OnCacheChapterComplete(String novelName) {
+            String msg = getActivity().getResources().getString(R.string.cache_complete);
+            msg = novelName + " " + msg;
+            Toast.makeText(BookSearchFragment.this.getActivity(),msg,Toast.LENGTH_LONG);
         }
     };
 
@@ -255,7 +272,8 @@ public class BookSearchFragment extends Fragment {
                     break;
                 }
             }
-            if (v.getBottom() <= lv.getHeight()) {
+            if (v.getBottom()  <= lv.getHeight()) {
+                Log.i("Andrei","Scroll End");
                 lv.addFooterView(footView);
                 isRunning = true;
                 fetchNovelDetails();

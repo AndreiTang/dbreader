@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_weight="0"
-        android:gravity="left|bottom"
+        android:gravity="left|center_vertical"
         android:paddingLeft="15dp"
         android:textColor="#757575"
         android:textSize="14sp" />
