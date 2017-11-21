@@ -105,6 +105,15 @@ public class NovelEngineService extends Service {
         public void removeNotify(IFetchNovelEngineNotify notify){
             notifies.remove(notify);
         }
+
+        public int fetchChapterDirectly(DBReaderNovel novel,int engineID){
+            int nRet = ERROR_NO_RESULT;
+            if (engineID > 0 || engineID < engines.size()) {
+                IFetchNovelEngine engine = engines.get(engineID);
+                nRet = engine.fetchNovel(novel);
+            }
+            return nRet;
+        }
     }
 
     private NovelEngine novelEngine = new NovelEngine();
@@ -123,7 +132,7 @@ public class NovelEngineService extends Service {
             this.thrd = null;
         }
 
-        if(this.thrdCache == null){
+        if(this.thrdCache != null){
             this.thrdCache.interrupt();
             this.thrdCache = null;
         }

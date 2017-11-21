@@ -34,12 +34,15 @@ public class BookCaseManager {
     static ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
     static String appPath;
 
+    static public void reset(){
+        novels.clear();
+    }
+
     static public void initialize(String appPath) {
         if (novels.size() > 0) {
             return;
         }
         BookCaseManager.appPath = appPath + "/";
-        Log.i("Andrei","path is "+appPath);
         File dir = new File(appPath);
         if (!dir.exists()) {
             dir.mkdirs();

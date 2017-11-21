@@ -3,10 +3,12 @@ package com.moss.dbreader;
 
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.moss.dbreader.service.DBReaderNovel;
@@ -18,12 +20,27 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        BookCaseManager.initialize(getApplicationContext().getFilesDir().getAbsolutePath());
         super.onCreate(savedInstanceState);
         Fresco.initialize(this);
         FontOverride.setDefaultFont(getApplicationContext(), "MONOSPACE","fonts/xinkai.ttf");
         setContentView(R.layout.activity_main);
+    }
 
+
+    public void switchToNovelReader(final DBReaderNovel novel){
+        Intent intent = new Intent(this, ReaderActivity.class);
+        intent.putExtra(Common.TAG_NOVEL,novel);
+        startActivity(intent);
+
+        finish();
+    }
+
+    @Override
+    public void onBackPressed(){
+        System.exit(0);
+    }
+
+    public void initializeBookCaseList(){
         MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(),this.getApplicationContext());
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         vp.setAdapter(adapter);
@@ -39,20 +56,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         vp.setCurrentItem(index);
-    }
+        vp.setVisibility(View.VISIBLE);
 
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.app_cover_fragment);
+        fragment.getView().setVisibility(View.GONE);
 
-    public void switchToNovelReader(final DBReaderNovel novel){
-        Intent intent = new Intent(this, ReaderActivity.class);
-        intent.putExtra(Common.TAG_NOVEL,novel);
-        startActivity(intent);
-
-        finish();
-    }
-
-    @Override
-    public void onBackPressed(){
-        System.exit(0);
+        Log.i("Andrei", "init finish");
     }
 
 }

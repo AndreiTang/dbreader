@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">DBReader</string>
+    <string name="app_name">爬耙读书</string>
 
     <item name="tag_pos" type="id">pos</item>
     <item name="tag_chap_index" type="id">chap_index</item>
