@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#DBC49B"
     android:orientation="vertical">
 
     <LinearLayout
@@ -17,8 +18,8 @@
             android:layout_weight="0"
             android:gravity="left|center_vertical"
             android:layout_marginLeft="15dp"
-            android:textSize="17sp"
-            android:textColor="#0091EA"/>
+            android:textSize="18sp"
+            android:textColor="#0277BD"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -36,8 +37,8 @@
             android:text="@string/book_case_search"
             android:gravity="right|center_vertical"
             android:layout_marginRight="15dp"
-            android:textSize="17sp"
-            android:textColor="#0091EA"/>
+            android:textSize="18sp"
+            android:textColor="#0277BD"/>
     </LinearLayout>
     <GridView
         android:layout_marginLeft="15dp"

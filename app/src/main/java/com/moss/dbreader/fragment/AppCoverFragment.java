@@ -1,5 +1,6 @@
 package com.moss.dbreader.fragment;
 
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -27,18 +28,19 @@ import java.util.ArrayList;
  */
 
 public class AppCoverFragment extends Fragment {
-    private ServiceConnection serviceConnection = new ServiceConnection(){
-
+    boolean isInitialized = false;
+    private  ServiceConnection serviceConnection = new ServiceConnection(){
         @Override
         public void onServiceConnected(ComponentName name, IBinder iBinder) {
             NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) iBinder;
-            AppCoverFragment.this.engine = binder.getNovelEngine();
+            final NovelEngineService.NovelEngine engine = binder.getNovelEngine();
 
             Thread thrd = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     BookCaseManager.initialize(getContext().getFilesDir().getAbsolutePath());
                     ArrayList<DBReaderNovel> novels = BookCaseManager.fetchNovelsInBookCase();
+
                     if(novels.size() == 0 ){
                         try {
                             Thread.sleep(5000);
@@ -46,18 +48,6 @@ public class AppCoverFragment extends Fragment {
                             e.printStackTrace();
                         }
                     }
-                    else{
-                        for(int i = 0; i < novels.size(); i++){
-                            DBReaderNovel item = novels.get(i);
-                            if(engine.fetchChapterDirectly(item,item.engineID) == IFetchNovelEngine.NO_ERROR){
-                                BookCaseManager.saveDBReader(item);
-                            }
-                        }
-                        BookCaseManager.reset();
-                        BookCaseManager.initialize(getContext().getFilesDir().getAbsolutePath());
-                    }
-
-                    AppCoverFragment.this.getActivity().unbindService(AppCoverFragment.this.serviceConnection);
 
                     AppCoverFragment.this.getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -66,6 +56,19 @@ public class AppCoverFragment extends Fragment {
                             activity.initializeBookCaseList();
                         }
                     });
+
+                    if(novels.size() > 0){
+                        for(int i = 0; i < novels.size(); i++){
+                            DBReaderNovel item = novels.get(i);
+                            DBReaderNovel novel = new DBReaderNovel();
+                            novel.url = item.url;
+                            if(engine.fetchChapterDirectly(novel,item.engineID) == IFetchNovelEngine.NO_ERROR){
+                                item.chapters.clear();
+                                item.chapters = novel.chapters;
+                                BookCaseManager.saveDBReader(item);
+                            }
+                        }
+                    }
 
                 }
             });
@@ -78,7 +81,6 @@ public class AppCoverFragment extends Fragment {
         }
     };
     ////////////////////////////////
-    private NovelEngineService.NovelEngine engine = null;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_appcover,container,false);
@@ -91,8 +93,14 @@ public class AppCoverFragment extends Fragment {
         TextView tv = (TextView)getActivity().findViewById(R.id.cover_title);
         tv.setTypeface(typeface);
 
-        Intent intent = new Intent(getActivity(), NovelEngineService.class);
-        getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        if (isInitialized == false) {
+            Intent intent = new Intent(getActivity(), NovelEngineService.class);
+            getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+            isInitialized = true;
+        }
+        else{
+            getView().setVisibility(View.GONE);
+        }
     }
 
 }

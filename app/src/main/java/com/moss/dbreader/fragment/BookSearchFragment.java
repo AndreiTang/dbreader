@@ -343,6 +343,12 @@ public class BookSearchFragment extends Fragment {
             fd.setAccessible(true);
             View tv = (View) fd.get(sv);
             tv.setBackgroundColor(Color.TRANSPARENT);
+
+            int id = sv.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
+            TextView textView = (TextView) sv.findViewById(id);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }

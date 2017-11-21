@@ -179,6 +179,9 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         }
         begin += head.length();
         int end = html.indexOf("</td>", begin);
+        if(end == -1){
+            return "";
+        }
         String str = html.substring(begin, end);
         str = str.replace(" ", "");
         return str;
@@ -347,6 +350,7 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
             Elements chaps = doc.select("li");
             String regEx = "^[0-9]{1,}.html";
             Pattern pattern = Pattern.compile(regEx);
+            ArrayList<DBReaderNovel.Chapter> chapters = new ArrayList<DBReaderNovel.Chapter>();
             for (Element chap : chaps) {
                 if (isCancel) {
                     break;

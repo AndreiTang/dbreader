@@ -26,7 +26,7 @@ public class ReaderPanel extends View {
     private int inRadius = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 27, getResources().getDisplayMetrics());
     private int clickRange = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, getResources().getDisplayMetrics());
     private IReadPanelNotify notify;
-    private String frameColor = "#9E9E9E";
+    private String frameColor = "#9e9e9e";
 
     public interface IReadPanelNotify
     {
@@ -91,7 +91,7 @@ public class ReaderPanel extends View {
         Paint paint = new Paint();
         paint.setAntiAlias(false);
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.parseColor("#EEEEEE"));
+        paint.setColor(Color.parseColor("#DBC49B"));
         canvas.drawCircle(getWidth() / 2, getHeight() / 2, outRadius+10, paint);
         canvas.save();
         canvas.translate(getWidth() / 2, getHeight() / 2);

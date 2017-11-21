@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#DBC49B"
     android:orientation="vertical">
 
     <LinearLayout
@@ -17,7 +18,7 @@
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#FAFAFA"
+                android:background="#DBC49B"
                 android:layout_marginLeft="5dp"
                 android:src="@drawable/ic_keyboard_arrow_left_black_36dp"/>
         </LinearLayout>
@@ -48,7 +49,7 @@
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
         android:background="@drawable/search_frame"
-        android:queryHint="Search"/>
+        android:queryHint= "@string/book_search_hint"/>
 
     <FrameLayout
         android:layout_margin="18dp"

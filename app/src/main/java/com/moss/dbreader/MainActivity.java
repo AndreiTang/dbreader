@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.moss.dbreader.fragment.AppCoverFragment;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.ui.MainPageAdapter;
 
@@ -24,6 +25,10 @@ public class MainActivity extends AppCompatActivity {
         Fresco.initialize(this);
         FontOverride.setDefaultFont(getApplicationContext(), "MONOSPACE","fonts/xinkai.ttf");
         setContentView(R.layout.activity_main);
+        int index = getIntent().getIntExtra(Common.TAG_MAIN_CATEGORY,-2);
+        if(index != -2){
+          initializeBookCaseList();
+        }
     }
 
 
@@ -31,18 +36,23 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ReaderActivity.class);
         intent.putExtra(Common.TAG_NOVEL,novel);
         startActivity(intent);
-
         finish();
     }
 
     @Override
     public void onBackPressed(){
+        //unbindService(AppCoverFragment.sc);
         System.exit(0);
     }
 
     public void initializeBookCaseList(){
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.app_cover_fragment);
+        fragment.getView().setVisibility(View.GONE);
+
         MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(),this.getApplicationContext());
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
+        vp.setVisibility(View.VISIBLE);
+
         vp.setAdapter(adapter);
 
         int count  = BookCaseManager.fetchNovelsInBookCase().size();
@@ -56,10 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         vp.setCurrentItem(index);
-        vp.setVisibility(View.VISIBLE);
 
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.app_cover_fragment);
-        fragment.getView().setVisibility(View.GONE);
 
         Log.i("Andrei", "init finish");
     }
