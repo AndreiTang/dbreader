@@ -9,6 +9,7 @@ import com.moss.dbreader.fragment.BookCaseFragment;
 import com.moss.dbreader.fragment.BookSearchFragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by tangqif on 10/31/2017.
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 public class MainPageAdapter extends FragmentPagerAdapter {
     private Context context;
     private final static String[] fragments = {BookCaseFragment.class.getName(), BookSearchFragment.class.getName()};
+    private HashMap<Integer,Fragment> fragmentMap = new HashMap<Integer, Fragment>();
 
     public MainPageAdapter(FragmentManager fm, Context context) {
         super(fm);
@@ -25,7 +27,15 @@ public class MainPageAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return Fragment.instantiate(this.context,fragments[position]);
+        if(this.fragmentMap.containsKey(position)){
+            return fragmentMap.get(position);
+        }
+        else{
+            Fragment fragment = Fragment.instantiate(this.context,fragments[position]);
+            fragmentMap.put(position,fragment);
+            return fragment;
+        }
+
     }
 
     @Override

@@ -54,8 +54,8 @@ public class BookSearchFragment extends Fragment {
     private int searchCount = 0;
     ArrayList<DBReaderNovel> tmpNovels = new ArrayList<DBReaderNovel>();
     private final int AllowCount = 5;
-    private ArrayList<DBReaderNovel> novels;
-    private View footView;
+    private ArrayList<DBReaderNovel> novels = null;
+    private View footView = null;
     private boolean isRunning = false;
     private SearchPageAdapter searchPageAdapter = null;
 
@@ -83,7 +83,6 @@ public class BookSearchFragment extends Fragment {
             else{
                 BookSearchFragment.this.fetchNovelDetails();
             }
-
         }
 
         @Override
@@ -103,7 +102,6 @@ public class BookSearchFragment extends Fragment {
 
         @Override
         public void OnFetchChapter(int nRet, int sessionID, int index, String cont) {
-
         }
 
         @Override
@@ -182,11 +180,6 @@ public class BookSearchFragment extends Fragment {
             getActivity().unbindService(serviceConnection);
             engine = null;
         }
-
-        ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
-        lv.setAdapter(null);
-        lv.addFooterView(null);
-        this.searchPageAdapter = null;
     }
 
     private void initializeProgressViews() {

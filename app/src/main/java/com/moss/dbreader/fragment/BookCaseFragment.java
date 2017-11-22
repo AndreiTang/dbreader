@@ -2,6 +2,7 @@ package com.moss.dbreader.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +24,11 @@ public class BookCaseFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        intializeBookCase();
+        initializeBookCase();
+        Log.i("Andrei","onCreateActivity");
     }
 
-    public void intializeBookCase(){
+    public void initializeBookCase(){
         CasePageAdapter cp = new CasePageAdapter(this);
         GridView gv = (GridView)getActivity().findViewById(R.id.case_grid);
         gv.setAdapter(cp);

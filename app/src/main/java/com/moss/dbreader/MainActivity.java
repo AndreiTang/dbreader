@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.moss.dbreader.fragment.AppCoverFragment;
@@ -50,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         MainPageAdapter adapter = (MainPageAdapter)vp.getAdapter();
         if(adapter != null){
             BookCaseFragment bookCaseFragment = (BookCaseFragment)adapter.getItem(0);
-            //bookCaseFragment.intializeBookCase();
+            bookCaseFragment.initializeBookCase();
             int count  = BookCaseManager.fetchNovelsInBookCase().size();
             int index = 0;
             if(count == 0){

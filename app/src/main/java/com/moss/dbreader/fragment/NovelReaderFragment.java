@@ -131,7 +131,17 @@ public class NovelReaderFragment extends Fragment {
         }
 
         @Override
-        public void OnFetchNovel(int nRet, int sessionID, DBReaderNovel novel) {
+        public void OnFetchNovel(int nRet, int sessionID, final DBReaderNovel novel) {
+            if(nRet != NO_ERROR || novel.chapters.size() <= NovelReaderFragment.this.novel.chapters.size()){
+                return;
+            }
+
+            NovelReaderFragment.this.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateChapters(novel);
+                }
+            });
 
         }
 
@@ -308,6 +318,20 @@ public class NovelReaderFragment extends Fragment {
             adapter.setCurrentItem(curIndex);
             vp.setCurrentItem(curIndex);
         }
+    }
+
+    private void updateChapters(DBReaderNovel novel){
+        int end = this.adapter.getPages().size() - 1;
+        int i = this.adapter.getReaderPage(end).chapterIndex+1;
+        for(;i< novel.chapters.size(); i++){
+            DBReaderNovel.Chapter item = novel.chapters.get(i);
+            ReaderPageAdapter.ReaderPage rp = new ReaderPageAdapter.ReaderPage();
+            rp.name = item.name;
+            rp.chapterIndex = item.index;
+            rp.begin = ReaderPageAdapter.FLAG_PREVIOUS_PAGE;
+            this.adapter.addPage(rp);
+        }
+        this.adapter.notifyDataSetChanged();
     }
 
     private void onRestoreInstanceState(Bundle outState) {

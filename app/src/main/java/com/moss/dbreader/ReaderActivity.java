@@ -88,6 +88,8 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     private void transferToMain(int index) {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
         finish();
     }
 

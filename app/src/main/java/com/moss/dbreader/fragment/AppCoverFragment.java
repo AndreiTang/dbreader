@@ -39,12 +39,12 @@ public class AppCoverFragment extends Fragment {
 
         @Override
         public void OnFetchNovel(int nRet, int sessionID, DBReaderNovel novel) {
-            if(nRet != NO_ERROR || sessionID != AppCoverFragment.this.sessionID){
+            if (nRet != NO_ERROR || sessionID != AppCoverFragment.this.sessionID) {
                 return;
             }
 
             DBReaderNovel item = BookCaseManager.getNovel(novel.name);
-            if(item != null && item.chapters.size() != novel.chapters.size()){
+            if (item != null && item.chapters.size() != novel.chapters.size()) {
                 item.chapters.clear();
                 item.chapters = novel.chapters;
                 BookCaseManager.saveDBReader(item);
@@ -71,9 +71,8 @@ public class AppCoverFragment extends Fragment {
         @Override
         public void onServiceConnected(ComponentName name, IBinder iBinder) {
             NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) iBinder;
-            AppCoverFragment.this.engine  = binder.getNovelEngine();
+            AppCoverFragment.this.engine = binder.getNovelEngine();
             engine.addNotify(AppCoverFragment.this.notify);
-
             Thread thrd = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -101,13 +100,15 @@ public class AppCoverFragment extends Fragment {
                             novel.url = item.url;
                             novel.name = item.name;
                             novel.engineID = item.engineID;
-                            engine.fetchNovel(novel,item.engineID,AppCoverFragment.this.sessionID);
+                            engine.fetchNovel(novel, item.engineID, AppCoverFragment.this.sessionID);
                         }
                     }
 
                 }
             });
             thrd.start();
+
+
         }
 
         @Override
@@ -119,6 +120,7 @@ public class AppCoverFragment extends Fragment {
     ////////////////////////////////
     private int sessionID = -1;
     private NovelEngineService.NovelEngine engine = null;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_appcover, container, false);
@@ -132,10 +134,10 @@ public class AppCoverFragment extends Fragment {
         TextView tv = (TextView) getActivity().findViewById(R.id.cover_title);
         tv.setTypeface(typeface);
 
-        if(savedInstanceState == null){
-            Intent intent = new Intent(getActivity(), NovelEngineService.class);
-            getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-        }
+
+
+        Intent intent = new Intent(getActivity(), NovelEngineService.class);
+        getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
