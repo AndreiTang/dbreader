@@ -89,9 +89,6 @@ public class ReaderActivity extends AppCompatActivity {
 
     private void transferToMain(int index) {
         finish();
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(Common.TAG_MAIN_CATEGORY, index);
-        startActivity(intent);
     }
 
     private void popupDlg(final int index) {

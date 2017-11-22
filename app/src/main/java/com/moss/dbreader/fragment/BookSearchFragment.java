@@ -317,6 +317,7 @@ public class BookSearchFragment extends Fragment {
             }
         });
         customizeSearchView(sv);
+
     }
 
     private void startSearch(String s) {

@@ -253,5 +253,15 @@ public class BookCaseManager {
         }
     }
 
+    public static DBReaderNovel getNovel(String novelName){
+        for(int i = 0 ; i < novels.size(); i++){
+            DBReaderNovel item = novels.get(i);
+            if(item.name.compareTo(novelName) == 0){
+                return item;
+            }
+        }
+        return null;
+    }
+
 
 }
