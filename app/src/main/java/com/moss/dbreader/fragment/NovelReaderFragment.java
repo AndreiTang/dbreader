@@ -179,7 +179,7 @@ public class NovelReaderFragment extends Fragment {
 
         @Override
         public void OnFetchDeltaChapterList(int nRet, int sessionID, DBReaderNovel novel, final ArrayList<DBReaderNovel.Chapter> chapters) {
-            if(nRet != NO_ERROR || NovelReaderFragment.this.novel.name.compareTo(novel.name) == 0){
+            if(nRet != NO_ERROR || NovelReaderFragment.this.novel.name.compareTo(novel.name) != 0){
                 return;
             }
 
@@ -212,7 +212,7 @@ public class NovelReaderFragment extends Fragment {
     /////////////////////////////////////////////////////////////////////////
     private NovelEngineService.NovelEngine engine = null;
     //private int engineID = -1;
-    private int sessionID = 0;
+    private int sessionID = -1;
     private DBReaderNovel novel;
     private ReaderPageAdapter adapter = null;
     private int tmpIndex = -1;

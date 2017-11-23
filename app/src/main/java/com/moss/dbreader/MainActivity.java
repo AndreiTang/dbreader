@@ -89,6 +89,13 @@ public class MainActivity extends AppCompatActivity {
                 item.chapters.addAll(chapters);
                 BookCaseManager.saveDBReader(item);
             }
+
+            for(int i = 0 ; i < MainActivity.this.notifies.size(); i++){
+                IFetchNovelEngineNotify notify = MainActivity.this.notifies.get(i);
+                if(notify != null){
+                    notify.OnFetchDeltaChapterList(nRet,sessionID,novel,chapters);
+                }
+            }
         }
     };
 
@@ -132,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         vp.setAdapter(adapter);
 
+        BookCaseFragment caseFragment = (BookCaseFragment)adapter.getItem(0);
+        this.notifies.add(caseFragment.getFetchNovelEngineNotify());
+
         BookSearchFragment searchFragment = (BookSearchFragment)adapter.getItem(1);
         this.serviceConnections.add(searchFragment.getServiceConnection());
         this.notifies.add(searchFragment.getFetchNovelEngineNotify());
@@ -169,9 +179,6 @@ public class MainActivity extends AppCompatActivity {
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         MainPageAdapter adapter = (MainPageAdapter)vp.getAdapter();
         if(adapter != null){
-            BookCaseFragment bookCaseFragment = (BookCaseFragment)adapter.getItem(0);
-            //bookCaseFragment.initializeBookCase();
-
             int count  = BookCaseManager.fetchNovelsInBookCase().size();
             int index = 0;
             if(count == 0){
@@ -189,10 +196,8 @@ public class MainActivity extends AppCompatActivity {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.app_cover_fragment);
         fragment.getView().setVisibility(View.GONE);
 
-        MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(),this.getApplicationContext());
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         vp.setVisibility(View.VISIBLE);
-        vp.setAdapter(adapter);
 
         int count  = BookCaseManager.fetchNovelsInBookCase().size();
         int index = 0;

@@ -131,7 +131,7 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
     {
         DBReaderNovel item = new DBReaderNovel();
         item.url = novel.url;
-        collectChapters(novel);
+        collectChapters(item);
         if(novel.chapters.size() >= item.chapters.size()){
             return ERROR_NO_RESULT;
         }

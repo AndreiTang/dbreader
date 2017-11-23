@@ -57,6 +57,7 @@ public class CasePageAdapter extends BaseAdapter {
                 public void onClick(View v) {
                     int pos = (Integer) v.getTag(R.id.tag_pos);
                     DBReaderNovel novel = novels.get(pos);
+                    novel.isUpdated = 0;
                     ((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
                 }
             });
@@ -71,6 +72,14 @@ public class CasePageAdapter extends BaseAdapter {
         ImageView img = (ImageView) view.findViewById(R.id.case_novel_cover);
         Glide.with(fragment).clear(img);
         Glide.with(fragment).load(novel.img).apply(fitCenterTransform()).into(img);
+
+        View flag = view.findViewById(R.id.case_novel_update);
+        if(novel.isUpdated == 1){
+            flag.setVisibility(View.VISIBLE);
+        }
+        else{
+            flag.setVisibility(View.GONE);
+        }
 
         return view;
     }

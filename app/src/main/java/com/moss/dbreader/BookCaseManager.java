@@ -6,6 +6,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.ui.ReaderPageAdapter;
@@ -53,6 +54,9 @@ public class BookCaseManager {
         for (File file : files) {
             if (file.isDirectory()) {
                 DBReaderNovel novel = readDBReader(file.getName());
+                if(novel == null){
+                    continue;
+                }
                 novels.add(novel);
             }
         }
@@ -230,7 +234,7 @@ public class BookCaseManager {
 
     static public void saveDBReader(DBReaderNovel novel) {
         String path = getNovelFolder(novel.name) + "novel.json";
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         String strNovel = gson.toJson(novel, DBReaderNovel.class);
         try {
             File file = new File(path);

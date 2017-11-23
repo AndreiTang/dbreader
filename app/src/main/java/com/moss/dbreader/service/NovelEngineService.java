@@ -19,6 +19,7 @@ import static com.moss.dbreader.service.IFetchNovelEngine.ERROR_NO_RESULT;
 import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
 import static com.moss.dbreader.service.NovelEngineCommand.CommandType.cacheChapter;
 import static com.moss.dbreader.service.NovelEngineCommand.CommandType.fetchChapter;
+import static com.moss.dbreader.service.NovelEngineCommand.CommandType.fetchDeltaChapterList;
 import static com.moss.dbreader.service.NovelEngineCommand.CommandType.fetchNovel;
 import static com.moss.dbreader.service.NovelEngineCommand.CommandType.search;
 
@@ -98,7 +99,7 @@ public class NovelEngineService extends Service {
 
         public void fetchDeltaChapterList(final DBReaderNovel novel,int engineID, int sessionID){
             NovelEngineCommand cmd = new NovelEngineCommand();
-            cmd.type = fetchNovel;
+            cmd.type = fetchDeltaChapterList;
             cmd.engineCode = engineID;
             cmd.sessionID = sessionID;
             cmd.pars.add(novel);

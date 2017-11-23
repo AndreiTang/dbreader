@@ -2,13 +2,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <ImageView
-        android:id="@+id/case_novel_cover"
-        android:background="#EEEEEE"
+    <FrameLayout
         android:layout_weight="0"
         android:layout_width="100dp"
-        android:layout_marginBottom="7dp"
-        android:layout_height="125dp" />
+        android:layout_height="125dp">
+        <ImageView
+            android:id="@+id/case_novel_cover"
+            android:scaleType="fitCenter"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="7dp"
+            android:layout_height="match_parent" />
+        <View
+            android:id="@+id/case_novel_update"
+            android:layout_height="12dp"
+            android:layout_width="12dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="top|right"
+            android:visibility="gone"
+            android:background="@drawable/search_update"/>
+    </FrameLayout>
+
 
     <TextView
         android:layout_width="100dp"

@@ -2,6 +2,8 @@ package com.moss.dbreader.service;
 
 import android.support.annotation.NonNull;
 
+import com.google.gson.annotations.Expose;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -29,18 +31,31 @@ public class DBReaderNovel implements Serializable, Comparable{
         public int index;
     }
 
+    @Expose
     public ArrayList<Chapter> chapters = new ArrayList<Chapter>();
+    @Expose
     public String name;
+    @Expose
     public String url;
+    @Expose
     public String author;
+    @Expose
     public String type;
+    @Expose
     public String updateDate;
+    @Expose
     public String img;
+    @Expose
     public String decs;
+    @Expose
     public int isInCase = 0;
+    @Expose
     public int engineID = 0;
+    @Expose
     public int currPage = 0;
+    @Expose
     public long updateTime = 0;
+    public int isUpdated = 0;
 
     public void  Add(final String name, final String url){
         Chapter chapter = new Chapter();

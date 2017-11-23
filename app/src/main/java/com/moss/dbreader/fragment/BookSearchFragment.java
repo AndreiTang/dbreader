@@ -50,7 +50,7 @@ public class BookSearchFragment extends Fragment {
 
     private NovelEngineService.NovelEngine engine = null;
     private int engineID = -1;
-    private int sessionID = 0;
+    private int sessionID = -1;
     private int searchCount = 0;
     ArrayList<DBReaderNovel> tmpNovels = new ArrayList<DBReaderNovel>();
     private final int AllowCount = 5;
