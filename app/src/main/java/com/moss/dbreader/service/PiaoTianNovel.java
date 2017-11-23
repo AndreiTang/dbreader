@@ -126,6 +126,22 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         return NO_ERROR;
     }
 
+    @Override
+    public int fetchDeltaChapterList(DBReaderNovel novel,ArrayList<DBReaderNovel.Chapter> deltaList)
+    {
+        DBReaderNovel item = new DBReaderNovel();
+        item.url = novel.url;
+        collectChapters(novel);
+        if(novel.chapters.size() >= item.chapters.size()){
+            return ERROR_NO_RESULT;
+        }
+        int i = novel.chapters.size();
+        for(; i < item.chapters.size(); i++){
+            deltaList.add(item.chapters.get(i));
+        }
+        return NO_ERROR;
+    }
+
     public int fetchNovel(DBReaderNovel novel) {
         isCancel = false;
         try {

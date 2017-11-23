@@ -7,6 +7,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.moss.dbreader.ui.ChapterAdapter;
+
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,11 +96,24 @@ public class NovelEngineService extends Service {
             initializeCache();
         }
 
+        public void fetchDeltaChapterList(final DBReaderNovel novel,int engineID, int sessionID){
+            NovelEngineCommand cmd = new NovelEngineCommand();
+            cmd.type = fetchNovel;
+            cmd.engineCode = engineID;
+            cmd.sessionID = sessionID;
+            cmd.pars.add(novel);
+            NovelEngineService.this.cacheCommands.add(cmd);
+            initializeCache();
+        }
+
         public void cancel(int sessionID){
             NovelEngineService.this.cancel(sessionID);
         }
 
         public void addNotify(IFetchNovelEngineNotify notify) {
+            if(notifies.contains(notify) == true){
+                return;
+            }
             notifies.add(notify);
         }
 
@@ -236,7 +251,16 @@ public class NovelEngineService extends Service {
                 return;
             }
             cmd = cacheCommands.remove(0);
-            procCacheChapter((String)cmd.pars.get(1),(DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+            NovelEngineCommand.CommandType type = cmd.type;
+            switch (type) {
+                case cacheChapter:
+                    procCacheChapter((String)cmd.pars.get(1),(DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+                case fetchDeltaChapterList:
+                    procFetchDeltaChapterList((DBReaderNovel) cmd.pars.get(0),cmd.engineCode, cmd.sessionID);
+                default:
+                    break;
+            }
+
         }
     }
 
@@ -263,6 +287,8 @@ public class NovelEngineService extends Service {
                 break;
             case cacheChapter:
                 procCacheChapter((String)cmd.pars.get(1),(DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+            case fetchDeltaChapterList:
+                procFetchDeltaChapterList((DBReaderNovel) cmd.pars.get(0),cmd.engineCode, cmd.sessionID);
             default:
                 break;
         }
@@ -338,6 +364,17 @@ public class NovelEngineService extends Service {
         }
         else{
             this.cacheIDs.put(sessionID,count);
+        }
+    }
+
+    private void procFetchDeltaChapterList(DBReaderNovel novel, int engineID, int sessionID){
+        if (engineID > 0 || engineID < engines.size()) {
+            IFetchNovelEngine engine = engines.get(engineID);
+            ArrayList<DBReaderNovel.Chapter> chapters = new ArrayList<DBReaderNovel.Chapter>();
+            int nRet = engine.fetchDeltaChapterList(novel,chapters);
+            for (int i = 0; i < notifies.size(); i++) {
+                notifies.get(i).OnFetchDeltaChapterList(nRet,sessionID,novel,chapters);
+            }
         }
     }
 

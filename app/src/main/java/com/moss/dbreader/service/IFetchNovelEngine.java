@@ -9,6 +9,7 @@ import java.util.ArrayList;
 public interface IFetchNovelEngine {
     int searchNovels(final String name,ArrayList<DBReaderNovel> novels);
     int fetchNovel(DBReaderNovel novel);
+    int fetchDeltaChapterList(DBReaderNovel novel, ArrayList<DBReaderNovel.Chapter> deltaList);
     int fetchChapter(final DBReaderNovel.Chapter chapter, StringWriter cont);
     void cancel();
 

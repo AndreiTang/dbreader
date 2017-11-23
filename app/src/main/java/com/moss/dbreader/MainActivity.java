@@ -1,8 +1,12 @@
 package com.moss.dbreader;
 
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Typeface;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -12,16 +16,107 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.moss.dbreader.fragment.AppCoverFragment;
 import com.moss.dbreader.fragment.BookCaseFragment;
+import com.moss.dbreader.fragment.BookSearchFragment;
 import com.moss.dbreader.service.DBReaderNovel;
+import com.moss.dbreader.service.IFetchNovelEngineNotify;
+import com.moss.dbreader.service.NovelEngineService;
 import com.moss.dbreader.ui.MainPageAdapter;
 
 import java.util.ArrayList;
 
+import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
+
 public class MainActivity extends AppCompatActivity {
+
+    private IFetchNovelEngineNotify notify = new IFetchNovelEngineNotify() {
+        @Override
+        public void OnSearchNovels(int nRet, int engineID, int sessionID, ArrayList<DBReaderNovel> novels) {
+            for(int i = 0 ; i < MainActivity.this.notifies.size(); i++){
+                IFetchNovelEngineNotify notify = MainActivity.this.notifies.get(i);
+                if(notify != null){
+                    notify.OnSearchNovels(nRet,engineID,sessionID,novels);
+                }
+            }
+        }
+
+        @Override
+        public void OnFetchNovel(int nRet, int sessionID, DBReaderNovel novel) {
+            for(int i = 0 ; i < MainActivity.this.notifies.size(); i++){
+                IFetchNovelEngineNotify notify = MainActivity.this.notifies.get(i);
+                if(notify != null){
+                    notify.OnFetchNovel(nRet,sessionID,novel);
+                }
+            }
+        }
+
+        @Override
+        public void OnFetchChapter(int nRet, int sessionID, int index, String cont) {
+
+        }
+
+        @Override
+        public void OnCacheChapter(int nRet, String novelName, int index, String cont) {
+            if (nRet != NO_ERROR) {
+                return;
+            }
+            BookCaseManager.saveChapterText(novelName,index,cont);
+        }
+
+        @Override
+        public void OnCacheChapterComplete(final String novelName) {
+            MainActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String msg = MainActivity.this.getResources().getString(R.string.cache_complete);
+                    msg = novelName + " " + msg;
+                    Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG);
+                }
+            });
+        }
+
+        @Override
+        public void OnFetchDeltaChapterList(int nRet, int sessionID, DBReaderNovel novel, ArrayList<DBReaderNovel.Chapter> chapters) {
+            if (nRet != NO_ERROR ) {
+                return;
+            }
+            DBReaderNovel item = BookCaseManager.getNovel(novel.name);
+            if (item != null ) {
+                item.chapters.addAll(chapters);
+                BookCaseManager.saveDBReader(item);
+            }
+        }
+    };
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) service;
+            MainActivity.this.engine = binder.getNovelEngine();
+            MainActivity.this.engine.addNotify(MainActivity.this.notify);
+            for(int i = 0 ; i < MainActivity.this.serviceConnections.size(); i++){
+                ServiceConnection sc = MainActivity.this.serviceConnections.get(i);
+                if(sc != null){
+                    sc.onServiceConnected(name,service);
+                }
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+
+    ////////////////////////////////////////////////
+    private NovelEngineService.NovelEngine engine = null;
+    private ArrayList<IFetchNovelEngineNotify> notifies = new ArrayList<IFetchNovelEngineNotify>();
+    private ArrayList<ServiceConnection> serviceConnections = new ArrayList<ServiceConnection>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +124,21 @@ public class MainActivity extends AppCompatActivity {
         Fresco.initialize(this);
         FontOverride.setDefaultFont(getApplicationContext(), "MONOSPACE","fonts/xinkai.ttf");
         setContentView(R.layout.activity_main);
+
+        AppCoverFragment fragment = (AppCoverFragment) getSupportFragmentManager().findFragmentById(R.id.app_cover_fragment);
+        this.serviceConnections.add(fragment.getServiceConnection());
+
+        MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(),this.getApplicationContext());
+        ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
+        vp.setAdapter(adapter);
+
+        BookSearchFragment searchFragment = (BookSearchFragment)adapter.getItem(1);
+        this.serviceConnections.add(searchFragment.getServiceConnection());
+        this.notifies.add(searchFragment.getFetchNovelEngineNotify());
+
+
+        Intent intent = new Intent(this, NovelEngineService.class);
+        this.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
 
@@ -36,13 +146,21 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ReaderActivity.class);
         intent.putExtra(Common.TAG_NOVEL,novel);
         startActivity(intent);
+        this.engine.removeNotify(this.notify);
         //finish();
     }
 
     @Override
     public void onBackPressed(){
         //unbindService(AppCoverFragment.sc);
-        //System.exit(0);
+        System.exit(0);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.engine.removeNotify(this.notify);
+        this.unbindService(this.serviceConnection);
     }
 
     @Override
@@ -52,7 +170,8 @@ public class MainActivity extends AppCompatActivity {
         MainPageAdapter adapter = (MainPageAdapter)vp.getAdapter();
         if(adapter != null){
             BookCaseFragment bookCaseFragment = (BookCaseFragment)adapter.getItem(0);
-            bookCaseFragment.initializeBookCase();
+            //bookCaseFragment.initializeBookCase();
+
             int count  = BookCaseManager.fetchNovelsInBookCase().size();
             int index = 0;
             if(count == 0){
@@ -61,6 +180,9 @@ public class MainActivity extends AppCompatActivity {
             vp.setCurrentItem(index);
         }
 
+        if(this.engine != null){
+            this.engine.addNotify(notify);
+        }
     }
 
     public void initializeBookCaseList(){
@@ -70,7 +192,6 @@ public class MainActivity extends AppCompatActivity {
         MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(),this.getApplicationContext());
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         vp.setVisibility(View.VISIBLE);
-
         vp.setAdapter(adapter);
 
         int count  = BookCaseManager.fetchNovelsInBookCase().size();

@@ -12,4 +12,5 @@ public interface IFetchNovelEngineNotify {
     void OnFetchChapter(final int nRet,final int sessionID,final int index, final String cont);
     void OnCacheChapter(final int nRet,final String novelName,final int index, final String cont);
     void OnCacheChapterComplete(final String novelName);
+    void OnFetchDeltaChapterList(final  int nRet, final int sessionID, final DBReaderNovel novel, ArrayList<DBReaderNovel.Chapter> chapters);
 }

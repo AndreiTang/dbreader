@@ -132,16 +132,7 @@ public class NovelReaderFragment extends Fragment {
 
         @Override
         public void OnFetchNovel(int nRet, int sessionID, final DBReaderNovel novel) {
-            if(nRet != NO_ERROR || novel.chapters.size() <= NovelReaderFragment.this.novel.chapters.size()){
-                return;
-            }
 
-            NovelReaderFragment.this.getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updateChapters(novel);
-                }
-            });
 
         }
 
@@ -182,6 +173,20 @@ public class NovelReaderFragment extends Fragment {
                     String msg = getActivity().getResources().getString(R.string.cache_complete);
                     msg = novelName + " " + msg;
                     Toast.makeText(NovelReaderFragment.this.getActivity(), msg, Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        @Override
+        public void OnFetchDeltaChapterList(int nRet, int sessionID, DBReaderNovel novel, final ArrayList<DBReaderNovel.Chapter> chapters) {
+            if(nRet != NO_ERROR || NovelReaderFragment.this.novel.name.compareTo(novel.name) == 0){
+                return;
+            }
+
+            NovelReaderFragment.this.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateChapters(chapters);
                 }
             });
         }
@@ -320,11 +325,9 @@ public class NovelReaderFragment extends Fragment {
         }
     }
 
-    private void updateChapters(DBReaderNovel novel){
-        int end = this.adapter.getPages().size() - 1;
-        int i = this.adapter.getReaderPage(end).chapterIndex+1;
-        for(;i< novel.chapters.size(); i++){
-            DBReaderNovel.Chapter item = novel.chapters.get(i);
+    private void updateChapters(ArrayList<DBReaderNovel.Chapter> chapters){
+        for(int i = 0 ;i< chapters.size(); i++){
+            DBReaderNovel.Chapter item = chapters.get(i);
             ReaderPageAdapter.ReaderPage rp = new ReaderPageAdapter.ReaderPage();
             rp.name = item.name;
             rp.chapterIndex = item.index;

@@ -106,22 +106,17 @@ public class BookSearchFragment extends Fragment {
 
         @Override
         public void OnCacheChapter(int nRet, String novelName, int index, String cont) {
-            if (nRet != NO_ERROR) {
-                return;
-            }
-            BookCaseManager.saveChapterText(novelName,index,cont);
+
         }
 
         @Override
         public void OnCacheChapterComplete(final String novelName) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    String msg = getActivity().getResources().getString(R.string.cache_complete);
-                    msg = novelName + " " + msg;
-                    Toast.makeText(BookSearchFragment.this.getActivity(), msg, Toast.LENGTH_LONG);
-                }
-            });
+
+        }
+
+        @Override
+        public void OnFetchDeltaChapterList(int nRet, int sessionID, DBReaderNovel novel, ArrayList<DBReaderNovel.Chapter> chapters) {
+
         }
     };
 
@@ -130,7 +125,6 @@ public class BookSearchFragment extends Fragment {
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) iBinder;
             engine = binder.getNovelEngine();
-            engine.addNotify(notify);
         }
 
         @Override
@@ -138,7 +132,15 @@ public class BookSearchFragment extends Fragment {
 
         }
     };
+////////////////////////////////////////////////////////////////
 
+    public ServiceConnection getServiceConnection(){
+        return this.serviceConnection;
+    }
+
+    public IFetchNovelEngineNotify getFetchNovelEngineNotify(){
+        return this.notify;
+    }
 
     public BookSearchFragment() {
         // Required empty public constructor
@@ -163,22 +165,10 @@ public class BookSearchFragment extends Fragment {
     }
 
     @Override
-    public void onStart(){
-        super.onStart();
-
-        Intent intent = new Intent(getActivity(), NovelEngineService.class);
-        getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-
-    @Override
-    public void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
         if (engine != null) {
             engine.cancel(sessionID);
-            engine.removeNotify(notify);
-            getActivity().unbindService(serviceConnection);
-            engine = null;
         }
     }
 
