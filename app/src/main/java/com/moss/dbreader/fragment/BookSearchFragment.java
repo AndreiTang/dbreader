@@ -158,10 +158,16 @@ public class BookSearchFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         initializeSearchView();
         initializeListView();
         initializeProgressViews();
+        View v = getActivity().findViewById(R.id.book_search_case);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity)getActivity()).switchFragment(0);
+            }
+        });
     }
 
     @Override

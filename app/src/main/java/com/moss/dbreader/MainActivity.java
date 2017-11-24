@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -192,7 +193,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void initializeBookCaseList(){
+    public void switchFragment(int index)
+    {
+        ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
+        vp.setCurrentItem(index);
+    }
+
+    public void switchMainUI(){
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.app_cover_fragment);
         fragment.getView().setVisibility(View.GONE);
 
@@ -205,6 +212,8 @@ public class MainActivity extends AppCompatActivity {
             index = 1;
         }
         vp.setCurrentItem(index);
+
+        Common.changeStatusBarColor(this, Color.parseColor("#DBC49B"));
         Log.i("Andrei", "init finish");
     }
 

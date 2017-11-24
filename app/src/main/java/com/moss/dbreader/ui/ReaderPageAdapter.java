@@ -17,8 +17,12 @@ import android.widget.TextView;
 
 import com.moss.dbreader.BookCaseManager;
 import com.moss.dbreader.R;
+import com.moss.dbreader.service.DBReaderNovel;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -109,7 +113,10 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
     public void addText(int index, String text) {
-        pageTexts.put(index, text);
+
+        ReaderPage rp = getFirstPageOfChapter(index);
+        String cont = buildNovelText(rp.name,text);
+        pageTexts.put(index, cont);
         for (int i = 0; i < usingViews.size(); i++) {
             View v = usingViews.get(i);
             int chapIndex = (Integer) v.getTag(R.id.tag_chap_index);
@@ -211,6 +218,48 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         return -1;
     }
 
+    private String buildNovelText(String chapterName, String cont) {
+        BufferedReader reader = new BufferedReader(new StringReader(cont));
+        String line;
+        String title = chapterName.replace(" ","");
+        String text = "";
+        boolean hasTitle = false;
+        int i = 0;
+        try {
+            while ((line = reader.readLine())!=null){
+                if(line.length() == 0){
+                    continue;
+                }
+                i++;
+                line = line.replace(" ","");
+                if(i==1){
+                    if(line.indexOf(title) != -1){
+                        text = chapterName + "\n\n";
+                        hasTitle = true;
+                    }
+                    else{
+                        text = "    " + line + "\n";
+                    }
+                }
+                else{
+                    line = "    " + line;
+                    text = text + line + "\n";
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(hasTitle == false){
+            text = chapterName + "\n\n" + text;
+        }
+        if(text.length() > 1){
+            text = text.substring(0,text.length() - 1);
+        }
+        Log.i("Andrei", "the build text is " + text);
+        return text;
+    }
+
 
     private ReaderPage getFirstPageOfChapter(int chapIndex) {
         for (int i = 0; i < pages.size(); i++) {
@@ -280,9 +329,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             }
         });
         String text = pageTexts.get(page.chapterIndex);
-        if (text.indexOf(page.name) == -1) {
-            text = page.name + "\n" + pageTexts.get(page.chapterIndex);
-        }
         int end = text.indexOf('\n');
         SpannableString sp = new SpannableString(text);
         int fs = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, TITLE_FONT_SIZE_SP, tv.getResources().getDisplayMetrics());
@@ -339,9 +385,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
 
     private void setPageText(final ReaderPage page, TextView tv) {
         String text = this.pageTexts.get(page.chapterIndex);
-        if (text.indexOf(page.name) == -1) {
-            text = page.name + "\n" + this.pageTexts.get(page.chapterIndex);
-        }
         int len = text.length();
         text = text.substring(page.begin, page.end);
         if (page.begin == 0) {

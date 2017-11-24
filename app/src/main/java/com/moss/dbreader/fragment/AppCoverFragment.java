@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -12,9 +13,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.moss.dbreader.BookCaseManager;
+import com.moss.dbreader.Common;
 import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
@@ -48,7 +52,7 @@ public class AppCoverFragment extends Fragment {
                         @Override
                         public void run() {
                             MainActivity activity = (MainActivity) AppCoverFragment.this.getActivity();
-                            activity.initializeBookCaseList();
+                            activity.switchMainUI();
                         }
                     });
 
@@ -86,6 +90,8 @@ public class AppCoverFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        Common.changeStatusBarColor(getActivity(),Color.argb(255,206,175,121));
 
         Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/wawa.ttf");
         TextView tv = (TextView) getActivity().findViewById(R.id.cover_title);

@@ -33,7 +33,7 @@
             <TextView
                 android:layout_weight="0"
                 android:gravity="bottom|right"
-                android:layout_width="50dp"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:textColor="#424242"

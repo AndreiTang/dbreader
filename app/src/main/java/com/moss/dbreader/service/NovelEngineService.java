@@ -9,6 +9,9 @@ import android.util.Log;
 
 import com.moss.dbreader.ui.ChapterAdapter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +35,7 @@ public class NovelEngineService extends Service {
     private static int sessionID = 0;
 
     private int currSessionID = -1;
-    private HashMap<Integer,Integer> cacheIDs = new HashMap<Integer, Integer>();
+    private HashMap<Integer, Integer> cacheIDs = new HashMap<Integer, Integer>();
 
     public class NovelEngineBinder extends Binder {
         public NovelEngine getNovelEngine() {
@@ -42,7 +45,7 @@ public class NovelEngineService extends Service {
 
     public class NovelEngine {
 
-        public int generateSessionID(){
+        public int generateSessionID() {
             sessionID++;
             return sessionID;
         }
@@ -56,7 +59,7 @@ public class NovelEngineService extends Service {
             initialize();
         }
 
-        public void fetchNovel(final DBReaderNovel novel,int engineID, int sessionID ){
+        public void fetchNovel(final DBReaderNovel novel, int engineID, int sessionID) {
             NovelEngineCommand cmd = new NovelEngineCommand();
             cmd.type = fetchNovel;
             cmd.engineCode = engineID;
@@ -77,14 +80,14 @@ public class NovelEngineService extends Service {
             initialize();
         }
 
-        public void cacheChapters(String novelName, ArrayList<DBReaderNovel.Chapter> chapters, int engineID){
-            if(chapters.size() == 0){
+        public void cacheChapters(String novelName, ArrayList<DBReaderNovel.Chapter> chapters, int engineID) {
+            if (chapters.size() == 0) {
                 return;
             }
             int sid = generateSessionID();
-            NovelEngineService.this.cacheIDs.put(sid,chapters.size());
-            Log.i("Andrei","Service cache " + novelName + " " + chapters.size());
-            for(int i = 0 ; i < chapters.size(); i++){
+            NovelEngineService.this.cacheIDs.put(sid, chapters.size());
+            Log.i("Andrei", "Service cache " + novelName + " " + chapters.size());
+            for (int i = 0; i < chapters.size(); i++) {
                 DBReaderNovel.Chapter chapter = chapters.get(i);
                 NovelEngineCommand cmd = new NovelEngineCommand();
                 cmd.type = cacheChapter;
@@ -97,7 +100,7 @@ public class NovelEngineService extends Service {
             initializeCache();
         }
 
-        public void fetchDeltaChapterList(final DBReaderNovel novel,int engineID, int sessionID){
+        public void fetchDeltaChapterList(final DBReaderNovel novel, int engineID, int sessionID) {
             NovelEngineCommand cmd = new NovelEngineCommand();
             cmd.type = fetchDeltaChapterList;
             cmd.engineCode = engineID;
@@ -107,22 +110,22 @@ public class NovelEngineService extends Service {
             initializeCache();
         }
 
-        public void cancel(int sessionID){
+        public void cancel(int sessionID) {
             NovelEngineService.this.cancel(sessionID);
         }
 
         public void addNotify(IFetchNovelEngineNotify notify) {
-            if(notifies.contains(notify) == true){
+            if (notifies.contains(notify) == true) {
                 return;
             }
             notifies.add(notify);
         }
 
-        public void removeNotify(IFetchNovelEngineNotify notify){
+        public void removeNotify(IFetchNovelEngineNotify notify) {
             notifies.remove(notify);
         }
 
-        public int fetchChapterDirectly(DBReaderNovel novel,int engineID){
+        public int fetchChapterDirectly(DBReaderNovel novel, int engineID) {
             int nRet = ERROR_NO_RESULT;
             if (engineID > 0 || engineID < engines.size()) {
                 IFetchNovelEngine engine = engines.get(engineID);
@@ -143,12 +146,12 @@ public class NovelEngineService extends Service {
 
     @Override
     public void onDestroy() {
-        if(this.thrd != null){
+        if (this.thrd != null) {
             thrd.interrupt();
             this.thrd = null;
         }
 
-        if(this.thrdCache != null){
+        if (this.thrdCache != null) {
             this.thrdCache.interrupt();
             this.thrdCache = null;
         }
@@ -162,7 +165,7 @@ public class NovelEngineService extends Service {
 
 
     private void initialize() {
-        if(this.thrd != null){
+        if (this.thrd != null) {
             return;
         }
         this.thrd = new Thread(new Runnable() {
@@ -173,13 +176,12 @@ public class NovelEngineService extends Service {
                     while (!Thread.currentThread().isInterrupted()) {
                         proc();
                         Thread.sleep(100);
-                        if(commands.size() == 0){
+                        if (commands.size() == 0) {
                             i--;
-                        }
-                        else{
+                        } else {
                             i = 1000;
                         }
-                        if(i <= 0){
+                        if (i <= 0) {
                             break;
                         }
                     }
@@ -194,8 +196,8 @@ public class NovelEngineService extends Service {
         this.thrd.start();
     }
 
-    private void initializeCache(){
-        if(this.thrdCache != null){
+    private void initializeCache() {
+        if (this.thrdCache != null) {
             return;
         }
         this.thrdCache = new Thread(new Runnable() {
@@ -206,13 +208,12 @@ public class NovelEngineService extends Service {
                     while (!Thread.currentThread().isInterrupted()) {
                         procCache();
                         Thread.sleep(1000);
-                        if(cacheCommands.size() == 0){
+                        if (cacheCommands.size() == 0) {
                             i--;
-                        }
-                        else{
+                        } else {
                             i = 100;
                         }
-                        if(i <= 0){
+                        if (i <= 0) {
                             break;
                         }
                     }
@@ -227,17 +228,17 @@ public class NovelEngineService extends Service {
         this.thrdCache.start();
     }
 
-    private void cancel(int sessionID){
-        synchronized (this){
+    private void cancel(int sessionID) {
+        synchronized (this) {
             int i = commands.size() - 1;
-            for(; i >= 0 ; i--){
+            for (; i >= 0; i--) {
                 NovelEngineCommand item = commands.get(i);
-                if(item.sessionID == sessionID){
+                if (item.sessionID == sessionID) {
                     commands.remove(i);
                 }
             }
-            if(sessionID == this.currSessionID && this.currSessionID !=-1){
-                for(i = 0 ; i < engines.size(); i++){
+            if (sessionID == this.currSessionID && this.currSessionID != -1) {
+                for (i = 0; i < engines.size(); i++) {
                     IFetchNovelEngine engine = engines.get(i);
                     engine.cancel();
                 }
@@ -245,9 +246,9 @@ public class NovelEngineService extends Service {
         }
     }
 
-    private void procCache(){
+    private void procCache() {
         NovelEngineCommand cmd = null;
-        synchronized (this){
+        synchronized (this) {
             if (cacheCommands.size() == 0) {
                 return;
             }
@@ -255,9 +256,9 @@ public class NovelEngineService extends Service {
             NovelEngineCommand.CommandType type = cmd.type;
             switch (type) {
                 case cacheChapter:
-                    procCacheChapter((String)cmd.pars.get(1),(DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+                    procCacheChapter((String) cmd.pars.get(1), (DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
                 case fetchDeltaChapterList:
-                    procFetchDeltaChapterList((DBReaderNovel) cmd.pars.get(0),cmd.engineCode, cmd.sessionID);
+                    procFetchDeltaChapterList((DBReaderNovel) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
                 default:
                     break;
             }
@@ -268,7 +269,7 @@ public class NovelEngineService extends Service {
     private void proc() {
         NovelEngineCommand cmd = null;
         NovelEngineCommand.CommandType type = search;
-        synchronized (this){
+        synchronized (this) {
             if (commands.size() == 0) {
                 return;
             }
@@ -281,15 +282,15 @@ public class NovelEngineService extends Service {
                 procSearch((String) cmd.pars.get(0), cmd.sessionID);
                 break;
             case fetchNovel:
-                procFetchNovel((DBReaderNovel)cmd.pars.get(0),cmd.engineCode,cmd.sessionID);
+                procFetchNovel((DBReaderNovel) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
                 break;
             case fetchChapter:
                 procFetchChapter((DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
                 break;
             case cacheChapter:
-                procCacheChapter((String)cmd.pars.get(1),(DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+                procCacheChapter((String) cmd.pars.get(1), (DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
             case fetchDeltaChapterList:
-                procFetchDeltaChapterList((DBReaderNovel) cmd.pars.get(0),cmd.engineCode, cmd.sessionID);
+                procFetchDeltaChapterList((DBReaderNovel) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
             default:
                 break;
         }
@@ -317,14 +318,14 @@ public class NovelEngineService extends Service {
         return ERROR_NO_RESULT;
     }
 
-    private void procFetchNovel(DBReaderNovel novel, int engineID, int sessionID){
+    private void procFetchNovel(DBReaderNovel novel, int engineID, int sessionID) {
         int nRet = ERROR_NO_RESULT;
         if (engineID > 0 || engineID < engines.size()) {
             IFetchNovelEngine engine = engines.get(engineID);
             nRet = engine.fetchNovel(novel);
         }
         for (int i = 0; i < notifies.size(); i++) {
-            notifies.get(i).OnFetchNovel(nRet, sessionID,novel);
+            notifies.get(i).OnFetchNovel(nRet, sessionID, novel);
         }
     }
 
@@ -336,14 +337,15 @@ public class NovelEngineService extends Service {
             StringWriter buf = new StringWriter();
             nRet = engine.fetchChapter(chapter, buf);
             cont = buf.toString();
+
         }
 
         for (int i = 0; i < notifies.size(); i++) {
-            notifies.get(i).OnFetchChapter(nRet, sessionID, chapter.index,cont);
+            notifies.get(i).OnFetchChapter(nRet, sessionID, chapter.index, cont);
         }
     }
 
-    private void procCacheChapter(final String novelName, final DBReaderNovel.Chapter chapter, int engineID, int sessionID){
+    private void procCacheChapter(final String novelName, final DBReaderNovel.Chapter chapter, int engineID, int sessionID) {
         int nRet = ERROR_NO_RESULT;
         String cont = "";
         if (engineID > 0 || engineID < engines.size()) {
@@ -352,29 +354,28 @@ public class NovelEngineService extends Service {
             nRet = engine.fetchChapter(chapter, buf);
             cont = buf.toString();
             for (int i = 0; i < notifies.size(); i++) {
-                notifies.get(i).OnCacheChapter(nRet,novelName, chapter.index,cont);
+                notifies.get(i).OnCacheChapter(nRet, novelName, chapter.index, cont);
             }
         }
         int count = this.cacheIDs.get(sessionID);
         count--;
-        if(count == 0){
+        if (count == 0) {
             this.cacheIDs.remove(sessionID);
             for (int i = 0; i < notifies.size(); i++) {
                 notifies.get(i).OnCacheChapterComplete(novelName);
             }
-        }
-        else{
-            this.cacheIDs.put(sessionID,count);
+        } else {
+            this.cacheIDs.put(sessionID, count);
         }
     }
 
-    private void procFetchDeltaChapterList(DBReaderNovel novel, int engineID, int sessionID){
+    private void procFetchDeltaChapterList(DBReaderNovel novel, int engineID, int sessionID) {
         if (engineID > 0 || engineID < engines.size()) {
             IFetchNovelEngine engine = engines.get(engineID);
             ArrayList<DBReaderNovel.Chapter> chapters = new ArrayList<DBReaderNovel.Chapter>();
-            int nRet = engine.fetchDeltaChapterList(novel,chapters);
+            int nRet = engine.fetchDeltaChapterList(novel, chapters);
             for (int i = 0; i < notifies.size(); i++) {
-                notifies.get(i).OnFetchDeltaChapterList(nRet,sessionID,novel,chapters);
+                notifies.get(i).OnFetchDeltaChapterList(nRet, sessionID, novel, chapters);
             }
         }
     }

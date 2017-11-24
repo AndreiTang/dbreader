@@ -26,8 +26,11 @@ public class DBReaderNovel implements Serializable, Comparable{
 
     public class Chapter implements Serializable{
         private static final long serialVersionUID = 1742127615231658991L;
+        @Expose
         public String name;
+        @Expose
         public String url;
+        @Expose
         public int index;
     }
 

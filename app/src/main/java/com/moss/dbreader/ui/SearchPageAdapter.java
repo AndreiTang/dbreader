@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.moss.dbreader.BookCaseManager;
 import com.moss.dbreader.Common;
 import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
@@ -72,7 +73,14 @@ public class SearchPageAdapter extends BaseAdapter {
                     DBReaderNovel novel = novels.get(pos);
                     novel.engineID = SearchPageAdapter.this.engineID;
                     novel.currPage = 0;
-                    ((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
+                    DBReaderNovel item = BookCaseManager.getNovel(novel.name);
+                    if(item != null){
+                        ((MainActivity)fragment.getActivity()).switchToNovelReader(item);
+                    }
+                    else{
+                        ((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
+                    }
+
                 }
             });
         }

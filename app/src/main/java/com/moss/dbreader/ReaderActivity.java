@@ -2,6 +2,7 @@ package com.moss.dbreader;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -74,6 +75,8 @@ public class ReaderActivity extends AppCompatActivity {
         ((NovelReaderFragment) fragment).setNovel(this.novel);
         fragment = this.getSupportFragmentManager().findFragmentById(R.id.book_cover_fragment);
         ((BookCoverFragment) fragment).setNovel(this.novel);
+
+        Common.changeStatusBarColor(this, Color.parseColor("#E0E0E0"));
 
     }
 
