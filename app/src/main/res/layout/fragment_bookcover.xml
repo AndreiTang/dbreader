@@ -110,6 +110,7 @@
                 android:textSize="16sp" />
 
             <TextView
+                android:id="@+id/book_cover_chapter_group"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

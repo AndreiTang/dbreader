@@ -14,8 +14,11 @@ import com.bumptech.glide.Glide;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.ui.ChapterAdapter;
+import com.moss.dbreader.ui.ChapterGroupAdapter;
 
 import org.w3c.dom.Text;
+
+import java.util.ArrayList;
 
 import static com.bumptech.glide.request.RequestOptions.fitCenterTransform;
 
@@ -26,6 +29,10 @@ import static com.bumptech.glide.request.RequestOptions.fitCenterTransform;
 public class BookCoverFragment extends Fragment {
 
     private DBReaderNovel novel;
+    private static final int MODE_CHAPTER = 1;
+    private static final int MODE_CHAPTER_GROUP = 2;
+    private int mode = MODE_CHAPTER;
+    private int curIndex = -1;
 
    public void setNovel(DBReaderNovel novel){
        this.novel = novel;
@@ -34,6 +41,7 @@ public class BookCoverFragment extends Fragment {
    public void setSelection(int curIndex){
        ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
        lv.setSelection(curIndex);
+       this.curIndex = curIndex;
    }
 
     @Override
@@ -60,12 +68,42 @@ public class BookCoverFragment extends Fragment {
 
         tv = (TextView)getActivity().findViewById(R.id.book_cover_type);
         tv.setText(novel.type);
+        listChapters(-1);
+    }
 
-
+    public void listChapters(int curIndex){
+        this.curIndex = curIndex;
+        this.mode = MODE_CHAPTER;
         ChapterAdapter adapter = new ChapterAdapter(this,this.novel.chapters);
         ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
         lv.setVerticalScrollBarEnabled(false);
         lv.setAdapter(adapter);
+        if(this.curIndex != -1){
+            lv.setSelection(this.curIndex);
+        }
+    }
+
+    public void listChapterGroups(){
+        this.mode = MODE_CHAPTER_GROUP;
+        int count = novel.chapters.size();
+        int groups = count/50;
+        if(groups%50 !=0){
+            groups++;
+        }
+        int index = 0;
+        ArrayList<Integer> gs = new ArrayList<Integer>();
+        for(int i = 0 ; i < groups; i++){
+            int number = i * 50;
+            gs.add(number);
+            if(this.curIndex >= number && this.curIndex < number + 50){
+                index = i;
+            }
+        }
+        ChapterGroupAdapter adapter = new ChapterGroupAdapter(this,gs);
+        ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
+        lv.setVerticalScrollBarEnabled(false);
+        lv.setAdapter(adapter);
+        lv.setSelection(index);
     }
 
     private void initializeMask(){
@@ -108,6 +146,19 @@ public class BookCoverFragment extends Fragment {
                     return;
                 }
                 lv.setSelection(end+1);
+            }
+        });
+
+        v = getActivity().findViewById(R.id.book_cover_chapter_group);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               if(BookCoverFragment.this.mode == MODE_CHAPTER){
+                   listChapterGroups();
+               }
+               else{
+                   listChapters(BookCoverFragment.this.curIndex);
+               }
             }
         });
     }

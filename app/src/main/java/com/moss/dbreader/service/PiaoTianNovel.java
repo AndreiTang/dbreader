@@ -34,10 +34,22 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
 
     @Override
     public int searchNovels(final String name, ArrayList<DBReaderNovel> nvs) {
-        if(innerSearchNovels(name,nvs,false) != NO_ERROR){
-            return innerSearchNovels(name,nvs,true);
+        nvs.clear();
+        ArrayList<DBReaderNovel> nv = new ArrayList<DBReaderNovel>();
+        int ret = innerSearchNovels(name,nv,true);
+        if(nv.size() > 0){
+            nvs.addAll(nv);
         }
-        return NO_ERROR;
+        nv.clear();
+        innerSearchNovels(name,nv,false);
+        if(nv.size() > 0){
+            nvs.addAll(nv);
+        }
+        nv.clear();
+        if(nvs.size() > 0){
+            return NO_ERROR;
+        }
+        return ret;
     }
 
     private int innerSearchNovels(final String name, ArrayList<DBReaderNovel> nvs, boolean isNovel){

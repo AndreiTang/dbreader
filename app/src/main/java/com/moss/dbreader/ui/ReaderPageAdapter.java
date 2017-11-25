@@ -242,6 +242,9 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                     }
                 }
                 else{
+                    if(line.indexOf(title) != -1){
+                        continue;
+                    }
                     line = "    " + line;
                     text = text + line + "\n";
                 }
