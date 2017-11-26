@@ -222,6 +222,14 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         BufferedReader reader = new BufferedReader(new StringReader(cont));
         String line;
         String title = chapterName.replace(" ","");
+        int index = title.indexOf('(');
+        if(index !=-1){
+            title = title.substring(0,index);
+        }
+        index = title.indexOf('（');
+        if(index !=-1){
+            title = title.substring(0,index);
+        }
         String text = "";
         boolean hasTitle = false;
         int i = 0;
@@ -259,7 +267,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         if(text.length() > 1){
             text = text.substring(0,text.length() - 1);
         }
-        Log.i("Andrei", "the build text is " + text);
         return text;
     }
 
@@ -389,7 +396,16 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     private void setPageText(final ReaderPage page, TextView tv) {
         String text = this.pageTexts.get(page.chapterIndex);
         int len = text.length();
-        text = text.substring(page.begin, page.end);
+        if(page.begin >= len){
+            text = "";
+        }
+        else if(page.end > len){
+            text = text.substring(page.begin, len);
+        }
+        else{
+            text = text.substring(page.begin, page.end);
+        }
+
         if (page.begin == 0) {
             int end = text.indexOf('\n');
             SpannableString sp = new SpannableString(text);

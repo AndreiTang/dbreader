@@ -70,14 +70,24 @@ public class BookSearchFragment extends Fragment {
                 BookSearchFragment.this.showErrorInfo(nRet);
                 return;
             }
-            BookSearchFragment.this.novels = novels;
+
             BookSearchFragment.this.engineID = engineID;
             BookSearchFragment.this.sessionID = sessionID;
-            if(novels.size() == 1){
-                tmpNovels.clear();
-                DBReaderNovel novel = BookSearchFragment.this.novels.get(0);
-                BookSearchFragment.this.tmpNovels.add(novel);
-                BookSearchFragment.this.novels.remove(0);
+
+            tmpNovels.clear();
+            for(int i = novels.size() - 1 ; i >=0 ; i--){
+                DBReaderNovel item = novels.get(i);
+                if(item.chapters != null && item.chapters.size() > 0){
+                    BookSearchFragment.this.tmpNovels.add(item);
+                    novels.remove(i);
+                }
+            }
+
+            if(novels.size() > 0){
+                BookSearchFragment.this.novels = novels;
+            }
+
+            if(novels.size() == 0){
                 showSearchResult();
             }
             else{
@@ -280,7 +290,6 @@ public class BookSearchFragment extends Fragment {
         if (novels.size() == 0) {
             return;
         }
-        tmpNovels.clear();
         searchCount = novels.size();
         if (searchCount > AllowCount) {
             searchCount = AllowCount;

@@ -21,50 +21,61 @@
 
             <ImageView
                 android:id="@+id/book_cover_img"
-                android:layout_width="60dp"
-                android:layout_height="75dp"
+                android:layout_width="72dp"
+                android:layout_height="90dp"
                 android:layout_weight="0"
                 android:background="#EEEEEE" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="75dp"
+                android:layout_height="90dp"
                 android:layout_marginLeft="10dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
                     android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/book_cover_name"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="top"
                         android:textColor="#000000"
                         android:textSize="22sp" />
 
                     <TextView
-                        android:id="@+id/book_cover_type"
+                        android:id="@+id/book_cover_per"
                         android:layout_width="60dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="0"
-                        android:gravity="center_vertical|right"
+                        android:gravity="top|right"
+                        android:paddingTop="3dp"
                         android:paddingRight="5dp"
                         android:textSize="15sp" />
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/book_cover_author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="left|center_vertical"
+                    android:text="1小时56分"
+                    android:textSize="16sp" />
+
+                <TextView
                     android:id="@+id/book_cover_duration"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
                     android:text="1小时56分"
+                    android:paddingBottom="3dp"
                     android:textSize="16sp" />
             </LinearLayout>
         </LinearLayout>

@@ -66,8 +66,21 @@ public class BookCoverFragment extends Fragment {
         TextView tv = (TextView)getActivity().findViewById(R.id.book_cover_name);
         tv.setText(novel.name);
 
-        tv = (TextView)getActivity().findViewById(R.id.book_cover_type);
-        tv.setText(novel.type);
+        tv = (TextView)getActivity().findViewById(R.id.book_cover_author);
+        tv.setText(novel.author);
+
+        int h = (int)novel.duration/(1000*3600);
+        int m = (int)novel.duration%(1000*3600);
+        m = m /(1000*60);
+        String duration = getString(R.string.book_duration);
+        duration = String.format(duration,h,m);
+        tv = (TextView)getActivity().findViewById(R.id.book_cover_duration);
+        tv.setText(duration);
+
+
+        tv = (TextView)getActivity().findViewById(R.id.book_cover_per);
+        String per = (int)this.novel.currChapter*100/this.novel.chapters.size() + "%";
+        tv.setText(per);
         listChapters(-1);
     }
 

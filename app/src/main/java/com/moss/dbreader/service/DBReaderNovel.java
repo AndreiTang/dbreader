@@ -58,6 +58,10 @@ public class DBReaderNovel implements Serializable, Comparable{
     public int currPage = 0;
     @Expose
     public long updateTime = 0;
+    @Expose
+    public long duration = 0;
+    @Expose
+    public int currChapter = 0;
     public int isUpdated = 0;
 
     public void  Add(final String name, final String url){

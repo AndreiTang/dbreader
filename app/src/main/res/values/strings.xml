@@ -34,6 +34,8 @@
     <string name="book_cover_exit">回退</string>
     <string name="cache_complete">缓存结束</string>
     <string name="book_search_hint">搜索书名</string>
+    <string name="book_chapter">第%1$d章-第%2$d章</string>
+    <string name="book_duration">%1$d小时%2$d分</string>
 
 
 

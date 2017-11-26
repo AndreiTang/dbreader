@@ -51,8 +51,10 @@ public class ChapterGroupAdapter extends BaseAdapter {
             });
         }
         int begin = this.groups.get(position) + 1;
+
         int end = begin + 50;
-        String msg = begin + " - " + end;
+        String msg = this.bookCoverFragment.getString(R.string.book_chapter);
+        msg  = String.format(msg,begin,end);
         TextView tv = (TextView) convertView.findViewById(R.id.chapter_name);
         tv.setText(msg);
         convertView.setTag(R.id.tag_chap_index,begin-1);

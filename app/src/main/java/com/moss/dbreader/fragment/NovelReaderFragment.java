@@ -220,6 +220,7 @@ public class NovelReaderFragment extends Fragment {
     private final static String TAG_PAGES = "tag_pages";
     private final static String TAG_CURR_PAGE = "tag_cur_page";
     private final static String TAG_NOVEL = "tag_novel";
+    private long beginTime = 0;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -287,10 +288,18 @@ public class NovelReaderFragment extends Fragment {
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+        this.beginTime = System.currentTimeMillis();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
+        this.novel.duration += (System.currentTimeMillis() - this.beginTime);
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
         this.novel.currPage = vp.getCurrentItem();
+        this.novel.currChapter = adapter.getReaderPage(this.novel.currPage).chapterIndex;
         BookCaseManager.saveReaderPages(this.novel.name, this.adapter.getPages());
         BookCaseManager.add(novel, true);
         BookCaseManager.saveDBReader(novel);
