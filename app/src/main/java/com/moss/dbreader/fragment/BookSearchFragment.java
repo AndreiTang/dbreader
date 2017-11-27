@@ -86,6 +86,9 @@ public class BookSearchFragment extends Fragment {
             if(novels.size() > 0){
                 BookSearchFragment.this.novels = novels;
             }
+            else{
+                BookSearchFragment.this.novels = null;
+            }
 
             if(novels.size() == 0){
                 showSearchResult();
@@ -262,7 +265,7 @@ public class BookSearchFragment extends Fragment {
     }
 
     private void scrollToEnd(ListView lv, int pos) {
-        if (lv.getAdapter() == null || novels.size() == 0 || lv.getFooterViewsCount() == 1 || isRunning == true) {
+        if (lv.getAdapter() == null || novels == null ||novels.size() == 0 || lv.getFooterViewsCount() == 1 || isRunning == true) {
             return;
         }
 

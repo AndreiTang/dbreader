@@ -142,6 +142,12 @@ public class NovelReaderFragment extends Fragment {
                 return;
             }
             if (nRet != NO_ERROR) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        NovelReaderFragment.this.adapter.error(index);
+                    }
+                });
                 return;
             }
             BookCaseManager.saveChapterText(novel.name, index, cont);
@@ -376,7 +382,7 @@ public class NovelReaderFragment extends Fragment {
                 }
             });
         }
-        this.adapter = new ReaderPageAdapter(views, R.id.reader_text, R.id.reader_chapter_title, R.id.reader_chapter_page_no, R.id.reader_mask, readerPageAdapterNotify);
+        this.adapter = new ReaderPageAdapter(views, R.id.reader_text, R.id.reader_chapter_title, R.id.reader_chapter_page_no, R.id.reader_mask,R.id.reader_error, readerPageAdapterNotify);
         vp.addOnPageChangeListener(adapter);
     }
 
