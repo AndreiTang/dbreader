@@ -138,7 +138,6 @@ public class NovelReaderFragment extends Fragment {
 
         @Override
         public void OnFetchChapter(int nRet, int sessionID, final int index, final String cont) {
-            Log.i("Andrei", "index is " + index + " text arrived" + " session is " + sessionID + " ret is " + nRet);
             if (NovelReaderFragment.this.sessionID != sessionID) {
                 return;
             }
@@ -228,7 +227,6 @@ public class NovelReaderFragment extends Fragment {
         initializeViewPager();
 
         if (savedInstanceState != null) {
-            Log.i("Andrei", "recovery from saveins");
             onRestoreInstanceState(savedInstanceState);
         } else {
             initializeAdapter();
@@ -241,8 +239,6 @@ public class NovelReaderFragment extends Fragment {
         if (this.adapter == null) {
             return;
         }
-
-        Log.i("Andrei", "run onSaveInstanceState");
 
         ArrayList<ReaderPageAdapter.ReaderPage> rps = new ArrayList<ReaderPageAdapter.ReaderPage>();
         int count = this.adapter.getCount();
@@ -291,6 +287,7 @@ public class NovelReaderFragment extends Fragment {
     public void onResume(){
         super.onResume();
         this.beginTime = System.currentTimeMillis();
+        Log.i("Andrei","resume");
     }
 
     @Override
@@ -303,6 +300,7 @@ public class NovelReaderFragment extends Fragment {
         BookCaseManager.saveReaderPages(this.novel.name, this.adapter.getPages());
         BookCaseManager.add(novel, true);
         BookCaseManager.saveDBReader(novel);
+        Log.i("Andrei","pause");
     }
 
     public void cacheChapters() {

@@ -277,7 +277,6 @@ public class BookSearchFragment extends Fragment {
                 }
             }
             if (v.getBottom()  <= lv.getHeight()) {
-                Log.i("Andrei","Scroll End");
                 lv.addFooterView(footView);
                 isRunning = true;
                 fetchNovelDetails();

@@ -171,7 +171,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             tv.setText("");
             mask.setVisibility(View.VISIBLE);
             if (page.begin == FLAG_CURR_PAGE || page.begin >= 0) {
-                Log.i("Andrei","the fresh page is " + page.name);
                 readerPageAdapterNotify.update(page.chapterIndex);
             }
         }
@@ -319,7 +318,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
     private void initPageText(final ReaderPage page, final TextView tv) {
-        Log.i("Andrei", "initPage index " + page.chapterIndex);
         tv.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
@@ -330,10 +328,8 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                 ReaderPageAdapter.this.notifyDataSetChanged();
                 ReaderPage rp = getFirstPageOfChapter(page.chapterIndex + 1);
                 if (rp != null && rp.begin == FLAG_PREVIOUS_PAGE) {
-                    Log.i("Andrei","reinit page is " + rp.name);
                     rp.begin = FLAG_CURR_PAGE;
                     readerPageAdapterNotify.update(rp.chapterIndex);
-                    Log.i("Andrei", "readerPageAdapterNotify finish at " + rp.name);
                 }
                 return false;
             }

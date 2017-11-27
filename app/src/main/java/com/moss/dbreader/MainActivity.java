@@ -214,7 +214,6 @@ public class MainActivity extends AppCompatActivity {
         vp.setCurrentItem(index);
 
         Common.changeStatusBarColor(this, Color.parseColor("#DBC49B"));
-        Log.i("Andrei", "init finish");
     }
 
 }

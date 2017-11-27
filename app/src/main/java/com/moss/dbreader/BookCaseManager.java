@@ -145,8 +145,7 @@ public class BookCaseManager {
         String path = appPath + novelName;
         File dir = new File(path);
         if (!dir.exists()) {
-            boolean ret = dir.mkdirs();
-            Log.i("Andrei", "the create floder is " + ret);
+            dir.mkdirs();
         }
         return path + "/";
     }

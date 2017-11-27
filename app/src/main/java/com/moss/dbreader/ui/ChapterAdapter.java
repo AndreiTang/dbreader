@@ -54,7 +54,6 @@ public class ChapterAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
                     DBReaderNovel.Chapter cp = (DBReaderNovel.Chapter)v.getTag(R.id.tag_chapter);
-                    Log.i("Andrei", "cahp is " + cp.index + " " + cp.name);
                     ((ReaderActivity)fragment.getActivity()).changeChapter(cp);
                     fragment.getView().setVisibility(View.GONE);
                 }

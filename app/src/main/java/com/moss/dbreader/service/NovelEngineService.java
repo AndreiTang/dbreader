@@ -86,7 +86,6 @@ public class NovelEngineService extends Service {
             }
             int sid = generateSessionID();
             NovelEngineService.this.cacheIDs.put(sid, chapters.size());
-            Log.i("Andrei", "Service cache " + novelName + " " + chapters.size());
             for (int i = 0; i < chapters.size(); i++) {
                 DBReaderNovel.Chapter chapter = chapters.get(i);
                 NovelEngineCommand cmd = new NovelEngineCommand();
