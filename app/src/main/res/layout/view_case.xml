@@ -21,6 +21,17 @@
             android:layout_gravity="top|right"
             android:visibility="gone"
             android:background="@drawable/search_update"/>
+
+        <ImageView
+            android:id="@+id/case_novel_remove"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="bottom|right"
+            android:src="@drawable/rm"
+            android:scaleType="fitCenter"
+            android:layout_width="18dp"
+            android:visibility="gone"
+            android:layout_height="18dp" />
     </FrameLayout>
 
 

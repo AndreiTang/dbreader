@@ -27,6 +27,11 @@ public class CasePageAdapter extends BaseAdapter {
 
     private Fragment fragment;
     private ArrayList<DBReaderNovel> novels;
+    public static final int MODE_NORMAL = 1;
+    public static final int MODE_REMOVE = 2;
+    private int mode = MODE_NORMAL;
+    private ArrayList<Integer> ids = new ArrayList<Integer>();
+
 
     public CasePageAdapter(Fragment fragment){
         this.fragment = fragment;
@@ -57,8 +62,22 @@ public class CasePageAdapter extends BaseAdapter {
                 public void onClick(View v) {
                     int pos = (Integer) v.getTag(R.id.tag_pos);
                     DBReaderNovel novel = novels.get(pos);
-                    novel.isUpdated = 0;
-                    ((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
+                    if(CasePageAdapter.this.mode == MODE_NORMAL){
+                        novel.isUpdated = 0;
+                        ((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
+                    }
+                    else{
+                        View rm = v.findViewById(R.id.case_novel_remove);
+                        if(rm.getVisibility() == View.GONE){
+                            rm.setVisibility(View.VISIBLE);
+                            CasePageAdapter.this.ids.add(pos);
+                        }
+                        else{
+                            rm.setVisibility(View.GONE);
+                            CasePageAdapter.this.ids.remove(pos);
+                        }
+                    }
+
                 }
             });
         }
@@ -81,6 +100,42 @@ public class CasePageAdapter extends BaseAdapter {
             flag.setVisibility(View.GONE);
         }
 
+        if(this.ids.contains(position) == true){
+            view.findViewById(R.id.case_novel_remove).setVisibility(View.VISIBLE);
+        }
+        else{
+            view.findViewById(R.id.case_novel_remove).setVisibility(View.GONE);
+        }
+
         return view;
+    }
+
+    public int getMode(){
+        return this.mode;
+    }
+
+    public void setMode(int mode){
+        this.mode = mode;
+        if(this.mode == MODE_NORMAL){
+            removeSelectNovels();
+        }
+    }
+
+    private void removeSelectNovels(){
+        if(this.ids.size() == 0){
+            return;
+        }
+        for(int i = 0; i < this.ids.size(); i++){
+            int pos = this.ids.get(i);
+            DBReaderNovel novel = this.novels.get(pos);
+            novel.isInCase = 0;
+            novel.currChapter = 0;
+            novel.currPage = 0;
+            BookCaseManager.saveDBReader(novel);
+            BookCaseManager.removeReaderPages(novel.name);
+            this.novels.remove(pos);
+        }
+        this.ids.clear();
+        notifyDataSetChanged();
     }
 }

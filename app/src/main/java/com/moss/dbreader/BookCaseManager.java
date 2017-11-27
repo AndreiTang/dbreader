@@ -163,6 +163,12 @@ public class BookCaseManager {
         return bookCase;
     }
 
+    static public void removeReaderPages(String name){
+        String path = getNovelFolder(name) + "rps.json";
+        File file = new File(path);
+        file.delete();
+    }
+
     static public void saveReaderPages(String name , ArrayList<ReaderPageAdapter.ReaderPage> rps){
         String path = getNovelFolder(name) + "rps.json";
         Gson gson = new Gson();

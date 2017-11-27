@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListAdapter;
+import android.widget.TextView;
 
 import com.moss.dbreader.BookCaseManager;
 import com.moss.dbreader.MainActivity;
@@ -75,6 +76,8 @@ public class BookCaseFragment extends Fragment {
             });
         }
     };
+    //////////////////////////////////////////////////////////////////
+    CasePageAdapter cp = null;
 
     public IFetchNovelEngineNotify getFetchNovelEngineNotify(){
         return notify;
@@ -95,12 +98,29 @@ public class BookCaseFragment extends Fragment {
                 ((MainActivity)getActivity()).switchFragment(1);
             }
         });
+
+        v = getView().findViewById(R.id.book_case_edit);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               if( cp.getMode() == CasePageAdapter.MODE_NORMAL){
+                   cp.setMode(CasePageAdapter.MODE_REMOVE);
+                   TextView tv = (TextView)v;
+                   tv.setText(R.string.book_case_remove);
+               }
+               else{
+                   cp.setMode(CasePageAdapter.MODE_NORMAL);
+                   TextView tv = (TextView)v;
+                   tv.setText(R.string.book_case_edit);
+               }
+            }
+        });
     }
 
     @Override
     public void  onResume(){
         super.onResume();
-        CasePageAdapter cp = new CasePageAdapter(this);
+        this.cp = new CasePageAdapter(this);
         GridView gv = (GridView)getActivity().findViewById(R.id.case_grid);
         gv.setAdapter(cp);
     }
