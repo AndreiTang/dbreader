@@ -44,7 +44,7 @@ public class AppCoverFragment extends Fragment {
                     BookCaseManager.initialize(getContext().getFilesDir().getAbsolutePath());
                     ArrayList<DBReaderNovel> novels = BookCaseManager.fetchNovelsInBookCase();
                     try {
-                        Thread.sleep(3000);
+                        Thread.sleep(2000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
