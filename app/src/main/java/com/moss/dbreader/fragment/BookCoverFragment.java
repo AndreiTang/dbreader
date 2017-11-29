@@ -2,7 +2,6 @@ package com.moss.dbreader.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +12,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
-import com.moss.dbreader.ui.ChapterAdapter;
-import com.moss.dbreader.ui.ChapterGroupAdapter;
-
-import org.w3c.dom.Text;
+import com.moss.dbreader.ui.ChapterPageAdapter;
+import com.moss.dbreader.ui.ChapterGroupPageAdapter;
 
 import java.util.ArrayList;
 
@@ -87,7 +84,7 @@ public class BookCoverFragment extends Fragment {
     public void listChapters(int curIndex){
         this.curIndex = curIndex;
         this.mode = MODE_CHAPTER;
-        ChapterAdapter adapter = new ChapterAdapter(this,this.novel.chapters);
+        ChapterPageAdapter adapter = new ChapterPageAdapter(this,this.novel.chapters);
         ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
         lv.setVerticalScrollBarEnabled(false);
         lv.setAdapter(adapter);
@@ -112,7 +109,7 @@ public class BookCoverFragment extends Fragment {
                 index = i;
             }
         }
-        ChapterGroupAdapter adapter = new ChapterGroupAdapter(this,gs);
+        ChapterGroupPageAdapter adapter = new ChapterGroupPageAdapter(this,gs);
         ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
         lv.setVerticalScrollBarEnabled(false);
         lv.setAdapter(adapter);

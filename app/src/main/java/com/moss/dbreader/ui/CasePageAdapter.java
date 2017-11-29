@@ -74,7 +74,8 @@ public class CasePageAdapter extends BaseAdapter {
                         }
                         else{
                             rm.setVisibility(View.GONE);
-                            CasePageAdapter.this.ids.remove(pos);
+                            Integer item = pos;
+                            CasePageAdapter.this.ids.remove(item);
                         }
                     }
 

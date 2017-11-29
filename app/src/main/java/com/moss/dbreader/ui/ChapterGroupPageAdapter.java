@@ -14,12 +14,12 @@ import java.util.ArrayList;
  * Created by tangqif on 11/25/2017.
  */
 
-public class ChapterGroupAdapter extends BaseAdapter {
+public class ChapterGroupPageAdapter extends BaseAdapter {
 
     BookCoverFragment bookCoverFragment = null;
     ArrayList<Integer> groups = null;
 
-    public ChapterGroupAdapter(BookCoverFragment bookCoverFragment, ArrayList<Integer> groups){
+    public ChapterGroupPageAdapter(BookCoverFragment bookCoverFragment, ArrayList<Integer> groups){
         this.bookCoverFragment = bookCoverFragment;
         this.groups = groups;
     }
@@ -46,7 +46,7 @@ public class ChapterGroupAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
                     int index = (Integer) v.getTag(R.id.tag_chap_index);
-                    ChapterGroupAdapter.this.bookCoverFragment.listChapters(index);
+                    ChapterGroupPageAdapter.this.bookCoverFragment.listChapters(index);
                 }
             });
         }

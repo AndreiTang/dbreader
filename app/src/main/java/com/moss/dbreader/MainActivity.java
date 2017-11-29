@@ -1,6 +1,7 @@
 package com.moss.dbreader;
 
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -121,10 +123,13 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
+
+
     ////////////////////////////////////////////////
     private NovelEngineService.NovelEngine engine = null;
     private ArrayList<IFetchNovelEngineNotify> notifies = new ArrayList<IFetchNovelEngineNotify>();
     private ArrayList<ServiceConnection> serviceConnections = new ArrayList<ServiceConnection>();
+    private String currNovelName = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +155,10 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, NovelEngineService.class);
         this.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+        if(savedInstanceState != null){
+            this.currNovelName = savedInstanceState.getString(Common.TAG_NOVEL);
+        }
     }
 
 
@@ -157,8 +166,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ReaderActivity.class);
         intent.putExtra(Common.TAG_NOVEL,novel);
         startActivity(intent);
-        this.engine.removeNotify(this.notify);
-        //finish();
+        if(this.engine != null){
+            this.engine.removeNotify(this.notify);
+            Log.i("Andrei", "engine not null");
+        }
     }
 
     @Override
@@ -177,21 +188,33 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
-        MainPageAdapter adapter = (MainPageAdapter)vp.getAdapter();
-        if(adapter != null){
-            int count  = BookCaseManager.fetchNovelsInBookCase().size();
-            int index = 0;
-            if(count == 0){
-                index = 1;
-            }
-            vp.setCurrentItem(index);
-        }
-
         if(this.engine != null){
             this.engine.addNotify(notify);
         }
     }
+
+    @Override
+    protected void onNewIntent(Intent intent){
+        super.onNewIntent(intent);
+        int index = intent.getIntExtra(Common.TAG_MAIN_CATEGORY,-1);
+        if(index != -1){
+            ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
+            vp.setCurrentItem(index);
+            getIntent().addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        }
+        String name = intent.getStringExtra(Common.TAG_NOVEL);
+        if(name != null && name.length() > 0){
+            DBReaderNovel novel = BookCaseManager.getNovel(name);
+            switchToNovelReader(novel);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putString(Common.TAG_NOVEL,this.currNovelName);
+    }
+
 
     public void switchFragment(int index)
     {

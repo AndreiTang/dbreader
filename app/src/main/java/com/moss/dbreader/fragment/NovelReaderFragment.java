@@ -231,34 +231,35 @@ public class NovelReaderFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         initializeViewPager();
+        initializeAdapter();
 
-        if (savedInstanceState != null) {
-            onRestoreInstanceState(savedInstanceState);
-        } else {
-            initializeAdapter();
-        }
+//        if (savedInstanceState != null) {
+//            onRestoreInstanceState(savedInstanceState);
+//        } else {
+//            initializeAdapter();
+//        }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (this.adapter == null) {
-            return;
-        }
-
-        ArrayList<ReaderPageAdapter.ReaderPage> rps = new ArrayList<ReaderPageAdapter.ReaderPage>();
-        int count = this.adapter.getCount();
-        for (int i = 0; i < count; i++) {
-            ReaderPageAdapter.ReaderPage rp = this.adapter.getReaderPage(i);
-            rps.add(rp);
-        }
-        outState.putSerializable(NovelReaderFragment.TAG_PAGES, rps);
-
-        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
-        int curr = vp.getCurrentItem();
-        outState.putInt(NovelReaderFragment.TAG_CURR_PAGE, curr);
-        outState.putSerializable(NovelReaderFragment.TAG_NOVEL, this.novel);
-    }
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        if (this.adapter == null) {
+//            return;
+//        }
+//
+//        ArrayList<ReaderPageAdapter.ReaderPage> rps = new ArrayList<ReaderPageAdapter.ReaderPage>();
+//        int count = this.adapter.getCount();
+//        for (int i = 0; i < count; i++) {
+//            ReaderPageAdapter.ReaderPage rp = this.adapter.getReaderPage(i);
+//            rps.add(rp);
+//        }
+//        outState.putSerializable(NovelReaderFragment.TAG_PAGES, rps);
+//
+//        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
+//        int curr = vp.getCurrentItem();
+//        outState.putInt(NovelReaderFragment.TAG_CURR_PAGE, curr);
+//        outState.putSerializable(NovelReaderFragment.TAG_NOVEL, this.novel);
+//    }
 
 
     public void setNovel(DBReaderNovel novel) {
@@ -293,7 +294,6 @@ public class NovelReaderFragment extends Fragment {
     public void onResume(){
         super.onResume();
         this.beginTime = System.currentTimeMillis();
-        Log.i("Andrei","resume");
     }
 
     @Override
@@ -306,7 +306,6 @@ public class NovelReaderFragment extends Fragment {
         BookCaseManager.saveReaderPages(this.novel.name, this.adapter.getPages());
         BookCaseManager.add(novel, true);
         BookCaseManager.saveDBReader(novel);
-        Log.i("Andrei","pause");
     }
 
     public void cacheChapters() {
@@ -350,20 +349,20 @@ public class NovelReaderFragment extends Fragment {
         this.adapter.notifyDataSetChanged();
     }
 
-    private void onRestoreInstanceState(Bundle outState) {
-        ArrayList<ReaderPageAdapter.ReaderPage> rpList = (ArrayList<ReaderPageAdapter.ReaderPage>) outState.getSerializable(NovelReaderFragment.TAG_PAGES);
-        for (int i = 0; i < rpList.size(); i++) {
-            this.adapter.addPage(rpList.get(i));
-        }
-
-        this.novel = (DBReaderNovel) outState.getSerializable(NovelReaderFragment.TAG_NOVEL);
-
-        int curPage = outState.getInt(NovelReaderFragment.TAG_CURR_PAGE);
-
-        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
-        vp.setAdapter(adapter);
-        vp.setCurrentItem(curPage);
-    }
+//    private void onRestoreInstanceState(Bundle outState) {
+//        ArrayList<ReaderPageAdapter.ReaderPage> rpList = (ArrayList<ReaderPageAdapter.ReaderPage>) outState.getSerializable(NovelReaderFragment.TAG_PAGES);
+//        for (int i = 0; i < rpList.size(); i++) {
+//            this.adapter.addPage(rpList.get(i));
+//        }
+//
+//        this.novel = (DBReaderNovel) outState.getSerializable(NovelReaderFragment.TAG_NOVEL);
+//
+//        int curPage = outState.getInt(NovelReaderFragment.TAG_CURR_PAGE);
+//
+//        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
+//        vp.setAdapter(adapter);
+//        vp.setCurrentItem(curPage);
+//    }
 
 
     private void initializeViewPager() {

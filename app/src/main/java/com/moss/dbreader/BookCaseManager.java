@@ -254,10 +254,8 @@ public class BookCaseManager {
             fo.flush();
             fo.close();
         } catch (FileNotFoundException e) {
-            Log.i("Andrei", "create file err");
             e.printStackTrace();
         } catch (IOException e) {
-            Log.i("Andrei", "write file err" + e.toString());
             e.printStackTrace();
         }
     }

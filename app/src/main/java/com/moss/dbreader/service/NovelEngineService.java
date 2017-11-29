@@ -7,16 +7,9 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.moss.dbreader.ui.ChapterAdapter;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import static com.moss.dbreader.service.IFetchNovelEngine.ERROR_NO_RESULT;
 import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;

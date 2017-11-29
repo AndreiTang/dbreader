@@ -20,12 +20,12 @@ import java.util.zip.Inflater;
  * Created by tangqif on 11/14/2017.
  */
 
-public class ChapterAdapter extends BaseAdapter {
+public class ChapterPageAdapter extends BaseAdapter {
 
     private ArrayList<DBReaderNovel.Chapter> chapters = null;
     private Fragment fragment;
 
-    public ChapterAdapter(Fragment fragment, ArrayList<DBReaderNovel.Chapter> chapters){
+    public ChapterPageAdapter(Fragment fragment, ArrayList<DBReaderNovel.Chapter> chapters){
         this.chapters = chapters;
         this.fragment = fragment;
     }
