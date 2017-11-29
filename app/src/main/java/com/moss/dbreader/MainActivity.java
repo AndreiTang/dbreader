@@ -138,8 +138,15 @@ public class MainActivity extends AppCompatActivity {
         FontOverride.setDefaultFont(getApplicationContext(), "MONOSPACE","fonts/xinkai.ttf");
         setContentView(R.layout.activity_main);
 
+
         AppCoverFragment fragment = (AppCoverFragment) getSupportFragmentManager().findFragmentById(R.id.app_cover_fragment);
-        this.serviceConnections.add(fragment.getServiceConnection());
+        if(savedInstanceState != null){
+            fragment.getView().setVisibility(View.GONE);
+            findViewById(R.id.main_viewpager).setVisibility(View.VISIBLE);
+        }
+        else{
+            this.serviceConnections.add(fragment.getServiceConnection());
+        }
 
         MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(),this.getApplicationContext());
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
@@ -158,11 +165,16 @@ public class MainActivity extends AppCompatActivity {
 
         if(savedInstanceState != null){
             this.currNovelName = savedInstanceState.getString(Common.TAG_NOVEL);
+            if(this.currNovelName != null && this.currNovelName.length() > 0){
+                DBReaderNovel novel = BookCaseManager.getNovel(this.currNovelName);
+                switchToNovelReader(novel);
+            }
         }
     }
 
 
     public void switchToNovelReader(final DBReaderNovel novel){
+        this.currNovelName = novel.name;
         Intent intent = new Intent(this, ReaderActivity.class);
         intent.putExtra(Common.TAG_NOVEL,novel);
         startActivity(intent);
@@ -191,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
         if(this.engine != null){
             this.engine.addNotify(notify);
         }
+        this.currNovelName = null;
     }
 
     @Override
@@ -212,7 +225,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
-        outState.putString(Common.TAG_NOVEL,this.currNovelName);
+        if(this.currNovelName != null){
+            outState.putString(Common.TAG_NOVEL,this.currNovelName);
+        }
     }
 
 
