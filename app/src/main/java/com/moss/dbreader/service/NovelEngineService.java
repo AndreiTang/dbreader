@@ -249,8 +249,10 @@ public class NovelEngineService extends Service {
             switch (type) {
                 case cacheChapter:
                     procCacheChapter((String) cmd.pars.get(1), (DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+                    break;
                 case fetchDeltaChapterList:
                     procFetchDeltaChapterList((DBReaderNovel) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+                    break;
                 default:
                     break;
             }
@@ -281,8 +283,10 @@ public class NovelEngineService extends Service {
                 break;
             case cacheChapter:
                 procCacheChapter((String) cmd.pars.get(1), (DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+                break;
             case fetchDeltaChapterList:
                 procFetchDeltaChapterList((DBReaderNovel) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+                break;
             default:
                 break;
         }
