@@ -43,6 +43,10 @@ public class NovelEngineService extends Service {
             return sessionID;
         }
 
+        public void loadNovels(){
+                    
+        }
+
         public void searchNovel(final String name, int sessionID) {
             NovelEngineCommand cmd = new NovelEngineCommand();
             cmd.type = search;
@@ -63,40 +67,30 @@ public class NovelEngineService extends Service {
         }
 
 
-        public void fetchChapter(DBReaderNovel.Chapter chapter, int engineID, int sessionID) {
+        public void fetchChapter(String novelName,DBReaderNovel.Chapter chapter, int engineID, int sessionID) {
             NovelEngineCommand cmd = new NovelEngineCommand();
             cmd.type = fetchChapter;
             cmd.engineCode = engineID;
             cmd.sessionID = sessionID;
+            cmd.pars.add(novelName);
             cmd.pars.add(chapter);
             commands.add(cmd);
             initialize();
         }
 
-        public void cacheChapters(String novelName, ArrayList<DBReaderNovel.Chapter> chapters, int engineID) {
-            if (chapters.size() == 0) {
-                return;
-            }
-            int sid = generateSessionID();
-            NovelEngineService.this.cacheIDs.put(sid, chapters.size());
-            for (int i = 0; i < chapters.size(); i++) {
-                DBReaderNovel.Chapter chapter = chapters.get(i);
-                NovelEngineCommand cmd = new NovelEngineCommand();
-                cmd.type = cacheChapter;
-                cmd.engineCode = engineID;
-                cmd.sessionID = sid;
-                cmd.pars.add(chapter);
-                cmd.pars.add(novelName);
-                NovelEngineService.this.cacheCommands.add(cmd);
-            }
+        public void cacheChapters(DBReaderNovel novel, int engineID) {
+            NovelEngineCommand cmd = new NovelEngineCommand();
+            cmd.type = cacheChapter;
+            cmd.engineCode = engineID;
+            cmd.pars.add(novel);
+            NovelEngineService.this.cacheCommands.add(cmd);
             initializeCache();
         }
 
-        public void fetchDeltaChapterList(final DBReaderNovel novel, int engineID, int sessionID) {
+        public void fetchDeltaChapterList(final DBReaderNovel novel, int engineID) {
             NovelEngineCommand cmd = new NovelEngineCommand();
             cmd.type = fetchDeltaChapterList;
             cmd.engineCode = engineID;
-            cmd.sessionID = sessionID;
             cmd.pars.add(novel);
             NovelEngineService.this.cacheCommands.add(cmd);
             initializeCache();
@@ -117,14 +111,6 @@ public class NovelEngineService extends Service {
             notifies.remove(notify);
         }
 
-        public int fetchChapterDirectly(DBReaderNovel novel, int engineID) {
-            int nRet = ERROR_NO_RESULT;
-            if (engineID > 0 || engineID < engines.size()) {
-                IFetchNovelEngine engine = engines.get(engineID);
-                nRet = engine.fetchNovel(novel);
-            }
-            return nRet;
-        }
     }
 
     private NovelEngine novelEngine = new NovelEngine();
@@ -248,10 +234,10 @@ public class NovelEngineService extends Service {
             NovelEngineCommand.CommandType type = cmd.type;
             switch (type) {
                 case cacheChapter:
-                    procCacheChapter((String) cmd.pars.get(1), (DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+                    procCacheChapter((DBReaderNovel) cmd.pars.get(0), cmd.engineCode);
                     break;
                 case fetchDeltaChapterList:
-                    procFetchDeltaChapterList((DBReaderNovel) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+                    procFetchDeltaChapterList((DBReaderNovel) cmd.pars.get(0), cmd.engineCode);
                     break;
                 default:
                     break;
@@ -279,13 +265,7 @@ public class NovelEngineService extends Service {
                 procFetchNovel((DBReaderNovel) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
                 break;
             case fetchChapter:
-                procFetchChapter((DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
-                break;
-            case cacheChapter:
-                procCacheChapter((String) cmd.pars.get(1), (DBReaderNovel.Chapter) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
-                break;
-            case fetchDeltaChapterList:
-                procFetchDeltaChapterList((DBReaderNovel) cmd.pars.get(0), cmd.engineCode, cmd.sessionID);
+                procFetchChapter((String)cmd.pars.get(0),(DBReaderNovel.Chapter) cmd.pars.get(1), cmd.engineCode, cmd.sessionID);
                 break;
             default:
                 break;
@@ -320,12 +300,15 @@ public class NovelEngineService extends Service {
             IFetchNovelEngine engine = engines.get(engineID);
             nRet = engine.fetchNovel(novel);
         }
+        if(nRet == NO_ERROR){
+            NovelInfoManager.saveDBReader(novel);
+        }
         for (int i = 0; i < notifies.size(); i++) {
             notifies.get(i).OnFetchNovel(nRet, sessionID, novel);
         }
     }
 
-    private void procFetchChapter(final DBReaderNovel.Chapter chapter, int engineID, int sessionID) {
+    private void procFetchChapter(final String novelName,final DBReaderNovel.Chapter chapter, int engineID, int sessionID) {
         int nRet = ERROR_NO_RESULT;
         String cont = "";
         if (engineID > 0 || engineID < engines.size()) {
@@ -333,7 +316,10 @@ public class NovelEngineService extends Service {
             StringWriter buf = new StringWriter();
             nRet = engine.fetchChapter(chapter, buf);
             cont = buf.toString();
+        }
 
+        if(nRet == NO_ERROR){
+            NovelInfoManager.saveChapterText(novelName,chapter.index,cont);
         }
 
         for (int i = 0; i < notifies.size(); i++) {
@@ -341,37 +327,41 @@ public class NovelEngineService extends Service {
         }
     }
 
-    private void procCacheChapter(final String novelName, final DBReaderNovel.Chapter chapter, int engineID, int sessionID) {
-        int nRet = ERROR_NO_RESULT;
-        String cont = "";
+    private void procCacheChapter(DBReaderNovel novel, int engineID) {
         if (engineID > 0 || engineID < engines.size()) {
             IFetchNovelEngine engine = engines.get(engineID);
-            StringWriter buf = new StringWriter();
-            nRet = engine.fetchChapter(chapter, buf);
-            cont = buf.toString();
-            for (int i = 0; i < notifies.size(); i++) {
-                notifies.get(i).OnCacheChapter(nRet, novelName, chapter.index, cont);
+            for(int i = 0 ; i < novel.chapters.size(); i++){
+                DBReaderNovel.Chapter chapter = novel.chapters.get(i);
+                boolean bRet = NovelInfoManager.isChapterExist(novel.name,chapter.index);
+                if(bRet == true){
+                    continue;
+                }
+                StringWriter buf = new StringWriter();
+                int nRet = engine.fetchChapter(chapter, buf);
+                String cont = buf.toString();
+                if(nRet == NO_ERROR){
+                    NovelInfoManager.saveChapterText(novel.name,chapter.index,cont);
+                }
             }
         }
-        int count = this.cacheIDs.get(sessionID);
-        count--;
-        if (count == 0) {
-            this.cacheIDs.remove(sessionID);
-            for (int i = 0; i < notifies.size(); i++) {
-                notifies.get(i).OnCacheChapterComplete(novelName);
-            }
-        } else {
-            this.cacheIDs.put(sessionID, count);
+        for (int i = 0; i < notifies.size(); i++) {
+            notifies.get(i).OnCacheChapterComplete(novel.name);
         }
     }
 
-    private void procFetchDeltaChapterList(DBReaderNovel novel, int engineID, int sessionID) {
+    private void procFetchDeltaChapterList(DBReaderNovel novel, int engineID) {
         if (engineID > 0 || engineID < engines.size()) {
             IFetchNovelEngine engine = engines.get(engineID);
             ArrayList<DBReaderNovel.Chapter> chapters = new ArrayList<DBReaderNovel.Chapter>();
             int nRet = engine.fetchDeltaChapterList(novel, chapters);
+            if(nRet == NO_ERROR){
+                DBReaderNovel item = NovelInfoManager.getNovel(novel.name);
+                item.chapters.addAll(chapters);
+                item.isUpdated = 1;
+                NovelInfoManager.saveDBReader(item);
+            }
             for (int i = 0; i < notifies.size(); i++) {
-                notifies.get(i).OnFetchDeltaChapterList(nRet, sessionID, novel, chapters);
+                notifies.get(i).OnFetchDeltaChapterList(nRet, novel.name, chapters);
             }
         }
     }

@@ -5,9 +5,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.SpannableString;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.RelativeSizeSpan;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -15,9 +12,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
-import com.moss.dbreader.BookCaseManager;
 import com.moss.dbreader.R;
-import com.moss.dbreader.service.DBReaderNovel;
 
 import java.io.BufferedReader;
 import java.io.IOException;

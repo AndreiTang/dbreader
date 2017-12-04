@@ -1,8 +1,6 @@
 package com.moss.dbreader.ui;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -10,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.moss.dbreader.BookCaseManager;
+import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
@@ -35,7 +33,7 @@ public class CasePageAdapter extends BaseAdapter {
 
     public CasePageAdapter(Fragment fragment){
         this.fragment = fragment;
-        this.novels = BookCaseManager.fetchNovelsInBookCase();
+        this.novels = NovelInfoManager.fetchNovelsInBookCase();
     }
 
     @Override
@@ -132,8 +130,8 @@ public class CasePageAdapter extends BaseAdapter {
             novel.isInCase = 0;
             novel.currChapter = 0;
             novel.currPage = 0;
-            BookCaseManager.saveDBReader(novel);
-            BookCaseManager.removeReaderPages(novel.name);
+            NovelInfoManager.saveDBReader(novel);
+            NovelInfoManager.removeReaderPages(novel.name);
             this.novels.remove(pos);
         }
         this.ids.clear();

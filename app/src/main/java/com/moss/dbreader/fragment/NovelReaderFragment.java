@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,24 +17,20 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.moss.dbreader.BookCaseManager;
+import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.R;
-import com.moss.dbreader.ReaderActivity;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelEngineService;
 import com.moss.dbreader.ui.IReaderPageAdapterNotify;
 import com.moss.dbreader.ui.ReaderPageAdapter;
 import com.moss.dbreader.ui.ReaderPanel;
-import com.moss.dbreader.ui.ReaderPanel.IReadPanelNotify;
 
-import java.net.URI;
 import java.util.ArrayList;
 
 import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
@@ -104,7 +99,7 @@ public class NovelReaderFragment extends Fragment {
         @Override
         public void update(final int index) {
 
-            final String chap = BookCaseManager.getChapterText(novel.name, index);
+            final String chap = NovelInfoManager.getChapterText(novel.name, index);
             if (chap.length() > 0) {
                 Handler h = new Handler(Looper.getMainLooper());
                 h.post(new Runnable() {
@@ -150,7 +145,7 @@ public class NovelReaderFragment extends Fragment {
                 });
                 return;
             }
-            BookCaseManager.saveChapterText(novel.name, index, cont);
+            NovelInfoManager.saveChapterText(novel.name, index, cont);
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -166,7 +161,7 @@ public class NovelReaderFragment extends Fragment {
             if (nRet != NO_ERROR) {
                 return;
             }
-            BookCaseManager.saveChapterText(novelName, index, cont);
+            NovelInfoManager.saveChapterText(novelName, index, cont);
         }
 
         @Override
@@ -303,16 +298,16 @@ public class NovelReaderFragment extends Fragment {
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
         this.novel.currPage = vp.getCurrentItem();
         this.novel.currChapter = adapter.getReaderPage(this.novel.currPage).chapterIndex;
-        BookCaseManager.saveReaderPages(this.novel.name, this.adapter.getPages());
-        BookCaseManager.add(novel, true);
-        BookCaseManager.saveDBReader(novel);
+        NovelInfoManager.saveReaderPages(this.novel.name, this.adapter.getPages());
+        NovelInfoManager.add(novel, true);
+        NovelInfoManager.saveDBReader(novel);
     }
 
     public void cacheChapters() {
         ArrayList<DBReaderNovel.Chapter> chapters = new ArrayList<DBReaderNovel.Chapter>();
         for (int i = 0; i < this.novel.chapters.size(); i++) {
             DBReaderNovel.Chapter item = this.novel.chapters.get(i);
-            if (!BookCaseManager.isChapterExist(this.novel.name, item.index)) {
+            if (!NovelInfoManager.isChapterExist(this.novel.name, item.index)) {
                 chapters.add(item);
             }
         }
@@ -398,7 +393,7 @@ public class NovelReaderFragment extends Fragment {
     private void initializeAdapter() {
         int i = 0;
         int curPage = this.novel.currPage;
-        ArrayList<ReaderPageAdapter.ReaderPage> rps = BookCaseManager.readReaderPages(this.novel.name);
+        ArrayList<ReaderPageAdapter.ReaderPage> rps = NovelInfoManager.readReaderPages(this.novel.name);
         if (rps != null) {
             for (i = 0; i < rps.size(); i++) {
                 this.adapter.addPage(rps.get(i));

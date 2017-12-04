@@ -1,24 +1,18 @@
 package com.moss.dbreader;
 
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -28,6 +22,7 @@ import com.moss.dbreader.fragment.BookSearchFragment;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelEngineService;
+import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.ui.MainPageAdapter;
 
 import java.util.ArrayList;
@@ -67,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             if (nRet != NO_ERROR) {
                 return;
             }
-            BookCaseManager.saveChapterText(novelName,index,cont);
+            NovelInfoManager.saveChapterText(novelName,index,cont);
         }
 
         @Override
@@ -87,10 +82,10 @@ public class MainActivity extends AppCompatActivity {
             if (nRet != NO_ERROR ) {
                 return;
             }
-            DBReaderNovel item = BookCaseManager.getNovel(novel.name);
+            DBReaderNovel item = NovelInfoManager.getNovel(novel.name);
             if (item != null ) {
                 item.chapters.addAll(chapters);
-                BookCaseManager.saveDBReader(item);
+                NovelInfoManager.saveDBReader(item);
             }
 
             for(int i = 0 ; i < MainActivity.this.notifies.size(); i++){
@@ -166,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
         if(savedInstanceState != null){
             this.currNovelName = savedInstanceState.getString(Common.TAG_NOVEL);
             if(this.currNovelName != null && this.currNovelName.length() > 0){
-                DBReaderNovel novel = BookCaseManager.getNovel(this.currNovelName);
+                DBReaderNovel novel = NovelInfoManager.getNovel(this.currNovelName);
                 switchToNovelReader(novel);
             }
         }
@@ -217,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
         }
         String name = intent.getStringExtra(Common.TAG_NOVEL);
         if(name != null && name.length() > 0){
-            DBReaderNovel novel = BookCaseManager.getNovel(name);
+            DBReaderNovel novel = NovelInfoManager.getNovel(name);
             switchToNovelReader(novel);
         }
     }
@@ -244,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         vp.setVisibility(View.VISIBLE);
 
-        int count  = BookCaseManager.fetchNovelsInBookCase().size();
+        int count  = NovelInfoManager.fetchNovelsInBookCase().size();
         int index = 0;
         if(count == 0){
             index = 1;

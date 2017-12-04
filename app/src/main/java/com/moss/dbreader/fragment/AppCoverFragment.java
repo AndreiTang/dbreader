@@ -1,9 +1,6 @@
 package com.moss.dbreader.fragment;
 
-import android.app.Application;
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -13,11 +10,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.moss.dbreader.BookCaseManager;
+import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.Common;
 import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
@@ -41,8 +36,8 @@ public class AppCoverFragment extends Fragment {
             Thread thrd = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    BookCaseManager.initialize(getContext().getFilesDir().getAbsolutePath());
-                    ArrayList<DBReaderNovel> novels = BookCaseManager.fetchNovelsInBookCase();
+                    NovelInfoManager.initialize(getContext().getFilesDir().getAbsolutePath());
+                    ArrayList<DBReaderNovel> novels = NovelInfoManager.fetchNovelsInBookCase();
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException e) {

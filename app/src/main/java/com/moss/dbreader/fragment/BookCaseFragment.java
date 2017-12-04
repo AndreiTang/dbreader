@@ -1,17 +1,14 @@
 package com.moss.dbreader.fragment;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.moss.dbreader.BookCaseManager;
+import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
@@ -60,7 +57,7 @@ public class BookCaseFragment extends Fragment {
                 return;
             }
 
-            DBReaderNovel item = BookCaseManager.getNovel(novel.name);
+            DBReaderNovel item = NovelInfoManager.getNovel(novel.name);
             if(item == null){
                 return;
             }

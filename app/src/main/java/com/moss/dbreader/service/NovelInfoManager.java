@@ -1,36 +1,27 @@
-package com.moss.dbreader;
+package com.moss.dbreader.service;
 
-import android.content.Context;
-import android.os.Environment;
-import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.ui.ReaderPageAdapter;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Created by tangqif on 10/15/2017.
  */
 
-public class BookCaseManager {
+public class NovelInfoManager {
 
     static ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
     static String appPath;
@@ -43,7 +34,7 @@ public class BookCaseManager {
         if (novels.size() > 0) {
             return;
         }
-        BookCaseManager.appPath = appPath + "/";
+        NovelInfoManager.appPath = appPath + "/";
         File dir = new File(appPath);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -152,8 +143,8 @@ public class BookCaseManager {
 
     static public ArrayList<DBReaderNovel> fetchNovelsInBookCase(){
         ArrayList<DBReaderNovel> bookCase = new ArrayList<DBReaderNovel>();
-        for(int i = 0 ;i < BookCaseManager.novels.size(); i++){
-            DBReaderNovel nv = BookCaseManager.novels.get(i);
+        for(int i = 0; i < NovelInfoManager.novels.size(); i++){
+            DBReaderNovel nv = NovelInfoManager.novels.get(i);
             if(nv != null && nv.isInCase == 1){
                 bookCase.add(nv);
             }
