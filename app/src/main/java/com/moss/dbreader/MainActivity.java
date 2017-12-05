@@ -34,20 +34,20 @@ public class MainActivity extends AppCompatActivity {
     private IFetchNovelEngineNotify notify = new IFetchNovelEngineNotify() {
         @Override
         public void OnSearchNovels(int nRet, int engineID, int sessionID, ArrayList<DBReaderNovel> novels) {
-            for(int i = 0 ; i < MainActivity.this.notifies.size(); i++){
+            for (int i = 0; i < MainActivity.this.notifies.size(); i++) {
                 IFetchNovelEngineNotify notify = MainActivity.this.notifies.get(i);
-                if(notify != null){
-                    notify.OnSearchNovels(nRet,engineID,sessionID,novels);
+                if (notify != null) {
+                    notify.OnSearchNovels(nRet, engineID, sessionID, novels);
                 }
             }
         }
 
         @Override
         public void OnFetchNovel(int nRet, int sessionID, DBReaderNovel novel) {
-            for(int i = 0 ; i < MainActivity.this.notifies.size(); i++){
+            for (int i = 0; i < MainActivity.this.notifies.size(); i++) {
                 IFetchNovelEngineNotify notify = MainActivity.this.notifies.get(i);
-                if(notify != null){
-                    notify.OnFetchNovel(nRet,sessionID,novel);
+                if (notify != null) {
+                    notify.OnFetchNovel(nRet, sessionID, novel);
                 }
             }
         }
@@ -72,14 +72,14 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void OnFetchDeltaChapterList(int nRet, String novelName, ArrayList<DBReaderNovel.Chapter> chapters) {
-            if (nRet != NO_ERROR ) {
+            if (nRet != NO_ERROR) {
                 return;
             }
 
-            for(int i = 0 ; i < MainActivity.this.notifies.size(); i++){
+            for (int i = 0; i < MainActivity.this.notifies.size(); i++) {
                 IFetchNovelEngineNotify notify = MainActivity.this.notifies.get(i);
-                if(notify != null){
-                    notify.OnFetchDeltaChapterList(nRet,novelName,chapters);
+                if (notify != null) {
+                    notify.OnFetchDeltaChapterList(nRet, novelName, chapters);
                 }
             }
         }
@@ -93,10 +93,10 @@ public class MainActivity extends AppCompatActivity {
             NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) service;
             MainActivity.this.engine = binder.getNovelEngine();
             MainActivity.this.engine.addNotify(MainActivity.this.notify);
-            for(int i = 0 ; i < MainActivity.this.serviceConnections.size(); i++){
+            for (int i = 0; i < MainActivity.this.serviceConnections.size(); i++) {
                 ServiceConnection sc = MainActivity.this.serviceConnections.get(i);
-                if(sc != null){
-                    sc.onServiceConnected(name,service);
+                if (sc != null) {
+                    sc.onServiceConnected(name, service);
                 }
             }
         }
@@ -106,8 +106,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     };
-
-
 
 
     ////////////////////////////////////////////////
@@ -120,27 +118,26 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fresco.initialize(this);
-        FontOverride.setDefaultFont(getApplicationContext(), "MONOSPACE","fonts/xinkai.ttf");
+        FontOverride.setDefaultFont(getApplicationContext(), "MONOSPACE", "fonts/xinkai.ttf");
         setContentView(R.layout.activity_main);
 
 
         AppCoverFragment fragment = (AppCoverFragment) getSupportFragmentManager().findFragmentById(R.id.app_cover_fragment);
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             fragment.getView().setVisibility(View.GONE);
             findViewById(R.id.main_viewpager).setVisibility(View.VISIBLE);
-        }
-        else{
+        } else {
             this.serviceConnections.add(fragment.getServiceConnection());
         }
 
-        MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(),this.getApplicationContext());
+        MainPageAdapter adapter = new MainPageAdapter(getSupportFragmentManager(), this.getApplicationContext());
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         vp.setAdapter(adapter);
 
-        BookCaseFragment caseFragment = (BookCaseFragment)adapter.getItem(0);
+        BookCaseFragment caseFragment = (BookCaseFragment) adapter.getItem(0);
         this.notifies.add(caseFragment.getFetchNovelEngineNotify());
 
-        BookSearchFragment searchFragment = (BookSearchFragment)adapter.getItem(1);
+        BookSearchFragment searchFragment = (BookSearchFragment) adapter.getItem(1);
         this.serviceConnections.add(searchFragment.getServiceConnection());
         this.notifies.add(searchFragment.getFetchNovelEngineNotify());
 
@@ -148,9 +145,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, NovelEngineService.class);
         this.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             this.currNovelName = savedInstanceState.getString(Common.TAG_NOVEL);
-            if(this.currNovelName != null && this.currNovelName.length() > 0){
+            if (this.currNovelName != null && this.currNovelName.length() > 0) {
                 DBReaderNovel novel = NovelInfoManager.getNovel(this.currNovelName);
                 switchToNovelReader(novel);
             }
@@ -158,19 +155,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void switchToNovelReader(final DBReaderNovel novel){
+    public void switchToNovelReader(final DBReaderNovel novel) {
         this.currNovelName = novel.name;
         Intent intent = new Intent(this, ReaderActivity.class);
-        intent.putExtra(Common.TAG_NOVEL,novel);
+        intent.putExtra(Common.TAG_NOVEL, novel);
         startActivity(intent);
-        if(this.engine != null){
+        if (this.engine != null) {
             this.engine.removeNotify(this.notify);
             Log.i("Andrei", "engine not null");
         }
     }
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         //unbindService(AppCoverFragment.sc);
         System.exit(0);
     }
@@ -183,55 +180,54 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        if(this.engine != null){
+        if (this.engine != null) {
             this.engine.addNotify(notify);
         }
         this.currNovelName = null;
     }
 
     @Override
-    protected void onNewIntent(Intent intent){
+    protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        int index = intent.getIntExtra(Common.TAG_MAIN_CATEGORY,-1);
-        if(index != -1){
+        int index = intent.getIntExtra(Common.TAG_MAIN_CATEGORY, -1);
+        if (index != -1) {
             ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
             vp.setCurrentItem(index);
             getIntent().addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         }
         String name = intent.getStringExtra(Common.TAG_NOVEL);
-        if(name != null && name.length() > 0){
+        if (name != null && name.length() > 0) {
             DBReaderNovel novel = NovelInfoManager.getNovel(name);
             switchToNovelReader(novel);
         }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState){
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if(this.currNovelName != null){
-            outState.putString(Common.TAG_NOVEL,this.currNovelName);
+        if (this.currNovelName != null) {
+            outState.putString(Common.TAG_NOVEL, this.currNovelName);
         }
     }
 
 
-    public void switchFragment(int index)
-    {
+    public void switchFragment(int index) {
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         vp.setCurrentItem(index);
     }
 
-    public void switchMainUI(){
+    public void switchMainUI() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.app_cover_fragment);
         fragment.getView().setVisibility(View.GONE);
 
         ViewPager vp = (ViewPager) findViewById(R.id.main_viewpager);
         vp.setVisibility(View.VISIBLE);
 
-        int count  = NovelInfoManager.fetchNovelsInBookCase().size();
+        int count = NovelInfoManager.fetchNovelsInBookCase().size();
         int index = 0;
-        if(count == 0){
+        if (count == 0) {
             index = 1;
         }
         vp.setCurrentItem(index);
