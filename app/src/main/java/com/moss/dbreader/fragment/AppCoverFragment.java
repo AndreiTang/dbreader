@@ -55,7 +55,7 @@ public class AppCoverFragment extends Fragment {
                     if (novels.size() > 0) {
                         for (int i = 0; i < novels.size(); i++) {
                             DBReaderNovel item = novels.get(i);
-                            engine.fetchDeltaChapterList(item,item.engineID,sessionID);
+                            engine.fetchDeltaChapterList(item);
                         }
                     }
 

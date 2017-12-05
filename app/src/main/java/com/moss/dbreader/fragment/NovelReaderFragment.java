@@ -114,7 +114,9 @@ public class NovelReaderFragment extends Fragment {
             if (NovelReaderFragment.this.engine == null) {
                 NovelReaderFragment.this.tmpIndex = index;
             } else {
-                NovelReaderFragment.this.engine.fetchChapter(NovelReaderFragment.this.novel.chapters.get(index), NovelReaderFragment.this.novel.engineID, NovelReaderFragment.this.sessionID);
+                NovelReaderFragment.this.engine.fetchChapter(NovelReaderFragment.this.novel.name,
+                        NovelReaderFragment.this.novel.chapters.get(index),
+                        NovelReaderFragment.this.sessionID);
             }
         }
     };
@@ -156,15 +158,6 @@ public class NovelReaderFragment extends Fragment {
         }
 
         @Override
-        public void OnCacheChapter(int nRet, String novelName, int index, String cont) {
-            Log.i("Andrei", "Cache " + novelName + " " + index + " ret:" + nRet);
-            if (nRet != NO_ERROR) {
-                return;
-            }
-            NovelInfoManager.saveChapterText(novelName, index, cont);
-        }
-
-        @Override
         public void OnCacheChapterComplete(final String novelName) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -178,7 +171,7 @@ public class NovelReaderFragment extends Fragment {
         }
 
         @Override
-        public void OnFetchDeltaChapterList(int nRet, int sessionID, DBReaderNovel novel, final ArrayList<DBReaderNovel.Chapter> chapters) {
+        public void OnFetchDeltaChapterList(int nRet, String novelName, final ArrayList<DBReaderNovel.Chapter> chapters) {
             if(nRet != NO_ERROR || NovelReaderFragment.this.novel.name.compareTo(novel.name) != 0){
                 return;
             }
@@ -190,6 +183,7 @@ public class NovelReaderFragment extends Fragment {
                 }
             });
         }
+
     };
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -200,7 +194,9 @@ public class NovelReaderFragment extends Fragment {
             NovelReaderFragment.this.engine.addNotify(fetchNovelEngineNotify);
             NovelReaderFragment.this.sessionID = engine.generateSessionID();
             if (tmpIndex != -1) {
-                engine.fetchChapter(novel.chapters.get(tmpIndex), NovelReaderFragment.this.novel.engineID, sessionID);
+                engine.fetchChapter(novel.name,
+                        novel.chapters.get(tmpIndex),
+                        sessionID);
             }
         }
 
@@ -304,14 +300,7 @@ public class NovelReaderFragment extends Fragment {
     }
 
     public void cacheChapters() {
-        ArrayList<DBReaderNovel.Chapter> chapters = new ArrayList<DBReaderNovel.Chapter>();
-        for (int i = 0; i < this.novel.chapters.size(); i++) {
-            DBReaderNovel.Chapter item = this.novel.chapters.get(i);
-            if (!NovelInfoManager.isChapterExist(this.novel.name, item.index)) {
-                chapters.add(item);
-            }
-        }
-        engine.cacheChapters(this.novel.name, chapters, this.novel.engineID);
+        engine.cacheChapters(this.novel);
     }
 
     public int getCurrentChapterIndex() {

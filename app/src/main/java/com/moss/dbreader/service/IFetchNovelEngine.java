@@ -11,11 +11,9 @@ public interface IFetchNovelEngine {
     int fetchNovel(DBReaderNovel novel);
     int fetchDeltaChapterList(DBReaderNovel novel, ArrayList<DBReaderNovel.Chapter> deltaList);
     int fetchChapter(final DBReaderNovel.Chapter chapter, StringWriter cont);
-    void cancel();
 
     final int NO_ERROR = 0;
     final int ERROR_NETWORK = 1;
     final int ERROR_NO_RESULT = 2;
     final int ERROR_TOO_MANY = 3;
-    final int ERROR_CANCEL = 4;
 }

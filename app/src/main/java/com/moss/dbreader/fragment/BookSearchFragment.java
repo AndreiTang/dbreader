@@ -109,10 +109,6 @@ public class BookSearchFragment extends Fragment {
         public void OnFetchChapter(int nRet, int sessionID, int index, String cont) {
         }
 
-        @Override
-        public void OnCacheChapter(int nRet, String novelName, int index, String cont) {
-
-        }
 
         @Override
         public void OnCacheChapterComplete(final String novelName) {
@@ -120,9 +116,10 @@ public class BookSearchFragment extends Fragment {
         }
 
         @Override
-        public void OnFetchDeltaChapterList(int nRet, int sessionID, DBReaderNovel novel, ArrayList<DBReaderNovel.Chapter> chapters) {
+        public void OnFetchDeltaChapterList(int nRet, String novelName, ArrayList<DBReaderNovel.Chapter> chapters) {
 
         }
+
     };
 
     ServiceConnection serviceConnection = new ServiceConnection() {
@@ -289,7 +286,7 @@ public class BookSearchFragment extends Fragment {
             searchCount = AllowCount;
         }
         for (int i = 0; i < searchCount; i++) {
-            engine.fetchNovel(novels.get(0), engineID, sessionID);
+            engine.fetchNovel(novels.get(0),sessionID);
             novels.remove(0);
         }
     }

@@ -57,13 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        @Override
-        public void OnCacheChapter(int nRet, String novelName, int index, String cont) {
-            if (nRet != NO_ERROR) {
-                return;
-            }
-            NovelInfoManager.saveChapterText(novelName,index,cont);
-        }
 
         @Override
         public void OnCacheChapterComplete(final String novelName) {
@@ -78,23 +71,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void OnFetchDeltaChapterList(int nRet, int sessionID, DBReaderNovel novel, ArrayList<DBReaderNovel.Chapter> chapters) {
+        public void OnFetchDeltaChapterList(int nRet, String novelName, ArrayList<DBReaderNovel.Chapter> chapters) {
             if (nRet != NO_ERROR ) {
                 return;
-            }
-            DBReaderNovel item = NovelInfoManager.getNovel(novel.name);
-            if (item != null ) {
-                item.chapters.addAll(chapters);
-                NovelInfoManager.saveDBReader(item);
             }
 
             for(int i = 0 ; i < MainActivity.this.notifies.size(); i++){
                 IFetchNovelEngineNotify notify = MainActivity.this.notifies.get(i);
                 if(notify != null){
-                    notify.OnFetchDeltaChapterList(nRet,sessionID,novel,chapters);
+                    notify.OnFetchDeltaChapterList(nRet,novelName,chapters);
                 }
             }
         }
+
+
     };
 
     private ServiceConnection serviceConnection = new ServiceConnection() {

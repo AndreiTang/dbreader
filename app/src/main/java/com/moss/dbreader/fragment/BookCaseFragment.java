@@ -42,26 +42,16 @@ public class BookCaseFragment extends Fragment {
         }
 
         @Override
-        public void OnCacheChapter(int nRet, String novelName, int index, String cont) {
-
-        }
-
-        @Override
         public void OnCacheChapterComplete(String novelName) {
 
         }
 
         @Override
-        public void OnFetchDeltaChapterList(int nRet, int sessionID, DBReaderNovel novel, ArrayList<DBReaderNovel.Chapter> chapters) {
+        public void OnFetchDeltaChapterList(int nRet, String novelName, ArrayList<DBReaderNovel.Chapter> chapters) {
             if(nRet != NO_ERROR){
                 return;
             }
 
-            DBReaderNovel item = NovelInfoManager.getNovel(novel.name);
-            if(item == null){
-                return;
-            }
-            item.isUpdated = 1;
             BookCaseFragment.this.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -72,6 +62,7 @@ public class BookCaseFragment extends Fragment {
                 }
             });
         }
+
     };
     //////////////////////////////////////////////////////////////////
     CasePageAdapter cp = null;

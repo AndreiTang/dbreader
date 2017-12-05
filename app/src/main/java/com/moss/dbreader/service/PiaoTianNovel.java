@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  */
 public final class PiaoTianNovel implements IFetchNovelEngine {
 
-    private boolean isCancel = false;
+   // private boolean isCancel = false;
 
     @Override
     public int searchNovels(final String name, ArrayList<DBReaderNovel> nvs) {
@@ -53,7 +53,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
     }
 
     private int innerSearchNovels(final String name, ArrayList<DBReaderNovel> nvs, boolean isNovel){
-        isCancel = false;
         try {
             String url = "http://www.piaotian.com/modules/article/search.php?searchtype=articlename&searchkey=";
             if(isNovel == false){
@@ -86,7 +85,7 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
                 return ERROR_TOO_MANY;
             }
 
-            while (true && !isCancel) {
+            while (true) {
                 parseSearchPage(doc, nvs);
                 Elements nexts = doc.select("a.next");
                 if (nexts.size() == 0) {
@@ -100,9 +99,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
                     cont = buf.toString();
                     doc = Jsoup.parse(cont);
                 }
-            }
-            if (isCancel) {
-                return ERROR_CANCEL;
             }
             if (nvs.size() > 0) {
                 return NO_ERROR;
@@ -121,7 +117,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
 
     @Override
     public int fetchChapter(final DBReaderNovel.Chapter chapter, StringWriter buf) {
-        isCancel = false;
         try {
             Document doc = Jsoup.connect(chapter.url).timeout(3000).get();
             String html = doc.outerHtml();
@@ -144,9 +139,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
             e.printStackTrace();
             return ERROR_NETWORK;
         }
-        if (isCancel) {
-            return ERROR_CANCEL;
-        }
         return NO_ERROR;
     }
 
@@ -167,7 +159,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
     }
 
     public int fetchNovel(DBReaderNovel novel) {
-        isCancel = false;
         try {
             Document doc = Jsoup.connect(novel.url).timeout(3000).get();
             return fetchNovelByDoc(doc,novel);
@@ -177,9 +168,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         return ERROR_NETWORK;
     }
 
-    public void cancel() {
-        isCancel = true;
-    }
 
     private int fetchNovelByDoc(Document doc,DBReaderNovel novel){
         novel.decs = fetchNovelDecs(doc);
@@ -308,9 +296,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
             return ERROR_NO_RESULT;
         }
         novel.url = items.first().attr("href");
-        if (isCancel) {
-            return ERROR_NO_RESULT;
-        }
         collectChapters(novel);
 
         if (novel.name == null) {
@@ -330,9 +315,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
                 }
 
             }
-        }
-        if (isCancel) {
-            return ERROR_CANCEL;
         }
         return NO_ERROR;
     }
@@ -392,9 +374,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
             Pattern pattern = Pattern.compile(regEx);
             ArrayList<DBReaderNovel.Chapter> chapters = new ArrayList<DBReaderNovel.Chapter>();
             for (Element chap : chaps) {
-                if (isCancel) {
-                    break;
-                }
                 Element it = chap.select("a").first();
                 if (it == null) {
                     continue;
