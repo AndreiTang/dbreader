@@ -201,30 +201,25 @@ public class BookSearchFragment extends Fragment {
 
     private void showSearchResult() {
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                View mask = getActivity().findViewById(R.id.search_mask);
-                mask.setVisibility(View.GONE);
-                final ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
-                lv.removeFooterView(footView);
-                isRunning = false;
+        View mask = getActivity().findViewById(R.id.search_mask);
+        mask.setVisibility(View.GONE);
+        final ListView lv = (ListView) getActivity().findViewById(R.id.search_list);
+        lv.removeFooterView(footView);
+        isRunning = false;
 
-                boolean bNew = false;
-                if (searchPageAdapter == null) {
-                    searchPageAdapter = new SearchPageAdapter(BookSearchFragment.this,BookSearchFragment.this.engineID);
-                    bNew = true;
-                }
-                for (int i = 0; i < tmpNovels.size(); i++) {
-                    searchPageAdapter.addNovel(tmpNovels.get(i));
-                }
-                if (bNew == true) {
-                    lv.setAdapter(searchPageAdapter);
-                } else {
-                    searchPageAdapter.notifyDataSetChanged();
-                }
-            }
-        });
+        boolean bNew = false;
+        if (searchPageAdapter == null) {
+            searchPageAdapter = new SearchPageAdapter(BookSearchFragment.this,BookSearchFragment.this.engineID);
+            bNew = true;
+        }
+        for (int i = 0; i < tmpNovels.size(); i++) {
+            searchPageAdapter.addNovel(tmpNovels.get(i));
+        }
+        if (bNew == true) {
+            lv.setAdapter(searchPageAdapter);
+        } else {
+            searchPageAdapter.notifyDataSetChanged();
+        }
 
     }
 

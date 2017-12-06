@@ -44,6 +44,15 @@ public class NovelEngineService extends Service {
             return sessionID;
         }
 
+        public void loadNovels(){
+            Thread thrd = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    NovelInfoManager.initialize(NovelEngineService.this.getApplicationContext().getFilesDir().getAbsolutePath());
+                }
+            });
+            thrd.start();
+        }
 
         public void searchNovel(final String name, int sessionID) {
             HashMap<String,Object> args = new HashMap<>();
@@ -60,9 +69,9 @@ public class NovelEngineService extends Service {
         }
 
 
-        public void fetchChapter(String novelName, DBReaderNovel.Chapter chapter, int sessionID) {
+        public void fetchChapter(DBReaderNovel novel, DBReaderNovel.Chapter chapter, int sessionID) {
             HashMap<String,Object> args = new HashMap<>();
-            args.put(CommandCommon.TAG_NAME,novelName);
+            args.put(CommandCommon.TAG_NOVEL,novel);
             args.put(CommandCommon.TAG_CHAPTER,chapter);
             args.put(CommandCommon.TAG_SESSION_ID,sessionID);
             sendMsg(CommandCommon.CMD_FETCHCHAPTER,args);

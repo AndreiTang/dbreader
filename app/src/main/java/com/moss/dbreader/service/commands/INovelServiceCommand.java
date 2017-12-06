@@ -12,5 +12,4 @@ import java.util.Map;
 
 public interface INovelServiceCommand {
     void process(Map<String,Object> args, List<IFetchNovelEngine> engines, List<IFetchNovelEngineNotify> notifies);
-    void cancel();
 }

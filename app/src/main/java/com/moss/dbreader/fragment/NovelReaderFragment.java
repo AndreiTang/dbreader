@@ -98,23 +98,10 @@ public class NovelReaderFragment extends Fragment {
     IReaderPageAdapterNotify readerPageAdapterNotify = new IReaderPageAdapterNotify() {
         @Override
         public void update(final int index) {
-
-            final String chap = NovelInfoManager.getChapterText(novel.name, index);
-            if (chap.length() > 0) {
-                Handler h = new Handler(Looper.getMainLooper());
-                h.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        NovelReaderFragment.this.adapter.addText(index, chap);
-                    }
-                });
-                return;
-            }
-
             if (NovelReaderFragment.this.engine == null) {
                 NovelReaderFragment.this.tmpIndex = index;
             } else {
-                NovelReaderFragment.this.engine.fetchChapter(NovelReaderFragment.this.novel.name,
+                NovelReaderFragment.this.engine.fetchChapter(NovelReaderFragment.this.novel,
                         NovelReaderFragment.this.novel.chapters.get(index),
                         NovelReaderFragment.this.sessionID);
             }
@@ -139,35 +126,18 @@ public class NovelReaderFragment extends Fragment {
                 return;
             }
             if (nRet != NO_ERROR) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        NovelReaderFragment.this.adapter.error(index);
-                    }
-                });
+                NovelReaderFragment.this.adapter.error(index);
                 return;
             }
-            NovelInfoManager.saveChapterText(novel.name, index, cont);
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    NovelReaderFragment.this.adapter.addText(index, cont);
-                }
-            });
-
+            NovelReaderFragment.this.adapter.addText(index, cont);
         }
 
         @Override
         public void OnCacheChapterComplete(final String novelName) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.i("Andrei",novelName + " cache finish");
-                    String msg = getActivity().getResources().getString(R.string.cache_complete);
-                    msg = novelName + " " + msg;
-                    Toast.makeText(NovelReaderFragment.this.getActivity(), msg, Toast.LENGTH_LONG).show();
-                }
-            });
+            Log.i("Andrei",novelName + " cache finish");
+            String msg = getActivity().getResources().getString(R.string.cache_complete);
+            msg = novelName + " " + msg;
+            Toast.makeText(NovelReaderFragment.this.getActivity(), msg, Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -175,13 +145,7 @@ public class NovelReaderFragment extends Fragment {
             if(nRet != NO_ERROR || NovelReaderFragment.this.novel.name.compareTo(novel.name) != 0){
                 return;
             }
-
-            NovelReaderFragment.this.getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updateChapters(chapters);
-                }
-            });
+            updateChapters(chapters);
         }
 
     };
@@ -194,7 +158,7 @@ public class NovelReaderFragment extends Fragment {
             NovelReaderFragment.this.engine.addNotify(fetchNovelEngineNotify);
             NovelReaderFragment.this.sessionID = engine.generateSessionID();
             if (tmpIndex != -1) {
-                engine.fetchChapter(novel.name,
+                engine.fetchChapter(novel,
                         novel.chapters.get(tmpIndex),
                         sessionID);
             }

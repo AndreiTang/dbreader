@@ -1,5 +1,8 @@
 package com.moss.dbreader.service.commands;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngine;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
@@ -34,13 +37,21 @@ public class CacheChaptersCommand implements INovelServiceCommand {
                 }
             }
         }
-        for (int i = 0; i < notifies.size(); i++) {
-            notifies.get(i).OnCacheChapterComplete(novel.name);
+
+        if (Looper.getMainLooper() != null && notifies.size() > 0) {
+            final String name =novel.name;
+            final List<IFetchNovelEngineNotify> fNotifies = notifies;
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < fNotifies.size(); i++) {
+                        fNotifies.get(i).OnCacheChapterComplete(name);;
+                    }
+                }
+            });
         }
-    }
-
-    @Override
-    public void cancel() {
 
     }
+
 }

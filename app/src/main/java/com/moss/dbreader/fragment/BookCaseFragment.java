@@ -48,19 +48,12 @@ public class BookCaseFragment extends Fragment {
 
         @Override
         public void OnFetchDeltaChapterList(int nRet, String novelName, ArrayList<DBReaderNovel.Chapter> chapters) {
-            if(nRet != NO_ERROR){
+            if(nRet != NO_ERROR ){
                 return;
             }
-
-            BookCaseFragment.this.getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    GridView gv = (GridView)getActivity().findViewById(R.id.case_grid);
-                    CasePageAdapter cp  = (CasePageAdapter)gv.getAdapter();
-                    cp.notifyDataSetChanged();
-
-                }
-            });
+            GridView gv = (GridView)getActivity().findViewById(R.id.case_grid);
+            CasePageAdapter cp  = (CasePageAdapter)gv.getAdapter();
+            cp.notifyDataSetChanged();
         }
 
     };

@@ -1,5 +1,8 @@
 package com.moss.dbreader.service.commands;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngine;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
@@ -28,14 +31,24 @@ public class FetchDeltaChapterListCommand implements INovelServiceCommand {
                 item.isUpdated = 1;
                 NovelInfoManager.saveDBReader(item);
             }
-            for (int i = 0; i < notifies.size(); i++) {
-                notifies.get(i).OnFetchDeltaChapterList(nRet, novel.name, chapters);
+
+            if(Looper.getMainLooper() != null && notifies.size() > 0){
+                final int fnRet = nRet;
+                final String name = novel.name;
+                final ArrayList<DBReaderNovel.Chapter> fChapters = chapters;
+                final List<IFetchNovelEngineNotify> fNotifies = notifies;
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (int i = 0; i < fNotifies.size(); i++) {
+                            fNotifies.get(i).OnFetchDeltaChapterList(fnRet,name, fChapters);
+                        }
+                    }
+                });
             }
+
         }
     }
 
-    @Override
-    public void cancel() {
-
-    }
 }
