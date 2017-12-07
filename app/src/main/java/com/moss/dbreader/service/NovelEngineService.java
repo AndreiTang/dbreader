@@ -17,6 +17,9 @@ import com.moss.dbreader.service.commands.FetchNovelCommand;
 import com.moss.dbreader.service.commands.INovelServiceCommand;
 import com.moss.dbreader.service.commands.CommandCommon;
 import com.moss.dbreader.service.commands.SearchCommand;
+import com.moss.dbreader.service.events.InitializedEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +52,7 @@ public class NovelEngineService extends Service {
                 @Override
                 public void run() {
                     NovelInfoManager.initialize(NovelEngineService.this.getApplicationContext().getFilesDir().getAbsolutePath());
+                    EventBus.getDefault().post(new InitializedEvent());
                 }
             });
             thrd.start();
@@ -211,7 +215,7 @@ public class NovelEngineService extends Service {
         }
         INovelServiceCommand cmd = cmds.get(msg.what);
         if(cmd != null){
-            cmd.process(args,this.engines,this.notifies);
+            cmd.process(args,this.engines);
         }
     }
 

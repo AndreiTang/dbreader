@@ -8,6 +8,7 @@ import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,7 +24,11 @@ import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelEngineService;
 import com.moss.dbreader.service.NovelInfoManager;
+import com.moss.dbreader.service.events.InitializedEvent;
 import com.moss.dbreader.ui.MainPageAdapter;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 
@@ -218,6 +223,12 @@ public class MainActivity extends AppCompatActivity {
         vp.setCurrentItem(index);
     }
 
+    protected void createBookCaseFragment(){
+        FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
+        ft.replace(android.R.id.content,);
+        ft.commit();
+    }
+
     public void switchMainUI() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.app_cover_fragment);
         fragment.getView().setVisibility(View.GONE);
@@ -233,6 +244,11 @@ public class MainActivity extends AppCompatActivity {
         vp.setCurrentItem(index);
 
         Common.changeStatusBarColor(this, Color.parseColor("#DBC49B"));
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    void onInitializedEvent(InitializedEvent event){
+
     }
 
 }

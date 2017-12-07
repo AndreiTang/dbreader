@@ -7,6 +7,9 @@ import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngine;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelInfoManager;
+import com.moss.dbreader.service.events.CacheChaptersEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -18,7 +21,7 @@ import java.util.Map;
 
 public class CacheChaptersCommand implements INovelServiceCommand {
     @Override
-    public void process(Map<String, Object> args, List<IFetchNovelEngine> engines, List<IFetchNovelEngineNotify> notifies) {
+    public void process(Map<String, Object> args, List<IFetchNovelEngine> engines) {
         DBReaderNovel novel = (DBReaderNovel) args.get(CommandCommon.TAG_NOVEL);
         int engineID = novel.engineID;
         if (engineID > 0 || engineID < engines.size()) {
@@ -37,21 +40,6 @@ public class CacheChaptersCommand implements INovelServiceCommand {
                 }
             }
         }
-
-        if (Looper.getMainLooper() != null && notifies.size() > 0) {
-            final String name =novel.name;
-            final List<IFetchNovelEngineNotify> fNotifies = notifies;
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 0; i < fNotifies.size(); i++) {
-                        fNotifies.get(i).OnCacheChapterComplete(name);;
-                    }
-                }
-            });
-        }
-
+        EventBus.getDefault().post(new CacheChaptersEvent(novel.name));
     }
-
 }

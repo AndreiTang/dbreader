@@ -120,6 +120,16 @@ public class CasePageAdapter extends BaseAdapter {
         }
     }
 
+    public void updateNovel(String novelName){
+        for(int i = 0 ; i < this.novels.size(); i++){
+            DBReaderNovel item = this.novels.get(i);
+            if(item.name.compareTo(novelName) == 0){
+                item.isUpdated = 1;
+                break;
+            }
+        }
+    }
+
     private void removeSelectNovels(){
         if(this.ids.size() == 0){
             return;

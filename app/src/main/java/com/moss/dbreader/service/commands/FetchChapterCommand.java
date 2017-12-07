@@ -9,6 +9,9 @@ import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.service.commands.INovelServiceCommand;
 import com.moss.dbreader.service.commands.CommandCommon;
+import com.moss.dbreader.service.events.FetchChapterEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -22,7 +25,7 @@ import java.util.Map;
 
 public class FetchChapterCommand implements INovelServiceCommand {
     @Override
-    public void process(Map<String, Object> args, List<IFetchNovelEngine> engines, List<IFetchNovelEngineNotify> notifies) {
+    public void process(Map<String, Object> args, List<IFetchNovelEngine> engines) {
         int nRet = IFetchNovelEngine.ERROR_NO_RESULT;
         String cont = "";
         DBReaderNovel novel = (DBReaderNovel) args.get(CommandCommon.TAG_NOVEL);
@@ -47,22 +50,7 @@ public class FetchChapterCommand implements INovelServiceCommand {
             nRet = IFetchNovelEngine.NO_ERROR;
         }
 
-        if(Looper.getMainLooper() != null && notifies.size() > 0){
-            final int fnRet = nRet;
-            final int fIndex = chapter.index;
-            final String fCont = cont;
-            final List<IFetchNovelEngineNotify> fNotifies = notifies;
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 0; i < fNotifies.size(); i++) {
-                        fNotifies.get(i).OnFetchChapter(fnRet, sessionID, fIndex, fCont);
-                    }
-                }
-            });
-        }
-
+        EventBus.getDefault().post(new FetchChapterEvent(nRet,sessionID,chapter.index,cont));
 
     }
 

@@ -6,6 +6,9 @@ import android.os.Looper;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngine;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
+import com.moss.dbreader.service.events.SearchEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +20,7 @@ import java.util.Map;
 
 public class SearchCommand implements INovelServiceCommand {
     @Override
-    public void process(Map<String, Object> args, List<IFetchNovelEngine> engines, List<IFetchNovelEngineNotify> notifies) {
+    public void process(Map<String, Object> args, List<IFetchNovelEngine> engines) {
         int nRet = IFetchNovelEngine.ERROR_NO_RESULT;
         String name = (String)args.get(CommandCommon.TAG_NAME);
         final int sessionID = (Integer)args.get(CommandCommon.TAG_SESSION_ID);
@@ -37,25 +40,7 @@ public class SearchCommand implements INovelServiceCommand {
             item.engineID = engineID;
         }
 
-        if(Looper.getMainLooper() != null && notifies.size() > 0){
-            final int fnRet = nRet;
-            final int fEngineID = engineID;
-            final ArrayList<DBReaderNovel> fNovels = novels;
-            final List<IFetchNovelEngineNotify> fNotifies = notifies;
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 0; i < fNotifies.size(); i++) {
-                        fNotifies.get(i).OnSearchNovels(fnRet,fEngineID ,sessionID, fNovels);
-                    }
-                }
-            });
-        }
-
-        for (int i = 0; i < notifies.size(); i++) {
-            notifies.get(i).OnSearchNovels(nRet, engineID,sessionID,novels);
-        }
+        EventBus.getDefault().post(new SearchEvent(nRet,engineID,sessionID,novels));
     }
 
 }

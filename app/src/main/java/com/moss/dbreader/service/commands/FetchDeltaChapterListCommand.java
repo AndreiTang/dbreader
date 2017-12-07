@@ -7,6 +7,10 @@ import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngine;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelInfoManager;
+import com.moss.dbreader.service.events.FetchChapterEvent;
+import com.moss.dbreader.service.events.FetchDeltaChapterListEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +22,7 @@ import java.util.Map;
 
 public class FetchDeltaChapterListCommand implements INovelServiceCommand {
     @Override
-    public void process(Map<String, Object> args, List<IFetchNovelEngine> engines, List<IFetchNovelEngineNotify> notifies) {
+    public void process(Map<String, Object> args, List<IFetchNovelEngine> engines) {
         DBReaderNovel novel = (DBReaderNovel)args.get(CommandCommon.TAG_NOVEL);
         int engineID = novel.engineID;
         if (engineID > 0 || engineID < engines.size()) {
@@ -28,26 +32,10 @@ public class FetchDeltaChapterListCommand implements INovelServiceCommand {
             if (nRet == IFetchNovelEngine.NO_ERROR) {
                 DBReaderNovel item = NovelInfoManager.getNovel(novel.name);
                 item.chapters.addAll(chapters);
-                item.isUpdated = 1;
                 NovelInfoManager.saveDBReader(item);
             }
 
-            if(Looper.getMainLooper() != null && notifies.size() > 0){
-                final int fnRet = nRet;
-                final String name = novel.name;
-                final ArrayList<DBReaderNovel.Chapter> fChapters = chapters;
-                final List<IFetchNovelEngineNotify> fNotifies = notifies;
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (int i = 0; i < fNotifies.size(); i++) {
-                            fNotifies.get(i).OnFetchDeltaChapterList(fnRet,name, fChapters);
-                        }
-                    }
-                });
-            }
-
+            EventBus.getDefault().post(new FetchDeltaChapterListEvent(novel.name,nRet,chapters));
         }
     }
 
