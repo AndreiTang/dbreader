@@ -62,7 +62,7 @@ public class CasePageAdapter extends BaseAdapter {
                     DBReaderNovel novel = novels.get(pos);
                     if(CasePageAdapter.this.mode == MODE_NORMAL){
                         novel.isUpdated = 0;
-                        ((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
+                        //((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
                     }
                     else{
                         View rm = v.findViewById(R.id.case_novel_remove);
@@ -117,16 +117,6 @@ public class CasePageAdapter extends BaseAdapter {
         this.mode = mode;
         if(this.mode == MODE_NORMAL){
             removeSelectNovels();
-        }
-    }
-
-    public void updateNovel(String novelName){
-        for(int i = 0 ; i < this.novels.size(); i++){
-            DBReaderNovel item = this.novels.get(i);
-            if(item.name.compareTo(novelName) == 0){
-                item.isUpdated = 1;
-                break;
-            }
         }
     }
 

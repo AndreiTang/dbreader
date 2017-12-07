@@ -31,6 +31,7 @@ public class FetchDeltaChapterListCommand implements INovelServiceCommand {
             int nRet = engine.fetchDeltaChapterList(novel, chapters);
             if (nRet == IFetchNovelEngine.NO_ERROR) {
                 DBReaderNovel item = NovelInfoManager.getNovel(novel.name);
+                item.isUpdated = 1;
                 item.chapters.addAll(chapters);
                 NovelInfoManager.saveDBReader(item);
             }

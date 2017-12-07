@@ -23,10 +23,13 @@ import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
+import com.moss.dbreader.fragment.events.SwitchFragmentEvent;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelEngineService;
 import com.moss.dbreader.ui.SearchPageAdapter;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -135,20 +138,6 @@ public class BookSearchFragment extends Fragment {
         }
     };
 ////////////////////////////////////////////////////////////////
-
-    public ServiceConnection getServiceConnection(){
-        return this.serviceConnection;
-    }
-
-    public IFetchNovelEngineNotify getFetchNovelEngineNotify(){
-        return this.notify;
-    }
-
-    public BookSearchFragment() {
-        // Required empty public constructor
-    }
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -167,7 +156,8 @@ public class BookSearchFragment extends Fragment {
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity)getActivity()).switchFragment(0);
+                EventBus.getDefault().post(new SwitchFragmentEvent(0));
+                //((MainActivity)getActivity()).switchFragment(0);
             }
         });
     }

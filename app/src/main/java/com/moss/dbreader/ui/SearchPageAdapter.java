@@ -70,10 +70,10 @@ public class SearchPageAdapter extends BaseAdapter {
                     novel.currPage = 0;
                     DBReaderNovel item = NovelInfoManager.getNovel(novel.name);
                     if(item != null){
-                        ((MainActivity)fragment.getActivity()).switchToNovelReader(item);
+                       // ((MainActivity)fragment.getActivity()).switchToNovelReader(item);
                     }
                     else{
-                        ((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
+                        //((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
                     }
 
                 }

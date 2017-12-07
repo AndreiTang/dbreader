@@ -8,23 +8,16 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.TextView;
 
-import com.moss.dbreader.Common;
+import com.moss.dbreader.fragment.events.SwitchFragmentEvent;
 import com.moss.dbreader.service.IFetchNovelEngine;
-import com.moss.dbreader.service.NovelInfoManager;
-import com.moss.dbreader.MainActivity;
+
 import com.moss.dbreader.R;
-import com.moss.dbreader.service.DBReaderNovel;
-import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.events.FetchDeltaChapterListEvent;
 import com.moss.dbreader.ui.CasePageAdapter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.ArrayList;
-
-import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
 
 /**
  * Created by andrei on 2017/10/11.
@@ -83,7 +76,8 @@ public class BookCaseFragment extends Fragment {
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) getActivity()).switchFragment(1);
+                EventBus.getDefault().post(new SwitchFragmentEvent(1));
+               // ((MainActivity) getActivity()).switchFragment(1);
             }
         });
     }
@@ -93,6 +87,6 @@ public class BookCaseFragment extends Fragment {
         if( event.nRet != IFetchNovelEngine.NO_ERROR || cp == null){
             return;
         }
-        cp.updateNovel(event.novelName);
+        cp.notifyDataSetChanged();
     }
 }
