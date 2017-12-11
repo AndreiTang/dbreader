@@ -1,6 +1,7 @@
 package com.moss.dbreader.ui;
 
 import android.graphics.Rect;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -13,6 +14,8 @@ import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import com.moss.dbreader.R;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,20 +39,34 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         public String name;
     }
 
+    static public class FetchTextEvent {
+        public FetchTextEvent(int index) {
+            this.chapterIndex = index;
+        }
 
+        public int chapterIndex;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
     private ArrayList<ReaderPage> pages = new ArrayList<ReaderPage>();
     private HashMap<Integer, String> pageTexts = new HashMap<Integer, String>();
     private ArrayList<View> views;
-    private int textViewId;
-    private int maskViewId;
-    private int errViewId;
-    private int pageNoId;
-    private int titleId;
     private ArrayList<View> usingViews = new ArrayList<View>();
-    IReaderPageAdapterNotify readerPageAdapterNotify = null;
+    private Fragment fragment;
+
     private static final int TITLE_FONT_SIZE_SP = 20;
     public static final int FLAG_CURR_PAGE = -1;
     public static final int FLAG_PREVIOUS_PAGE = -2;
+
+    public ReaderPageAdapter(Fragment fragment) {
+        this.fragment = fragment;
+        this.views = views;
+
+        for (int i = 0; i < views.size(); i++) {
+            final View root = views.get(i);
+
+        }
+    }
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -69,8 +86,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                     v.setTag(R.id.tag_need_update, 1);
                     ReaderPageAdapter.this.notifyDataSetChanged();
                 }
-            }
-            else if(pos != position && rp.begin == FLAG_CURR_PAGE){
+            } else if (pos != position && rp.begin == FLAG_CURR_PAGE) {
                 rp.begin = FLAG_PREVIOUS_PAGE;
             }
         }
@@ -82,29 +98,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
 
     }
 
-
-    public ReaderPageAdapter(ArrayList<View> views, int tvId, int titleId, int pageNoId, int maskId,int errViewId, IReaderPageAdapterNotify readerPageAdapterNotify) {
-        this.views = views;
-        this.textViewId = tvId;
-        this.maskViewId = maskId;
-        this.titleId = titleId;
-        this.pageNoId = pageNoId;
-        this.errViewId = errViewId;
-        this.readerPageAdapterNotify = readerPageAdapterNotify;
-
-        for(int i = 0 ; i < views.size(); i++){
-            final View root = views.get(i);
-            View err = root.findViewById(this.errViewId);
-            err.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int chapIndex = (int)root.getTag(R.id.tag_chap_index);
-                    ReaderPageAdapter.this.readerPageAdapterNotify.update(chapIndex);
-                    v.setVisibility(View.GONE);
-                }
-            });
-        }
-    }
 
     public void setCurrentItem(int pos) {
         for (int i = 0; i < pages.size(); i++) {
@@ -125,45 +118,43 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     public void addText(int index, String text) {
 
         ReaderPage rp = getFirstPageOfChapter(index);
-        String cont = buildNovelText(rp.name,text);
+        String cont = buildNovelText(rp.name, text);
         pageTexts.put(index, cont);
         for (int i = 0; i < usingViews.size(); i++) {
             View v = usingViews.get(i);
             int chapIndex = (Integer) v.getTag(R.id.tag_chap_index);
             ReaderPage page = getFirstPageOfChapter(chapIndex);
             if (chapIndex == index && page.begin == FLAG_CURR_PAGE) {
-                initPageText(page, (TextView) v.findViewById(textViewId));
+                initPageText(page, (TextView) v.findViewById(R.id.reader_text));
                 break;
             }
-            int pos = (Integer)v.getTag(R.id.tag_pos);
+            int pos = (Integer) v.getTag(R.id.tag_pos);
             page = this.getReaderPage(pos);
-            if(chapIndex == index && page.begin >=0){
-                View mask = v.findViewById(maskViewId);
+            if (chapIndex == index && page.begin >= 0) {
+                View mask = v.findViewById(R.id.reader_mask);
                 mask.setVisibility(View.GONE);
-                View err = v.findViewById(errViewId);
+                View err = v.findViewById(R.id.reader_error);
                 err.setVisibility(View.GONE);
-                setPageText(page,(TextView) v.findViewById(textViewId));
+                setPageText(page, (TextView) v.findViewById(R.id.reader_text));
             }
         }
     }
 
-    public void error(int index){
+    public void error(int index) {
         for (int i = 0; i < usingViews.size(); i++) {
             View v = usingViews.get(i);
             int chapIndex = (Integer) v.getTag(R.id.tag_chap_index);
-            if (chapIndex == index ) {
-                View err = v.findViewById(errViewId);
+            if (chapIndex == index) {
+                View err = v.findViewById(R.id.reader_error);
                 err.setVisibility(View.VISIBLE);
                 break;
             }
         }
     }
 
-    HashMap<Integer, String> getPageTexts() {
-        return pageTexts;
+    public ArrayList<ReaderPage> getPages() {
+        return pages;
     }
-
-    public ArrayList<ReaderPage> getPages(){return pages;}
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
@@ -171,24 +162,26 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         if (page == null) {
             return super.instantiateItem(container, position);
         }
-        View view = views.get(0);
-        views.remove(0);
+        View view = null;
+        if (views.size() > 0) {
+            view = views.remove(0);
+        } else {
+            view = createView();
+        }
         usingViews.add(view);
         view.setTag(R.id.tag_pos, position);
         view.setTag(R.id.tag_chap_index, page.chapterIndex);
         view.setTag(R.id.tag_page_begin, page.begin);
         view.setTag(R.id.tag_need_update, 0);
-        TextView tv = null;
-
-        tv = (TextView) view.findViewById(this.titleId);
+        TextView tv = (TextView) view.findViewById(R.id.reader_chapter_title);
         tv.setText(page.name);
-        tv = (TextView) view.findViewById(this.pageNoId);
+        tv = (TextView) view.findViewById(R.id.reader_chapter_page_no);
         String pageNo = (position + 1) + "/" + pages.size();
         tv.setText(pageNo);
 
-        tv = (TextView) view.findViewById(textViewId);
-        View mask = view.findViewById(maskViewId);
-        View errView = view.findViewById(errViewId);
+        tv = (TextView) view.findViewById(R.id.reader_text);
+        View mask = view.findViewById(R.id.reader_mask);
+        View errView = view.findViewById(R.id.reader_error);
         if (pageTexts.containsKey(page.chapterIndex) && page.begin != FLAG_PREVIOUS_PAGE) {
             refreshPage(page, tv);
             mask.setVisibility(View.GONE);
@@ -197,7 +190,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             tv.setText("");
             mask.setVisibility(View.VISIBLE);
             if (page.begin == FLAG_CURR_PAGE || page.begin >= 0) {
-                readerPageAdapterNotify.update(page.chapterIndex);
+                EventBus.getDefault().post(new FetchTextEvent(page.chapterIndex));
             }
         }
         ((ViewGroup) container).addView(view);
@@ -233,7 +226,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         views.add((View) object);
     }
 
-    public int getFirstPageOfChapterIndex(int chapIndex){
+    public int getFirstPageOfChapterIndex(int chapIndex) {
         for (int i = 0; i < pages.size(); i++) {
             ReaderPage page = pages.get(i);
             if (page.chapterIndex == chapIndex && page.begin <= 0) {
@@ -243,39 +236,51 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         return -1;
     }
 
+    private View createView() {
+        View v = this.fragment.getActivity().getLayoutInflater().inflate(R.layout.view_reader, null);
+        View err = v.findViewById(R.id.reader_error);
+        err.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int chapIndex = (int) v.getTag(R.id.tag_chap_index);
+                EventBus.getDefault().post(new FetchTextEvent(chapIndex));
+                v.setVisibility(View.GONE);
+            }
+        });
+        return v;
+    }
+
     private String buildNovelText(String chapterName, String cont) {
         BufferedReader reader = new BufferedReader(new StringReader(cont));
         String line;
-        String title = chapterName.replace(" ","");
+        String title = chapterName.replace(" ", "");
         int index = title.indexOf('(');
-        if(index !=-1){
-            title = title.substring(0,index);
+        if (index != -1) {
+            title = title.substring(0, index);
         }
         index = title.indexOf('（');
-        if(index !=-1){
-            title = title.substring(0,index);
+        if (index != -1) {
+            title = title.substring(0, index);
         }
         String text = "";
         boolean hasTitle = false;
         int i = 0;
         try {
-            while ((line = reader.readLine())!=null){
-                if(line.length() == 0){
+            while ((line = reader.readLine()) != null) {
+                if (line.length() == 0) {
                     continue;
                 }
                 i++;
-                line = line.replace(" ","");
-                if(i==1){
-                    if(line.indexOf(title) != -1){
+                line = line.replace(" ", "");
+                if (i == 1) {
+                    if (line.indexOf(title) != -1) {
                         text = chapterName + "\n\n";
                         hasTitle = true;
-                    }
-                    else{
+                    } else {
                         text = "    " + line + "\n";
                     }
-                }
-                else{
-                    if(line.indexOf(title) != -1){
+                } else {
+                    if (line.indexOf(title) != -1) {
                         continue;
                     }
                     line = "    " + line;
@@ -286,11 +291,11 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(hasTitle == false){
+        if (hasTitle == false) {
             text = chapterName + "\n\n" + text;
         }
-        if(text.length() > 1){
-            text = text.substring(0,text.length() - 1);
+        if (text.length() > 1) {
+            text = text.substring(0, text.length() - 1);
         }
         return text;
     }
@@ -355,7 +360,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                 ReaderPage rp = getFirstPageOfChapter(page.chapterIndex + 1);
                 if (rp != null && rp.begin == FLAG_PREVIOUS_PAGE) {
                     rp.begin = FLAG_CURR_PAGE;
-                    readerPageAdapterNotify.update(rp.chapterIndex);
+                    EventBus.getDefault().post(new FetchTextEvent(rp.chapterIndex));
                 }
                 return false;
             }
@@ -378,7 +383,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             ReaderPage rp = getReaderPage(pos);
             if (rp.begin != begin || rp.chapterIndex != chap) {
                 v.setTag(R.id.tag_need_update, 1);
-                v.setTag(R.id.tag_chap_index,rp.chapterIndex);
+                v.setTag(R.id.tag_chap_index, rp.chapterIndex);
             }
         }
     }
@@ -392,11 +397,10 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             tv.getLineBounds(i, rc);
             h += rc.height();
             if (h > tvHigh || i == count - 1) {
-                if (h > tvHigh ) {
+                if (h > tvHigh) {
                     if (begin == 0) {
                         i = i - 2;
-                    }
-                    else{
+                    } else {
                         i--;
                     }
                 }
@@ -418,13 +422,11 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     private void setPageText(final ReaderPage page, TextView tv) {
         String text = this.pageTexts.get(page.chapterIndex);
         int len = text.length();
-        if(page.begin >= len){
+        if (page.begin >= len) {
             text = "";
-        }
-        else if(page.end > len){
+        } else if (page.end > len) {
             text = text.substring(page.begin, len);
-        }
-        else{
+        } else {
             text = text.substring(page.begin, page.end);
         }
 
@@ -439,7 +441,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         } else {
             tv.setText(text);
             tv.setGravity(Gravity.CENTER_VERTICAL);
-            if(len == page.end){
+            if (len == page.end) {
                 tv.setGravity(Gravity.TOP);
             }
         }

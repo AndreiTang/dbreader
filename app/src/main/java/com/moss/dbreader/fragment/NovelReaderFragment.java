@@ -22,14 +22,21 @@ import android.widget.Toast;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.moss.dbreader.fragment.events.FetchEngineEvent;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelEngineService;
+import com.moss.dbreader.service.events.FetchChapterEvent;
+import com.moss.dbreader.service.events.FetchDeltaChapterListEvent;
 import com.moss.dbreader.ui.IReaderPageAdapterNotify;
 import com.moss.dbreader.ui.ReaderPageAdapter;
 import com.moss.dbreader.ui.ReaderPanel;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 
@@ -94,99 +101,56 @@ public class NovelReaderFragment extends Fragment {
         }
     });
 
-
-    IReaderPageAdapterNotify readerPageAdapterNotify = new IReaderPageAdapterNotify() {
-        @Override
-        public void update(final int index) {
-            if (NovelReaderFragment.this.engine == null) {
-                NovelReaderFragment.this.tmpIndex = index;
-            } else {
-                NovelReaderFragment.this.engine.fetchChapter(NovelReaderFragment.this.novel,
-                        NovelReaderFragment.this.novel.chapters.get(index),
-                        NovelReaderFragment.this.sessionID);
-            }
-        }
-    };
-
-    IFetchNovelEngineNotify fetchNovelEngineNotify = new IFetchNovelEngineNotify() {
-        @Override
-        public void OnSearchNovels(int nRet, int engineID, int sessionID, final ArrayList<DBReaderNovel> novels) {
-
-        }
-
-        @Override
-        public void OnFetchNovel(int nRet, int sessionID, final DBReaderNovel novel) {
-
-
-        }
-
-        @Override
-        public void OnFetchChapter(int nRet, int sessionID, final int index, final String cont) {
-            if (NovelReaderFragment.this.sessionID != sessionID) {
-                return;
-            }
-            if (nRet != NO_ERROR) {
-                NovelReaderFragment.this.adapter.error(index);
-                return;
-            }
-            NovelReaderFragment.this.adapter.addText(index, cont);
-        }
-
-        @Override
-        public void OnCacheChapterComplete(final String novelName) {
-            Log.i("Andrei",novelName + " cache finish");
-            String msg = getActivity().getResources().getString(R.string.cache_complete);
-            msg = novelName + " " + msg;
-            Toast.makeText(NovelReaderFragment.this.getActivity(), msg, Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void OnFetchDeltaChapterList(int nRet, String novelName, final ArrayList<DBReaderNovel.Chapter> chapters) {
-            if(nRet != NO_ERROR || NovelReaderFragment.this.novel.name.compareTo(novel.name) != 0){
-                return;
-            }
-            updateChapters(chapters);
-        }
-
-    };
-
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) iBinder;
-            NovelReaderFragment.this.engine = binder.getNovelEngine();
-            NovelReaderFragment.this.engine.addNotify(fetchNovelEngineNotify);
-            NovelReaderFragment.this.sessionID = engine.generateSessionID();
-            if (tmpIndex != -1) {
-                engine.fetchChapter(novel,
-                        novel.chapters.get(tmpIndex),
-                        sessionID);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            NovelReaderFragment.this.engine.removeNotify(fetchNovelEngineNotify);
-        }
-    };
     /////////////////////////////////////////////////////////////////////////
     private NovelEngineService.NovelEngine engine = null;
-    //private int engineID = -1;
     private int sessionID = -1;
     private DBReaderNovel novel;
     private ReaderPageAdapter adapter = null;
-    private int tmpIndex = -1;
-
-    private final static String TAG_PAGES = "tag_pages";
-    private final static String TAG_CURR_PAGE = "tag_cur_page";
-    private final static String TAG_NOVEL = "tag_novel";
     private long beginTime = 0;
+
+    @Subscribe
+    public void onFetchText(ReaderPageAdapter.FetchTextEvent event){
+        this.engine.fetchChapter(this.novel,
+                this.novel.chapters.get(event.chapterIndex),
+                this.sessionID);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onFetchChapterEvent(FetchChapterEvent event){
+        if (this.sessionID != event.sessionID) {
+            return;
+        }
+        if (event.nRet != NO_ERROR) {
+            NovelReaderFragment.this.adapter.error(event.chapterIndex);
+            return;
+        }
+        NovelReaderFragment.this.adapter.addText(event.chapterIndex, event.cont);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onFetchDeltaChapterListEvent(FetchDeltaChapterListEvent event){
+        if(event.nRet != NO_ERROR || this.novel.name.compareTo(event.novelName) != 0){
+            return;
+        }
+        updateChapters(event.chapters);
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onFetchEngine(FetchEngineEvent event){
+        this.engine = event.engine;
+        this.sessionID = engine.generateSessionID();
+        initializeAdapter();
+    }
+
+
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        EventBus.getDefault().register(this);
         initializeViewPager();
-        initializeAdapter();
+
 
 //        if (savedInstanceState != null) {
 //            onRestoreInstanceState(savedInstanceState);
@@ -227,25 +191,6 @@ public class NovelReaderFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        Intent intent = new Intent(getActivity(), NovelEngineService.class);
-        getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (this.engine != null) {
-            this.engine.cancel(this.sessionID);
-            getActivity().unbindService(this.serviceConnection);
-            NovelReaderFragment.this.engine.removeNotify(fetchNovelEngineNotify);
-            this.engine = null;
-        }
-
-    }
-
-    @Override
     public void onResume(){
         super.onResume();
         this.beginTime = System.currentTimeMillis();
@@ -263,8 +208,14 @@ public class NovelReaderFragment extends Fragment {
         NovelInfoManager.saveDBReader(novel);
     }
 
-    public void cacheChapters() {
-        engine.cacheChapters(this.novel);
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+        if (this.engine != null) {
+            this.engine.cancel(this.sessionID);
+            this.engine = null;
+        }
     }
 
     public int getCurrentChapterIndex() {
@@ -329,7 +280,7 @@ public class NovelReaderFragment extends Fragment {
                 }
             });
         }
-        this.adapter = new ReaderPageAdapter(views, R.id.reader_text, R.id.reader_chapter_title, R.id.reader_chapter_page_no, R.id.reader_mask,R.id.reader_error, readerPageAdapterNotify);
+        this.adapter = new ReaderPageAdapter(this);
         vp.addOnPageChangeListener(adapter);
     }
 

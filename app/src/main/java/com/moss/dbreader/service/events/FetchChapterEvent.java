@@ -14,5 +14,5 @@ public class FetchChapterEvent {
     public int chapterIndex;
     public String cont;
     public int nRet;
-    int sessionID;
+    public int sessionID;
 }
