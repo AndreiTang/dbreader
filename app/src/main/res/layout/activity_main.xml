@@ -6,23 +6,11 @@
     android:layout_height="match_parent"
     tools:context="com.moss.dbreader.MainActivity">
 
-    <FrameLayout
+    <fragment
+        android:id="@+id/main_fragment"
+        android:name="com.moss.dbreader.fragment.AppCoverFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/main_viewpager"
-            android:layout_width="match_parent"
-            android:visibility="gone"
-            android:layout_height="match_parent" />
-
-        <fragment
-            android:id="@+id/app_cover_fragment"
-            android:name="com.moss.dbreader.fragment.AppCoverFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </FrameLayout>
+        android:layout_height="match_parent" />
 
 
 </android.support.constraint.ConstraintLayout>
