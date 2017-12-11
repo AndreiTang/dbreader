@@ -51,15 +51,7 @@ public class NovelEngineService extends Service {
             Thread thrd = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    NovelInfoManager.initialize(NovelEngineService.this.getApplicationContext().getFilesDir().getAbsolutePath());
-                    EventBus.getDefault().post(new InitializedEvent());
-                    ArrayList<DBReaderNovel> novels = NovelInfoManager.getNovels();
-                    for(int i = 0;i < novels.size(); i++){
-                        DBReaderNovel item = novels.get(i);
-                        if(item.isInCase == 1){
-                            fetchDeltaChapterList(item);
-                        }
-                    }
+
                 }
             });
             thrd.start();

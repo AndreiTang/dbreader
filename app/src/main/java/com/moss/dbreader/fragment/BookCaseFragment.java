@@ -42,7 +42,7 @@ public class BookCaseFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
@@ -71,20 +71,19 @@ public class BookCaseFragment extends Fragment {
         });
     }
 
-    private void intializeSearchBtn(){
+    private void intializeSearchBtn() {
         View v = getActivity().findViewById(R.id.book_case_search);
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 EventBus.getDefault().post(new SwitchFragmentEvent(1));
-               // ((MainActivity) getActivity()).switchFragment(1);
             }
         });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    protected void onFetchDeltaChapterListEvent(FetchDeltaChapterListEvent event){
-        if( event.nRet != IFetchNovelEngine.NO_ERROR || cp == null){
+    public void onFetchDeltaChapterListEvent(FetchDeltaChapterListEvent event) {
+        if (event.nRet != IFetchNovelEngine.NO_ERROR || cp == null) {
             return;
         }
         cp.notifyDataSetChanged();

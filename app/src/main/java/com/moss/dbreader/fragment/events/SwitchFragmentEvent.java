@@ -5,9 +5,8 @@ package com.moss.dbreader.fragment.events;
  */
 
 public class SwitchFragmentEvent {
-    public int index;
-
     public SwitchFragmentEvent(int index) {
         this.index = index;
     }
+    public int index;
 }

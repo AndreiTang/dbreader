@@ -64,8 +64,7 @@ public class AppCoverFragment extends Fragment {
         TextView tv = (TextView) getActivity().findViewById(R.id.cover_title);
         tv.setTypeface(typeface);
 
-        Intent intent = new Intent(getActivity(), NovelEngineService.class);
-        getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+
     }
 
     @Override

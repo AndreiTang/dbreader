@@ -27,12 +27,8 @@ public class ReaderActivity extends AppCompatActivity {
 
         @Override
         public void onClickDict() {
-            ReaderPanel rp = (ReaderPanel) findViewById(R.id.reader_panel);
-            rp.setVisibility(View.GONE);
-
             NovelReaderFragment novelReaderfragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
             int currIndex = novelReaderfragment.getCurrentChapterIndex();
-
             BookCoverFragment bookCoverfragment = (BookCoverFragment) ReaderActivity.this.getSupportFragmentManager().findFragmentById(R.id.book_cover_fragment);
             bookCoverfragment.getView().setVisibility(View.VISIBLE);
             bookCoverfragment.setSelection(currIndex);
@@ -40,8 +36,6 @@ public class ReaderActivity extends AppCompatActivity {
 
         @Override
         public void onClickCache() {
-            View rp = findViewById(R.id.reader_panel);
-            rp.setVisibility(View.GONE);
             NovelReaderFragment novelReaderfragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
             novelReaderfragment.cacheChapters();
         }

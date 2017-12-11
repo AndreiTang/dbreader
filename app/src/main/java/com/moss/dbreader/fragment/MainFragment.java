@@ -40,7 +40,7 @@ public class MainFragment extends Fragment {
     }
 
     @Subscribe
-    void onSwitchFragmentEvent(SwitchFragmentEvent event){
+    public void onSwitchFragmentEvent(SwitchFragmentEvent event){
         ViewPager vp = (ViewPager) getView().findViewById(R.id.main_viewpager);
        vp.setCurrentItem(event.index);
     }

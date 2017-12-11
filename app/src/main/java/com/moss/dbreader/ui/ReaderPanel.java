@@ -83,6 +83,7 @@ public class ReaderPanel extends View {
             else{
                 notify.onClickDefault();
             }
+            setVisibility(View.GONE);
         }
         return true;
     }

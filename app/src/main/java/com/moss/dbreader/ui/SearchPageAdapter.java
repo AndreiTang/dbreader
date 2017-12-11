@@ -24,12 +24,11 @@ public class SearchPageAdapter extends BaseAdapter {
 
     private ArrayList<DBReaderNovel> novels = new ArrayList<DBReaderNovel>();
     private Fragment fragment;
-    private int engineID;
+   // private int engineID;
     private ArrayList<View> views = new ArrayList<View>();
 
-    public SearchPageAdapter(Fragment fragment, int engineID){
+    public SearchPageAdapter(Fragment fragment){
         this.fragment = fragment;
-        this.engineID = engineID;
     }
 
     public void addNovel(DBReaderNovel novel){
@@ -58,7 +57,6 @@ public class SearchPageAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         if(view == null){
-            //view = LayoutInflater.from(context).inflate(R.layout.view_search,viewGroup,false);
             view = fragment.getActivity().getLayoutInflater().inflate(R.layout.view_search,viewGroup,false);
             views.add(view);
             view.setOnClickListener(new View.OnClickListener() {
@@ -66,7 +64,6 @@ public class SearchPageAdapter extends BaseAdapter {
                 public void onClick(View v) {
                     int pos = (Integer) v.getTag(R.id.tag_pos);
                     DBReaderNovel novel = novels.get(pos);
-                    novel.engineID = SearchPageAdapter.this.engineID;
                     novel.currPage = 0;
                     DBReaderNovel item = NovelInfoManager.getNovel(novel.name);
                     if(item != null){

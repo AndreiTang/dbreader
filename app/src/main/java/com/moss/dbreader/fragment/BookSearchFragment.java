@@ -23,13 +23,18 @@ import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
+import com.moss.dbreader.fragment.events.FetchEngineEvent;
 import com.moss.dbreader.fragment.events.SwitchFragmentEvent;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelEngineService;
+import com.moss.dbreader.service.events.FetchNovelEvent;
+import com.moss.dbreader.service.events.SearchEvent;
 import com.moss.dbreader.ui.SearchPageAdapter;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -55,89 +60,65 @@ public class BookSearchFragment extends Fragment {
     private SearchPageAdapter searchPageAdapter = null;
 
 
-    IFetchNovelEngineNotify notify = new IFetchNovelEngineNotify() {
-        @Override
-        public void OnSearchNovels(int nRet, int engineID, int sessionID, final ArrayList<DBReaderNovel> novels) {
-            if(BookSearchFragment.this.sessionID != sessionID){
-                return;
-            }
-            if (nRet != NO_ERROR) {
-                BookSearchFragment.this.showErrorInfo(nRet);
-                return;
-            }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSearchEvent(SearchEvent event){
+        if(this.sessionID != event.sessionID){
+            return;
+        }
+        if (event.nRet != NO_ERROR) {
+            showErrorInfo(event.nRet);
+            return;
+        }
 
-            BookSearchFragment.this.engineID = engineID;
-            BookSearchFragment.this.sessionID = sessionID;
+        this.engineID = event.engineID;
+        this.sessionID = event.sessionID;
 
-            tmpNovels.clear();
-            for(int i = novels.size() - 1 ; i >=0 ; i--){
-                DBReaderNovel item = novels.get(i);
-                if(item.chapters != null && item.chapters.size() > 0){
-                    BookSearchFragment.this.tmpNovels.add(item);
-                    novels.remove(i);
-                }
-            }
-
-            if(novels.size() > 0){
-                BookSearchFragment.this.novels = novels;
-            }
-            else{
-                BookSearchFragment.this.novels = null;
-            }
-
-            if(novels.size() == 0){
-                showSearchResult();
-            }
-            else{
-                BookSearchFragment.this.fetchNovelDetails();
+        tmpNovels.clear();
+        for(int i = event.novels.size() - 1 ; i >=0 ; i--){
+            DBReaderNovel item = event.novels.get(i);
+            if(item.chapters != null && item.chapters.size() > 0){
+                this.tmpNovels.add(item);
+                event.novels.remove(i);
             }
         }
 
-        @Override
-        public void OnFetchNovel(int nRet, int sessionID, DBReaderNovel novel) {
-            if (BookSearchFragment.this.sessionID != sessionID) {
-                return;
-            }
-            searchCount--;
-            if (nRet != NO_ERROR) {
-                return;
-            }
-            tmpNovels.add(novel);
-            if (searchCount == 0) {
-                showSearchResult();
-            }
+        if(event.novels.size() > 0){
+            this.novels = event.novels;
+        }
+        else{
+            this.novels = null;
         }
 
-        @Override
-        public void OnFetchChapter(int nRet, int sessionID, int index, String cont) {
+        if(event.novels.size() == 0){
+            showSearchResult();
+        }
+        else{
+            fetchNovelDetails();
         }
 
+    }
 
-        @Override
-        public void OnCacheChapterComplete(final String novelName) {
-
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onFetchNovelEvent(FetchNovelEvent event){
+        if (this.sessionID != event.sessionID) {
+            return;
         }
-
-        @Override
-        public void OnFetchDeltaChapterList(int nRet, String novelName, ArrayList<DBReaderNovel.Chapter> chapters) {
-
+        searchCount--;
+        if (event.nRet != NO_ERROR) {
+            return;
         }
-
-    };
-
-    ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) iBinder;
-            engine = binder.getNovelEngine();
+        tmpNovels.add(event.novel);
+        if (searchCount == 0) {
+            showSearchResult();
         }
+    }
 
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
 
-        }
-    };
-////////////////////////////////////////////////////////////////
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onFetchEngine(FetchEngineEvent event){
+        this.engine = event.engine;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -149,6 +130,7 @@ public class BookSearchFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        EventBus.getDefault().register(this);
         initializeSearchView();
         initializeListView();
         initializeProgressViews();
@@ -199,7 +181,7 @@ public class BookSearchFragment extends Fragment {
 
         boolean bNew = false;
         if (searchPageAdapter == null) {
-            searchPageAdapter = new SearchPageAdapter(BookSearchFragment.this,BookSearchFragment.this.engineID);
+            searchPageAdapter = new SearchPageAdapter(BookSearchFragment.this);
             bNew = true;
         }
         for (int i = 0; i < tmpNovels.size(); i++) {
@@ -353,6 +335,4 @@ public class BookSearchFragment extends Fragment {
             }
         });
     }
-
-
 }
