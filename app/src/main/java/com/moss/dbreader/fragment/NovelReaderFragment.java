@@ -1,36 +1,25 @@
 package com.moss.dbreader.fragment;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.net.Uri;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.GestureDetector;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.interfaces.DraweeController;
-import com.facebook.drawee.view.SimpleDraweeView;
+import com.moss.dbreader.Common;
 import com.moss.dbreader.fragment.events.FetchEngineEvent;
+import com.moss.dbreader.fragment.events.RefreshNovelsEvent;
+import com.moss.dbreader.fragment.events.SwitchFragmentEvent;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
-import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelEngineService;
 import com.moss.dbreader.service.events.FetchChapterEvent;
 import com.moss.dbreader.service.events.FetchDeltaChapterListEvent;
-import com.moss.dbreader.ui.IReaderPageAdapterNotify;
 import com.moss.dbreader.ui.ReaderPageAdapter;
 import com.moss.dbreader.ui.ReaderPanel;
 
@@ -46,62 +35,7 @@ import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
  * Created by tangqif on 2017/10/9.
  */
 
-public class NovelReaderFragment extends Fragment {
-
-
-    private GestureDetector.OnDoubleTapListener doubleTapListener = new GestureDetector.OnDoubleTapListener() {
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            ReaderPanel rp = (ReaderPanel) getActivity().findViewById(R.id.reader_panel);
-            rp.setVisibility(View.VISIBLE);
-            return true;
-        }
-
-        @Override
-        public boolean onDoubleTapEvent(MotionEvent e) {
-            return false;
-        }
-    };
-
-    private GestureDetector detector = new GestureDetector(NovelReaderFragment.this.getContext(), new GestureDetector.OnGestureListener() {
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public void onShowPress(MotionEvent e) {
-
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            return false;
-        }
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            return false;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            return false;
-        }
-    });
-
-    /////////////////////////////////////////////////////////////////////////
+public class NovelReaderFragment extends Fragment implements IBackPress {
     private NovelEngineService.NovelEngine engine = null;
     private int sessionID = -1;
     private DBReaderNovel novel;
@@ -139,18 +73,29 @@ public class NovelReaderFragment extends Fragment {
     public void onFetchEngine(FetchEngineEvent event){
         this.engine = event.engine;
         this.sessionID = engine.generateSessionID();
+        initializeViewPager();
         initializeAdapter();
     }
 
+    @Subscribe
+    public void onReadPanel_ToMain_Event(ReaderPanel.ReadPanel_ToMain_Event event){
+        int id = 0;
+        if(event.id == ReaderPanel.CLICK_SEARCH){
+            id = 1;
+        }
+        back(id);
+    }
 
-
+    @Override
+    public void onBackPress() {
+        back(-1);
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Common.changeStatusBarColor(getActivity(), Color.parseColor("#E0E0E0"));
         EventBus.getDefault().register(this);
-        initializeViewPager();
-
 
 //        if (savedInstanceState != null) {
 //            onRestoreInstanceState(savedInstanceState);
@@ -211,6 +156,7 @@ public class NovelReaderFragment extends Fragment {
     @Override
     public void onDestroy(){
         super.onDestroy();
+        EventBus.getDefault().post(new RefreshNovelsEvent());
         EventBus.getDefault().unregister(this);
         if (this.engine != null) {
             this.engine.cancel(this.sessionID);
@@ -218,13 +164,13 @@ public class NovelReaderFragment extends Fragment {
         }
     }
 
-    public int getCurrentChapterIndex() {
-        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
-        int curr = vp.getCurrentItem();
-        ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
-        ReaderPageAdapter.ReaderPage rp = adapter.getReaderPage(curr);
-        return rp.chapterIndex;
-    }
+//    private int getCurrentChapterIndex() {
+//        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
+//        int curr = vp.getCurrentItem();
+//        ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
+//        ReaderPageAdapter.ReaderPage rp = adapter.getReaderPage(curr);
+//        return rp.chapterIndex;
+//    }
 
     public void changeChapter(DBReaderNovel.Chapter chapter) {
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
@@ -266,33 +212,11 @@ public class NovelReaderFragment extends Fragment {
 
     private void initializeViewPager() {
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
-        ArrayList<View> views = new ArrayList<View>();
-        detector.setOnDoubleTapListener(doubleTapListener);
-        for (int i = 0; i < 8; i++) {
-            View v = getActivity().getLayoutInflater().inflate(R.layout.view_reader, null);
-            views.add(v);
-            initializeProgressBar(v);
-            v.setLongClickable(true);
-            v.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    return detector.onTouchEvent(event);
-                }
-            });
-        }
         this.adapter = new ReaderPageAdapter(this);
         vp.addOnPageChangeListener(adapter);
     }
 
-    private void initializeProgressBar(View v) {
-        SimpleDraweeView pv = (SimpleDraweeView) v.findViewById(R.id.reader_progress);
-        Uri uri = Uri.parse("res://" + getContext().getPackageName() + "/" + R.drawable.progress_big);
-        DraweeController controller = Fresco.newDraweeControllerBuilder()
-                .setUri(uri)
-                .setAutoPlayAnimations(true)
-                .build();
-        pv.setController(controller);
-    }
+
 
     private void initializeAdapter() {
         int i = 0;
@@ -316,7 +240,42 @@ public class NovelReaderFragment extends Fragment {
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
         vp.setAdapter(adapter);
         vp.setCurrentItem(curPage);
+    }
 
+    private void transferToMain(int index){
+        getActivity().getSupportFragmentManager().popBackStack();
+        if(index != -1){
+            EventBus.getDefault().post(new SwitchFragmentEvent(index));
+        }
+    }
+
+    private void popupConfirmDlg(final int index){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.prompt_title);
+        builder.setMessage(R.string.prompt_msg);
+        builder.setPositiveButton(R.string.prompt_ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                novel.isInCase = 1;
+                transferToMain(index);
+            }
+        });
+        builder.setNegativeButton(R.string.prompt_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                transferToMain(index);
+            }
+        });
+        builder.create().show();
+    }
+
+    private void back(int index){
+        if(novel.isInCase == 0){
+            popupConfirmDlg(index);
+        }
+        else{
+            transferToMain(index);
+        }
     }
 
 }

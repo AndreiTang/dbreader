@@ -30,8 +30,6 @@ import java.util.regex.Pattern;
  */
 public final class PiaoTianNovel implements IFetchNovelEngine {
 
-   // private boolean isCancel = false;
-
     @Override
     public int searchNovels(final String name, ArrayList<DBReaderNovel> nvs) {
         nvs.clear();
@@ -113,7 +111,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         return ERROR_NO_RESULT;
 
     }
-
 
     @Override
     public int fetchChapter(final DBReaderNovel.Chapter chapter, StringWriter buf) {

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import com.moss.dbreader.fragment.events.RefreshNovelsEvent;
 import com.moss.dbreader.fragment.events.SwitchFragmentEvent;
 import com.moss.dbreader.service.IFetchNovelEngine;
 
@@ -32,12 +33,17 @@ public class BookCaseFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_bookcase, container, false);
     }
 
+    @Subscribe
+    public void onRefreshNovelsEvent(RefreshNovelsEvent event){
+        initializeAdapter();
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        initializeAdater();
         intializeSearchBtn();
         initializeEditBtn();
+        initializeAdapter();
         EventBus.getDefault().register(this);
     }
 
@@ -47,7 +53,7 @@ public class BookCaseFragment extends Fragment {
         EventBus.getDefault().unregister(this);
     }
 
-    private void initializeAdater() {
+    private void initializeAdapter() {
         this.cp = new CasePageAdapter(this);
         GridView gv = (GridView) getActivity().findViewById(R.id.case_grid);
         gv.setAdapter(cp);

@@ -1,6 +1,7 @@
 package com.moss.dbreader.ui;
 
 import android.graphics.Rect;
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -13,6 +14,10 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.jakewharton.rxbinding2.view.RxView;
 import com.moss.dbreader.R;
 
 import org.greenrobot.eventbus.EventBus;
@@ -23,6 +28,10 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observer;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by tangqif on 2017/9/25.
@@ -50,7 +59,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     //////////////////////////////////////////////////////////////////////////////////////////////
     private ArrayList<ReaderPage> pages = new ArrayList<ReaderPage>();
     private HashMap<Integer, String> pageTexts = new HashMap<Integer, String>();
-    private ArrayList<View> views;
+    private ArrayList<View> views  = new ArrayList<View>();;
     private ArrayList<View> usingViews = new ArrayList<View>();
     private Fragment fragment;
 
@@ -60,12 +69,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
 
     public ReaderPageAdapter(Fragment fragment) {
         this.fragment = fragment;
-        this.views = views;
-
-        for (int i = 0; i < views.size(); i++) {
-            final View root = views.get(i);
-
-        }
     }
 
     @Override
@@ -236,15 +239,31 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         return -1;
     }
 
+    public ReaderPage getReaderPage(int pos) {
+        return pages.get(pos);
+    }
+
     private View createView() {
-        View v = this.fragment.getActivity().getLayoutInflater().inflate(R.layout.view_reader, null);
-        View err = v.findViewById(R.id.reader_error);
-        err.setOnClickListener(new View.OnClickListener() {
+        final View v = this.fragment.getActivity().getLayoutInflater().inflate(R.layout.view_reader, null);
+        initializeProgressBar(v);
+        v.setLongClickable(true);
+        RxView.longClicks(v).subscribe(new Consumer() {
             @Override
-            public void onClick(View v) {
+            public void accept(Object o) throws Exception {
+                ReaderPanel rp = (ReaderPanel) ReaderPageAdapter.this.fragment.getView().findViewById(R.id.reader_panel);
+                int chapIndex = (int) v.getTag(R.id.tag_chap_index);
+                rp.setCurrIndex(chapIndex);
+                rp.setVisibility(View.VISIBLE);
+            }
+        });
+
+        final View err = v.findViewById(R.id.reader_error);
+        RxView.clicks(err).throttleFirst(1,TimeUnit.SECONDS).subscribe(new Consumer() {
+            @Override
+            public void accept(Object o) throws Exception {
                 int chapIndex = (int) v.getTag(R.id.tag_chap_index);
                 EventBus.getDefault().post(new FetchTextEvent(chapIndex));
-                v.setVisibility(View.GONE);
+                err.setVisibility(View.GONE);
             }
         });
         return v;
@@ -311,8 +330,16 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         return null;
     }
 
-    public ReaderPage getReaderPage(int pos) {
-        return pages.get(pos);
+
+
+    private void initializeProgressBar(View v) {
+        SimpleDraweeView pv = (SimpleDraweeView) v.findViewById(R.id.reader_progress);
+        Uri uri = Uri.parse("res://" + this.fragment.getContext().getPackageName() + "/" + R.drawable.progress_big);
+        DraweeController controller = Fresco.newDraweeControllerBuilder()
+                .setUri(uri)
+                .setAutoPlayAnimations(true)
+                .build();
+        pv.setController(controller);
     }
 
     private void refreshPage(final ReaderPage page, final TextView tv) {

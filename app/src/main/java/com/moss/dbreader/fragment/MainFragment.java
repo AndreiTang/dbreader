@@ -1,5 +1,6 @@
 package com.moss.dbreader.fragment;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
@@ -37,6 +38,12 @@ public class MainFragment extends Fragment {
     public void onDestroy(){
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Common.changeStatusBarColor(getActivity(), Color.parseColor("#DBC49B"));
     }
 
     @Subscribe

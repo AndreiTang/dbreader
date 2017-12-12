@@ -8,10 +8,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.moss.dbreader.fragment.events.SwitchToNovelReaderEvent;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
+
+import org.greenrobot.eventbus.EventBus;
 
 import static com.bumptech.glide.request.RequestOptions.fitCenterTransform;
 import java.util.ArrayList;
@@ -67,10 +70,10 @@ public class SearchPageAdapter extends BaseAdapter {
                     novel.currPage = 0;
                     DBReaderNovel item = NovelInfoManager.getNovel(novel.name);
                     if(item != null){
-                       // ((MainActivity)fragment.getActivity()).switchToNovelReader(item);
+                        EventBus.getDefault().post(new SwitchToNovelReaderEvent(item));
                     }
                     else{
-                        //((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
+                        EventBus.getDefault().post(new SwitchToNovelReaderEvent(novel));
                     }
 
                 }

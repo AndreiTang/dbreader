@@ -21,7 +21,9 @@ import com.moss.dbreader.fragment.AppCoverFragment;
 import com.moss.dbreader.fragment.BookCaseFragment;
 import com.moss.dbreader.fragment.BookSearchFragment;
 import com.moss.dbreader.fragment.MainFragment;
+import com.moss.dbreader.fragment.NovelReaderFragment;
 import com.moss.dbreader.fragment.events.FetchEngineEvent;
+import com.moss.dbreader.fragment.events.SwitchToNovelReaderEvent;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelEngineService;
@@ -44,7 +46,6 @@ import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
@@ -64,6 +65,23 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     ///////////////////////////////////////////////////////////////////////////
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onCacheChaptersEvent(CacheChaptersEvent event) {
+        String msg = MainActivity.this.getResources().getString(R.string.cache_complete);
+        msg = event.novelName + " " + msg;
+        Toast.makeText(this, msg, Toast.LENGTH_LONG);
+    }
+
+    @Subscribe
+    public void onSwitchToNovelReaderEvent(SwitchToNovelReaderEvent event){
+        NovelReaderFragment fragment = new NovelReaderFragment();
+        fragment.setNovel(event.novel);
+        FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
+        ft.add(android.R.id.content, fragment);
+        ft.addToBackStack(null);
+        ft.commit();
+    }
 
     protected NovelEngineService.NovelEngine engine = null;
 
@@ -105,15 +123,9 @@ public class MainActivity extends AppCompatActivity {
         ft.replace(android.R.id.content, new MainFragment());
         ft.addToBackStack(null);
         ft.commit();
-        Common.changeStatusBarColor(this, Color.parseColor("#DBC49B"));
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onCacheChaptersEvent(CacheChaptersEvent event) {
-        String msg = MainActivity.this.getResources().getString(R.string.cache_complete);
-        msg = event.novelName + " " + msg;
-        Toast.makeText(this, msg, Toast.LENGTH_LONG);
-    }
+
 
     private void initializeEngine(NovelEngineService.NovelEngine engine){
         this.engine = engine;
@@ -121,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
         Completable.create(new CompletableOnSubscribe() {
             @Override
-            public void subscribe(@NonNull CompletableEmitter e) throws Exception {
+            public void subscribe(CompletableEmitter e) throws Exception {
                 NovelInfoManager.initialize(getApplicationContext().getFilesDir().getAbsolutePath());
                 EventBus.getDefault().post(new InitializedEvent());
                 ArrayList<DBReaderNovel> novels = NovelInfoManager.getNovels();

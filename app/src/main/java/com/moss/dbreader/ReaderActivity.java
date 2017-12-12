@@ -23,39 +23,39 @@ import com.moss.dbreader.ui.ReaderPanel;
 
 public class ReaderActivity extends AppCompatActivity {
 
-    ReaderPanel.IReadPanelNotify readPanelNotify = new ReaderPanel.IReadPanelNotify() {
-
-        @Override
-        public void onClickDict() {
-            NovelReaderFragment novelReaderfragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
-            int currIndex = novelReaderfragment.getCurrentChapterIndex();
-            BookCoverFragment bookCoverfragment = (BookCoverFragment) ReaderActivity.this.getSupportFragmentManager().findFragmentById(R.id.book_cover_fragment);
-            bookCoverfragment.getView().setVisibility(View.VISIBLE);
-            bookCoverfragment.setSelection(currIndex);
-        }
-
-        @Override
-        public void onClickCache() {
-            NovelReaderFragment novelReaderfragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
-            novelReaderfragment.cacheChapters();
-        }
-
-        @Override
-        public void onClickCase() {
-            exitReader(-0);
-        }
-
-        @Override
-        public void onClickSearch() {
-            exitReader(1);
-        }
-
-        @Override
-        public void onClickDefault() {
-            View rp = findViewById(R.id.reader_panel);
-            rp.setVisibility(View.GONE);
-        }
-    };
+//    ReaderPanel.IReadPanelNotify readPanelNotify = new ReaderPanel.IReadPanelNotify() {
+//
+//        @Override
+//        public void onClickDict() {
+//            NovelReaderFragment novelReaderfragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
+//            int currIndex = novelReaderfragment.getCurrentChapterIndex();
+//            BookCoverFragment bookCoverfragment = (BookCoverFragment) ReaderActivity.this.getSupportFragmentManager().findFragmentById(R.id.book_cover_fragment);
+//            bookCoverfragment.getView().setVisibility(View.VISIBLE);
+//            bookCoverfragment.setSelection(currIndex);
+//        }
+//
+//        @Override
+//        public void onClickCache() {
+//            NovelReaderFragment novelReaderfragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
+//            //novelReaderfragment.cacheChapters();
+//        }
+//
+//        @Override
+//        public void onClickCase() {
+//            exitReader(-0);
+//        }
+//
+//        @Override
+//        public void onClickSearch() {
+//            exitReader(1);
+//        }
+//
+//        @Override
+//        public void onClickDefault() {
+//            View rp = findViewById(R.id.reader_panel);
+//            rp.setVisibility(View.GONE);
+//        }
+//    };
 
     private BroadcastReceiver homeKeyEventReceiver = new BroadcastReceiver() {
         @Override
@@ -86,7 +86,7 @@ public class ReaderActivity extends AppCompatActivity {
         }
 
         ReaderPanel rp = (ReaderPanel) findViewById(R.id.reader_panel);
-        rp.setNotify(readPanelNotify);
+       // rp.setNotify(readPanelNotify);
 
         Fragment fragment = this.getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
         ((NovelReaderFragment) fragment).setNovel(this.novel);

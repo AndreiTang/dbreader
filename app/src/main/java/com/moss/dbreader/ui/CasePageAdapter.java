@@ -8,10 +8,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.moss.dbreader.fragment.events.SwitchToNovelReaderEvent;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 
@@ -62,7 +65,7 @@ public class CasePageAdapter extends BaseAdapter {
                     DBReaderNovel novel = novels.get(pos);
                     if(CasePageAdapter.this.mode == MODE_NORMAL){
                         novel.isUpdated = 0;
-                        //((MainActivity)fragment.getActivity()).switchToNovelReader(novel);
+                        EventBus.getDefault().post(new SwitchToNovelReaderEvent(novel));
                     }
                     else{
                         View rm = v.findViewById(R.id.case_novel_remove);
