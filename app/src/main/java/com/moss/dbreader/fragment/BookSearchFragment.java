@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.jakewharton.rxbinding2.view.RxView;
 import com.moss.dbreader.MainActivity;
 import com.moss.dbreader.R;
 import com.moss.dbreader.fragment.events.FetchEngineEvent;
@@ -38,6 +39,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.functions.Consumer;
 
 import static com.moss.dbreader.service.IFetchNovelEngine.ERROR_NETWORK;
 import static com.moss.dbreader.service.IFetchNovelEngine.ERROR_TOO_MANY;
@@ -113,7 +117,6 @@ public class BookSearchFragment extends Fragment {
         }
     }
 
-
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onFetchEngine(FetchEngineEvent event){
         this.engine = event.engine;
@@ -135,21 +138,18 @@ public class BookSearchFragment extends Fragment {
         initializeListView();
         initializeProgressViews();
         View v = getActivity().findViewById(R.id.book_search_case);
-        v.setOnClickListener(new View.OnClickListener() {
+        RxView.clicks(v).throttleFirst(1, TimeUnit.SECONDS).subscribe(new Consumer() {
             @Override
-            public void onClick(View v) {
+            public void accept(Object o) throws Exception {
                 EventBus.getDefault().post(new SwitchFragmentEvent(0));
-                //((MainActivity)getActivity()).switchFragment(0);
             }
         });
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        if (engine != null) {
-            engine.cancel(sessionID);
-        }
+    public void onDestroy(){
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     private void initializeProgressViews() {
@@ -248,6 +248,7 @@ public class BookSearchFragment extends Fragment {
         if (novels.size() == 0) {
             return;
         }
+        tmpNovels.clear();
         searchCount = novels.size();
         if (searchCount > AllowCount) {
             searchCount = AllowCount;

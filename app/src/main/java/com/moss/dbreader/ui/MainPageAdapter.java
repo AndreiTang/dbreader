@@ -17,7 +17,7 @@ import java.util.HashMap;
 
 public class MainPageAdapter extends FragmentPagerAdapter {
     private Context context;
-    private final static String[] fragments = {BookCaseFragment.class.getName(), BookSearchFragment.class.getName()};
+    private final static String[] fragments = { BookCaseFragment.class.getName(),BookSearchFragment.class.getName()};//
     private HashMap<Integer,Fragment> fragmentMap = new HashMap<Integer, Fragment>();
 
     public MainPageAdapter(FragmentManager fm, Context context) {

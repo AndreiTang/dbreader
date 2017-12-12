@@ -5,38 +5,33 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.moss.dbreader.fragment.AppCoverFragment;
-import com.moss.dbreader.fragment.BookCaseFragment;
-import com.moss.dbreader.fragment.BookSearchFragment;
+import com.moss.dbreader.fragment.IBackPress;
 import com.moss.dbreader.fragment.MainFragment;
 import com.moss.dbreader.fragment.NovelReaderFragment;
 import com.moss.dbreader.fragment.events.FetchEngineEvent;
 import com.moss.dbreader.fragment.events.SwitchToNovelReaderEvent;
 import com.moss.dbreader.service.DBReaderNovel;
-import com.moss.dbreader.service.IFetchNovelEngineNotify;
 import com.moss.dbreader.service.NovelEngineService;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.service.events.CacheChaptersEvent;
 import com.moss.dbreader.service.events.InitializedEvent;
-import com.moss.dbreader.ui.MainPageAdapter;
+
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableEmitter;
@@ -49,7 +44,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
-import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, msg, Toast.LENGTH_LONG);
     }
 
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onSwitchToNovelReaderEvent(SwitchToNovelReaderEvent event){
         NovelReaderFragment fragment = new NovelReaderFragment();
         fragment.setNovel(event.novel);
@@ -100,10 +94,17 @@ public class MainActivity extends AppCompatActivity {
         this.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
-//    @Override
-//    public void onBackPressed() {
-//       // System.exit(0);
-//    }
+    @Override
+    public void onBackPressed() {
+        List<Fragment> fs = getSupportFragmentManager().getFragments();
+        Fragment fragment = fs.get(fs.size()-1);
+        if(fragment instanceof IBackPress){
+            ((IBackPress)fragment).onBackPress();
+        }
+        else{
+            super.onBackPressed();
+        }
+    }
 
     @Override
     public void onDestroy() {
@@ -121,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
     protected void createBookCaseFragment() {
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         ft.replace(android.R.id.content, new MainFragment());
-        ft.addToBackStack(null);
         ft.commit();
     }
 

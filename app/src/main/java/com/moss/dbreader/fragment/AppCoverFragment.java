@@ -34,21 +34,6 @@ import java.util.ArrayList;
  */
 
 public class AppCoverFragment extends Fragment {
-
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder iBinder) {
-            NovelEngineService.NovelEngineBinder binder = (NovelEngineService.NovelEngineBinder) iBinder;
-            NovelEngineService.NovelEngine engine = binder.getNovelEngine();
-            engine.loadNovels();
-        }
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-
-        }
-    };
-
-    ////////////////////////////////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_appcover, container, false);
@@ -66,11 +51,4 @@ public class AppCoverFragment extends Fragment {
 
 
     }
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        getActivity().unbindService(this.serviceConnection);
-    }
-
 }

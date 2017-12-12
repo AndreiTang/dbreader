@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.jakewharton.rxbinding2.view.RxView;
 import com.moss.dbreader.fragment.events.SwitchToNovelReaderEvent;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.MainActivity;
@@ -17,6 +18,9 @@ import com.moss.dbreader.service.DBReaderNovel;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.functions.Consumer;
 
 import static com.bumptech.glide.request.RequestOptions.fitCenterTransform;
 
@@ -58,9 +62,10 @@ public class CasePageAdapter extends BaseAdapter {
     public View getView(int position, View view, ViewGroup parent) {
         if(view == null){
             view = this.fragment.getActivity().getLayoutInflater().inflate(R.layout.view_case,parent,false);
-            view.setOnClickListener(new View.OnClickListener() {
+            final View v = view;
+            RxView.clicks(view).throttleFirst(1, TimeUnit.SECONDS).subscribe(new Consumer() {
                 @Override
-                public void onClick(View v) {
+                public void accept(Object o) throws Exception {
                     int pos = (Integer) v.getTag(R.id.tag_pos);
                     DBReaderNovel novel = novels.get(pos);
                     if(CasePageAdapter.this.mode == MODE_NORMAL){
@@ -79,9 +84,9 @@ public class CasePageAdapter extends BaseAdapter {
                             CasePageAdapter.this.ids.remove(item);
                         }
                     }
-
                 }
             });
+
         }
 
         DBReaderNovel novel = this.novels.get(position);

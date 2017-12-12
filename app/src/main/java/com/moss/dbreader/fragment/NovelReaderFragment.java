@@ -75,6 +75,7 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
         this.sessionID = engine.generateSessionID();
         initializeViewPager();
         initializeAdapter();
+
     }
 
     @Subscribe
@@ -243,6 +244,7 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
     }
 
     private void transferToMain(int index){
+        Common.changeStatusBarColor(getActivity(), Color.parseColor("#DBC49B"));
         getActivity().getSupportFragmentManager().popBackStack();
         if(index != -1){
             EventBus.getDefault().post(new SwitchFragmentEvent(index));

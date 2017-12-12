@@ -31,6 +31,7 @@ public class MainFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
         EventBus.getDefault().register(this);
+        Common.changeStatusBarColor(getActivity(), Color.parseColor("#DBC49B"));
         initializeAdapter();
     }
 
@@ -40,11 +41,6 @@ public class MainFragment extends Fragment {
         EventBus.getDefault().unregister(this);
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-        Common.changeStatusBarColor(getActivity(), Color.parseColor("#DBC49B"));
-    }
 
     @Subscribe
     public void onSwitchFragmentEvent(SwitchFragmentEvent event){

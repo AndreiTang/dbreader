@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.jakewharton.rxbinding2.view.RxView;
 import com.moss.dbreader.fragment.events.SwitchToNovelReaderEvent;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.MainActivity;
@@ -18,6 +19,9 @@ import org.greenrobot.eventbus.EventBus;
 
 import static com.bumptech.glide.request.RequestOptions.fitCenterTransform;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by tangqif on 10/23/2017.
@@ -62,9 +66,10 @@ public class SearchPageAdapter extends BaseAdapter {
         if(view == null){
             view = fragment.getActivity().getLayoutInflater().inflate(R.layout.view_search,viewGroup,false);
             views.add(view);
-            view.setOnClickListener(new View.OnClickListener() {
+            final View v = view;
+            RxView.clicks(v).throttleFirst(1, TimeUnit.SECONDS).subscribe(new Consumer() {
                 @Override
-                public void onClick(View v) {
+                public void accept(Object o) throws Exception {
                     int pos = (Integer) v.getTag(R.id.tag_pos);
                     DBReaderNovel novel = novels.get(pos);
                     novel.currPage = 0;
@@ -75,7 +80,6 @@ public class SearchPageAdapter extends BaseAdapter {
                     else{
                         EventBus.getDefault().post(new SwitchToNovelReaderEvent(novel));
                     }
-
                 }
             });
         }
