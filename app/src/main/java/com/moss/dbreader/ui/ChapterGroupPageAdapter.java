@@ -45,8 +45,7 @@ public class ChapterGroupPageAdapter extends BaseAdapter {
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int index = (Integer) v.getTag(R.id.tag_chap_index);
-                    ChapterGroupPageAdapter.this.bookCoverFragment.listChapters(index);
+                    ChapterGroupPageAdapter.this.bookCoverFragment.listChapters();
                 }
             });
         }

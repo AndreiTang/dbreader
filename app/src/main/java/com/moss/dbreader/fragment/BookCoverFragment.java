@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.moss.dbreader.Common;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.ui.ChapterPageAdapter;
@@ -29,16 +30,9 @@ public class BookCoverFragment extends Fragment {
     private static final int MODE_CHAPTER = 1;
     private static final int MODE_CHAPTER_GROUP = 2;
     private int mode = MODE_CHAPTER;
-    private int curIndex = -1;
 
    public void setNovel(DBReaderNovel novel){
        this.novel = novel;
-   }
-
-   public void setSelection(int curIndex){
-       ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
-       lv.setSelection(curIndex);
-       this.curIndex = curIndex;
    }
 
     @Override
@@ -78,26 +72,24 @@ public class BookCoverFragment extends Fragment {
         tv = (TextView)getActivity().findViewById(R.id.book_cover_per);
         String per = (int)this.novel.currChapter*100/this.novel.chapters.size() + "%";
         tv.setText(per);
-        listChapters(-1);
+        listChapters();
     }
 
-    public void listChapters(int curIndex){
-        this.curIndex = curIndex;
+    public void listChapters(){
         this.mode = MODE_CHAPTER;
         ChapterPageAdapter adapter = new ChapterPageAdapter(this,this.novel.chapters);
         ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
         lv.setVerticalScrollBarEnabled(false);
         lv.setAdapter(adapter);
-        if(this.curIndex != -1){
-            lv.setSelection(this.curIndex);
-        }
+        int index = getArguments().getInt(Common.TAG_CUR_PAGE);
+        lv.setSelection(index);
     }
 
     public void listChapterGroups(){
         this.mode = MODE_CHAPTER_GROUP;
         int count = novel.chapters.size();
         int groups = count/50;
-        if(groups%50 !=0){
+        if(count%50 !=0){
             groups++;
         }
         int index = 0;
@@ -105,7 +97,8 @@ public class BookCoverFragment extends Fragment {
         for(int i = 0 ; i < groups; i++){
             int number = i * 50;
             gs.add(number);
-            if(this.curIndex >= number && this.curIndex < number + 50){
+            int curIndex = getArguments().getInt(Common.TAG_CUR_PAGE);
+            if(curIndex >= number && curIndex < number + 50){
                 index = i;
             }
         }
@@ -121,7 +114,7 @@ public class BookCoverFragment extends Fragment {
         mask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BookCoverFragment.this.getView().setVisibility(View.GONE);
+                BookCoverFragment.this.getActivity().getSupportFragmentManager().popBackStack();
             }
         });
     }
@@ -167,7 +160,7 @@ public class BookCoverFragment extends Fragment {
                    listChapterGroups();
                }
                else{
-                   listChapters(BookCoverFragment.this.curIndex);
+                   listChapters();
                }
             }
         });

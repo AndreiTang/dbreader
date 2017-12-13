@@ -11,7 +11,10 @@ import android.widget.TextView;
 
 import com.moss.dbreader.R;
 import com.moss.dbreader.ReaderActivity;
+import com.moss.dbreader.fragment.events.ChangeChapterEvent;
 import com.moss.dbreader.service.DBReaderNovel;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.zip.Inflater;
@@ -54,8 +57,8 @@ public class ChapterPageAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
                     DBReaderNovel.Chapter cp = (DBReaderNovel.Chapter)v.getTag(R.id.tag_chapter);
-                    ((ReaderActivity)fragment.getActivity()).changeChapter(cp);
-                    fragment.getView().setVisibility(View.GONE);
+                    EventBus.getDefault().post(new ChangeChapterEvent(cp));
+                    fragment.getActivity().getSupportFragmentManager().popBackStack();
                 }
             });
         }

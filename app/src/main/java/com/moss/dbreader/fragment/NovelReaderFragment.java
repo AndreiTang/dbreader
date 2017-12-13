@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.moss.dbreader.Common;
+import com.moss.dbreader.fragment.events.ChangeChapterEvent;
 import com.moss.dbreader.fragment.events.FetchEngineEvent;
 import com.moss.dbreader.fragment.events.RefreshNovelsEvent;
 import com.moss.dbreader.fragment.events.SwitchFragmentEvent;
@@ -87,6 +88,18 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
         back(id);
     }
 
+    @Subscribe
+    public void onChangeChapterEvent(ChangeChapterEvent event) {
+        DBReaderNovel.Chapter chapter = event.chapter;
+        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
+        ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
+        int curIndex = adapter.getFirstPageOfChapterIndex(chapter.index);
+        if (curIndex != -1) {
+            adapter.setCurrentItem(curIndex);
+            vp.setCurrentItem(curIndex);
+        }
+    }
+
     @Override
     public void onBackPress() {
         back(-1);
@@ -96,6 +109,8 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Common.changeStatusBarColor(getActivity(), Color.parseColor("#E0E0E0"));
+        ReaderPanel rp = (ReaderPanel)getView().findViewById(R.id.reader_panel);
+        rp.setNovel(this.novel);
         EventBus.getDefault().register(this);
 
 //        if (savedInstanceState != null) {
@@ -173,15 +188,7 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
 //        return rp.chapterIndex;
 //    }
 
-    public void changeChapter(DBReaderNovel.Chapter chapter) {
-        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
-        ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
-        int curIndex = adapter.getFirstPageOfChapterIndex(chapter.index);
-        if (curIndex != -1) {
-            adapter.setCurrentItem(curIndex);
-            vp.setCurrentItem(curIndex);
-        }
-    }
+
 
     private void updateChapters(ArrayList<DBReaderNovel.Chapter> chapters){
         for(int i = 0 ;i< chapters.size(); i++){

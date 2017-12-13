@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.moss.dbreader.fragment.BookCoverFragment;
 import com.moss.dbreader.fragment.IBackPress;
 import com.moss.dbreader.fragment.MainFragment;
 import com.moss.dbreader.fragment.NovelReaderFragment;
@@ -24,6 +25,7 @@ import com.moss.dbreader.service.NovelEngineService;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.service.events.CacheChaptersEvent;
 import com.moss.dbreader.service.events.InitializedEvent;
+import com.moss.dbreader.ui.ReaderPanel;
 
 
 import org.greenrobot.eventbus.EventBus;
@@ -71,6 +73,19 @@ public class MainActivity extends AppCompatActivity {
     public void onSwitchToNovelReaderEvent(SwitchToNovelReaderEvent event){
         NovelReaderFragment fragment = new NovelReaderFragment();
         fragment.setNovel(event.novel);
+        FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
+        ft.add(android.R.id.content, fragment);
+        ft.addToBackStack(null);
+        ft.commit();
+    }
+
+    @Subscribe
+    public void onReadPanel_Dict_Event(ReaderPanel.ReadPanel_Dict_Event event){
+        BookCoverFragment fragment = new BookCoverFragment();
+        fragment.setNovel(event.novel);
+        Bundle arg = new Bundle();
+        arg.putInt(Common.TAG_CUR_PAGE,event.index);
+        fragment.setArguments(arg);
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         ft.add(android.R.id.content, fragment);
         ft.addToBackStack(null);

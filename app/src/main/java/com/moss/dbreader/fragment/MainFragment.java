@@ -2,6 +2,7 @@ package com.moss.dbreader.fragment;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -22,7 +23,7 @@ import org.greenrobot.eventbus.Subscribe;
  * Created by tangqif on 12/7/2017.
  */
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements  IBackPress{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         return inflater.inflate(R.layout.fragment_main, container, false);
     }
@@ -63,5 +64,10 @@ public class MainFragment extends Fragment {
             index = 1;
         }
         vp.setCurrentItem(index);
+    }
+
+    @Override
+    public void onBackPress() {
+        System.exit(0);
     }
 }

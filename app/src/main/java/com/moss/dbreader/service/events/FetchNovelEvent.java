@@ -2,6 +2,8 @@ package com.moss.dbreader.service.events;
 
 import com.moss.dbreader.service.DBReaderNovel;
 
+import java.util.ArrayList;
+
 /**
  * Created by andrei on 2017/12/7.
  */
@@ -9,11 +11,11 @@ import com.moss.dbreader.service.DBReaderNovel;
 public class FetchNovelEvent {
     public int nRet;
     public int sessionID;
-    public DBReaderNovel novel;
+    public ArrayList<DBReaderNovel> novels;
 
-    public FetchNovelEvent(int nRet, int sessionID, DBReaderNovel novel) {
+    public FetchNovelEvent(int nRet, int sessionID, ArrayList<DBReaderNovel> novels) {
         this.nRet = nRet;
         this.sessionID = sessionID;
-        this.novel = novel;
+        this.novels = novels;
     }
 }

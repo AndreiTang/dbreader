@@ -53,10 +53,8 @@ import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
 public class BookSearchFragment extends Fragment {
 
     private NovelEngineService.NovelEngine engine = null;
-    private int engineID = -1;
+    //private int engineID = -1;
     private int sessionID = -1;
-    private int searchCount = 0;
-    ArrayList<DBReaderNovel> tmpNovels = new ArrayList<DBReaderNovel>();
     private final int AllowCount = 5;
     private ArrayList<DBReaderNovel> novels = null;
     private View footView = null;
@@ -74,32 +72,32 @@ public class BookSearchFragment extends Fragment {
             return;
         }
 
-        this.engineID = event.engineID;
+        //this.engineID = event.engineID;
         this.sessionID = event.sessionID;
 
-        tmpNovels.clear();
+        ArrayList<DBReaderNovel> items = null;
         for(int i = event.novels.size() - 1 ; i >=0 ; i--){
             DBReaderNovel item = event.novels.get(i);
             if(item.chapters != null && item.chapters.size() > 0){
-                this.tmpNovels.add(item);
+                if(items == null){
+                    items = new ArrayList<DBReaderNovel>();
+                }
+                items.add(item);
                 event.novels.remove(i);
             }
         }
 
         if(event.novels.size() > 0){
             this.novels = event.novels;
+            fetchNovelDetails();
         }
         else{
             this.novels = null;
         }
 
-        if(event.novels.size() == 0){
-            showSearchResult();
+        if(items != null){
+            showSearchResult(items);
         }
-        else{
-            fetchNovelDetails();
-        }
-
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -107,14 +105,10 @@ public class BookSearchFragment extends Fragment {
         if (this.sessionID != event.sessionID) {
             return;
         }
-        searchCount--;
         if (event.nRet != NO_ERROR) {
             return;
         }
-        tmpNovels.add(event.novel);
-        if (searchCount == 0) {
-            showSearchResult();
-        }
+        showSearchResult(event.novels);
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
@@ -171,7 +165,7 @@ public class BookSearchFragment extends Fragment {
 
     }
 
-    private void showSearchResult() {
+    private void showSearchResult(ArrayList<DBReaderNovel> items) {
 
         View mask = getActivity().findViewById(R.id.search_mask);
         mask.setVisibility(View.GONE);
@@ -184,8 +178,8 @@ public class BookSearchFragment extends Fragment {
             searchPageAdapter = new SearchPageAdapter(BookSearchFragment.this);
             bNew = true;
         }
-        for (int i = 0; i < tmpNovels.size(); i++) {
-            searchPageAdapter.addNovel(tmpNovels.get(i));
+        for (int i = 0; i < items.size(); i++) {
+            searchPageAdapter.addNovel(items.get(i));
         }
         if (bNew == true) {
             lv.setAdapter(searchPageAdapter);
@@ -248,15 +242,17 @@ public class BookSearchFragment extends Fragment {
         if (novels.size() == 0) {
             return;
         }
-        tmpNovels.clear();
-        searchCount = novels.size();
-        if (searchCount > AllowCount) {
-            searchCount = AllowCount;
+
+        int count = novels.size();
+        if (count > AllowCount) {
+            count = AllowCount;
         }
-        for (int i = 0; i < searchCount; i++) {
-            engine.fetchNovel(novels.get(0),sessionID);
-            novels.remove(0);
+        ArrayList<DBReaderNovel> items = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            DBReaderNovel item = novels.remove(0);
+            items.add(item);
         }
+        engine.fetchNovels(items,this.sessionID);
     }
 
     private void initializeSearchView() {

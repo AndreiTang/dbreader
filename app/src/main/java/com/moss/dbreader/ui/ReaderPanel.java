@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.moss.dbreader.R;
+import com.moss.dbreader.service.DBReaderNovel;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -28,17 +29,22 @@ public class ReaderPanel extends View {
     private int inRadius = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 27, getResources().getDisplayMetrics());
     private int clickRange = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 30, getResources().getDisplayMetrics());
     private String frameColor = "#9e9e9e";
+
     private int currIndex = 0;
+    private DBReaderNovel novel = null;
 
     public static final int CLICK_CASE = 1;
     public static final int CLICK_SEARCH = 2;
 
 
     public static class ReadPanel_Dict_Event{
-        public ReadPanel_Dict_Event(int index){
+        public ReadPanel_Dict_Event(DBReaderNovel novel,int index)
+        {
+            this.novel = novel;
             this.index = index;
         }
         public int index;
+        public DBReaderNovel novel;
     }
 
     public static class ReadPanel_Cache_Event{
@@ -69,6 +75,10 @@ public class ReaderPanel extends View {
         this.currIndex = index;
     }
 
+    public void setNovel(DBReaderNovel novel){
+        this.novel = novel;
+    }
+
     @Override
     public void onDraw(Canvas canvas) {
         canvas.drawColor(Color.TRANSPARENT);
@@ -83,7 +93,7 @@ public class ReaderPanel extends View {
             int x = (int)event.getX();
             int y = (int)event.getY();
             if(checkDict(x,y)==true){
-                EventBus.getDefault().post(new ReadPanel_Dict_Event(this.currIndex));
+                EventBus.getDefault().post(new ReadPanel_Dict_Event(this.novel,this.currIndex));
             }
             else if(checkCache(x,y) == true){
                 EventBus.getDefault().post(new ReadPanel_Cache_Event());

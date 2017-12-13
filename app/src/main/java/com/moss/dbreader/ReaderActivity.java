@@ -110,11 +110,7 @@ public class ReaderActivity extends AppCompatActivity {
         exitReader(-1);
     }
 
-    public void changeChapter(DBReaderNovel.Chapter chapter) {
-        NovelReaderFragment novelReaderfragment = (NovelReaderFragment) getSupportFragmentManager().findFragmentById(R.id.reader_fragment);
-        novelReaderfragment.changeChapter(chapter);
-    }
-
+    
     private void transferToMain(int index) {
         Log.i("Andrei", "Destroy reader");
         Intent intent = new Intent(this, MainActivity.class);

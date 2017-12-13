@@ -13,13 +13,10 @@ import android.support.annotation.Nullable;
 import com.moss.dbreader.service.commands.CacheChaptersCommand;
 import com.moss.dbreader.service.commands.FetchChapterCommand;
 import com.moss.dbreader.service.commands.FetchDeltaChapterListCommand;
-import com.moss.dbreader.service.commands.FetchNovelCommand;
+import com.moss.dbreader.service.commands.FetchNovelsCommand;
 import com.moss.dbreader.service.commands.INovelServiceCommand;
 import com.moss.dbreader.service.commands.CommandCommon;
 import com.moss.dbreader.service.commands.SearchCommand;
-import com.moss.dbreader.service.events.InitializedEvent;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,9 +61,9 @@ public class NovelEngineService extends Service {
             sendMsg(CommandCommon.CMD_SEARCH,args);
         }
 
-        public void fetchNovel(final DBReaderNovel novel, int sessionID) {
+        public void fetchNovels(final ArrayList<DBReaderNovel> novels, int sessionID) {
             HashMap<String,Object> args = new HashMap<>();
-            args.put(CommandCommon.TAG_NOVEL,novel);
+            args.put(CommandCommon.TAG_NOVEL,novels);
             args.put(CommandCommon.TAG_SESSION_ID,sessionID);
             sendMsg(CommandCommon.CMD_FETCHNOVEL,args);
         }
@@ -151,7 +148,7 @@ public class NovelEngineService extends Service {
     public NovelEngineService() {
         engines.add(new PiaoTianNovel());
         cmds.put(CommandCommon.CMD_SEARCH,new SearchCommand());
-        cmds.put(CommandCommon.CMD_FETCHNOVEL,new FetchNovelCommand());
+        cmds.put(CommandCommon.CMD_FETCHNOVEL,new FetchNovelsCommand());
         cmds.put(CommandCommon.CMD_FETCHCHAPTER,new FetchChapterCommand());
         cmds.put(CommandCommon.CMD_CACHRCHAPTERS,new CacheChaptersCommand());
         cmds.put(CommandCommon.CMD_FETCHDELTACHAPTERLIST,new FetchDeltaChapterListCommand());
