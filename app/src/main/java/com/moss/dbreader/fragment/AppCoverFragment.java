@@ -12,8 +12,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.Common;
 import com.moss.dbreader.MainActivity;
@@ -49,6 +51,7 @@ public class AppCoverFragment extends Fragment {
         TextView tv = (TextView) getActivity().findViewById(R.id.cover_title);
         tv.setTypeface(typeface);
 
+        Glide.with(this).load(R.drawable.rm);
 
     }
 }

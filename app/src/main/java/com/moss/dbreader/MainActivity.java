@@ -19,6 +19,7 @@ import com.moss.dbreader.fragment.IBackPress;
 import com.moss.dbreader.fragment.MainFragment;
 import com.moss.dbreader.fragment.NovelReaderFragment;
 import com.moss.dbreader.fragment.events.FetchEngineEvent;
+import com.moss.dbreader.fragment.events.SwitchToMainEvent;
 import com.moss.dbreader.fragment.events.SwitchToNovelReaderEvent;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.service.NovelEngineService;
@@ -74,9 +75,13 @@ public class MainActivity extends AppCompatActivity {
         NovelReaderFragment fragment = new NovelReaderFragment();
         fragment.setNovel(event.novel);
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
-        ft.add(android.R.id.content, fragment);
-        ft.addToBackStack(null);
+        ft.replace(android.R.id.content, fragment);
         ft.commit();
+    }
+
+    @Subscribe
+    public void onSwitchToMainEvent(SwitchToMainEvent event){
+        createMainFragment(event.index);
     }
 
     @Subscribe
@@ -134,9 +139,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    protected void createBookCaseFragment() {
+    protected void createMainFragment(int index) {
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
-        ft.replace(android.R.id.content, new MainFragment());
+        Fragment fragment = new MainFragment();
+        Bundle args = new Bundle();
+        args.putInt(Common.TAG_MAIN_CATEGORY,index);
+        fragment.setArguments(args);
+        ft.replace(android.R.id.content,fragment);
         ft.commit();
     }
 
@@ -165,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Action() {
                     @Override
                     public void run() throws Exception {
-                        createBookCaseFragment();
+                        createMainFragment(-1);
                     }
                 });
     }

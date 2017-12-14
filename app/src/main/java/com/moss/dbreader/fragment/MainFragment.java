@@ -42,7 +42,6 @@ public class MainFragment extends Fragment implements  IBackPress{
         EventBus.getDefault().unregister(this);
     }
 
-
     @Subscribe
     public void onSwitchFragmentEvent(SwitchFragmentEvent event){
         ViewPager vp = (ViewPager) getView().findViewById(R.id.main_viewpager);

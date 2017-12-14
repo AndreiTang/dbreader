@@ -8,13 +8,10 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.TextView;
 
-import com.moss.dbreader.fragment.events.FetchEngineEvent;
-import com.moss.dbreader.fragment.events.RefreshNovelsEvent;
 import com.moss.dbreader.fragment.events.SwitchFragmentEvent;
 import com.moss.dbreader.service.IFetchNovelEngine;
 
 import com.moss.dbreader.R;
-import com.moss.dbreader.service.NovelEngineService;
 import com.moss.dbreader.service.events.FetchDeltaChapterListEvent;
 import com.moss.dbreader.ui.CasePageAdapter;
 
@@ -35,9 +32,13 @@ public class BookCaseFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_bookcase, container, false);
     }
 
-    @Subscribe
-    public void onRefreshNovelsEvent(RefreshNovelsEvent event){
-        initializeAdapter();
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onFetchDeltaChapterListEvent(FetchDeltaChapterListEvent event) {
+        if (event.nRet != IFetchNovelEngine.NO_ERROR || cp == null) {
+            return;
+        }
+        cp.notifyDataSetChanged();
     }
 
     @Override
@@ -59,6 +60,7 @@ public class BookCaseFragment extends Fragment {
         this.cp = new CasePageAdapter(this);
         GridView gv = (GridView) getActivity().findViewById(R.id.case_grid);
         gv.setAdapter(cp);
+        gv.setVerticalScrollBarEnabled(false);
     }
 
     private void initializeEditBtn() {
@@ -87,13 +89,5 @@ public class BookCaseFragment extends Fragment {
                 EventBus.getDefault().post(new SwitchFragmentEvent(1));
             }
         });
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onFetchDeltaChapterListEvent(FetchDeltaChapterListEvent event) {
-        if (event.nRet != IFetchNovelEngine.NO_ERROR || cp == null) {
-            return;
-        }
-        cp.notifyDataSetChanged();
     }
 }

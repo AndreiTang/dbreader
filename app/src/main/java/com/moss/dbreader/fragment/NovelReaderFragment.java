@@ -13,8 +13,7 @@ import android.view.ViewGroup;
 import com.moss.dbreader.Common;
 import com.moss.dbreader.fragment.events.ChangeChapterEvent;
 import com.moss.dbreader.fragment.events.FetchEngineEvent;
-import com.moss.dbreader.fragment.events.RefreshNovelsEvent;
-import com.moss.dbreader.fragment.events.SwitchFragmentEvent;
+import com.moss.dbreader.fragment.events.SwitchToMainEvent;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.R;
 import com.moss.dbreader.service.DBReaderNovel;
@@ -172,7 +171,6 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        EventBus.getDefault().post(new RefreshNovelsEvent());
         EventBus.getDefault().unregister(this);
         if (this.engine != null) {
             this.engine.cancel(this.sessionID);
@@ -187,8 +185,6 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
 //        ReaderPageAdapter.ReaderPage rp = adapter.getReaderPage(curr);
 //        return rp.chapterIndex;
 //    }
-
-
 
     private void updateChapters(ArrayList<DBReaderNovel.Chapter> chapters){
         for(int i = 0 ;i< chapters.size(); i++){
@@ -251,11 +247,7 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
     }
 
     private void transferToMain(int index){
-        Common.changeStatusBarColor(getActivity(), Color.parseColor("#DBC49B"));
-        getActivity().getSupportFragmentManager().popBackStack();
-        if(index != -1){
-            EventBus.getDefault().post(new SwitchFragmentEvent(index));
-        }
+        EventBus.getDefault().post(new SwitchToMainEvent(index));
     }
 
     private void popupConfirmDlg(final int index){
