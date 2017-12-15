@@ -289,8 +289,13 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                 if (line.length() == 0) {
                     continue;
                 }
-                i++;
                 line = line.replace(" ", "");
+                line = line.replace("\r","");
+                line = line.replace(" ","");
+                if(line.length() == 0){
+                    continue;
+                }
+                i++;
                 if (i == 1) {
                     if (line.indexOf(title) != -1) {
                         text = chapterName + "\n\n";
@@ -347,8 +352,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             initPageText(page, tv);
         } else if (page.begin >= 0) {
             setPageText(page, tv);
-        } else {
-            //tv.setText("");
         }
     }
 
@@ -428,7 +431,9 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                     if (begin == 0) {
                         i = i - 2;
                     } else {
-                        i--;
+                        int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, tv.getResources().getDisplayMetrics());
+                        if((h - margin)>tvHigh)
+                            i--;
                     }
                 }
                 int end = tv.getLayout().getLineEnd(i);
@@ -467,7 +472,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             tv.setGravity(Gravity.BOTTOM);
         } else {
             tv.setText(text);
-            tv.setGravity(Gravity.CENTER_VERTICAL);
+            tv.setGravity(Gravity.BOTTOM);
             if (len == page.end) {
                 tv.setGravity(Gravity.TOP);
             }

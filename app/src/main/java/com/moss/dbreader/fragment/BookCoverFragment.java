@@ -12,9 +12,13 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.moss.dbreader.Common;
 import com.moss.dbreader.R;
+import com.moss.dbreader.fragment.events.ChangeChapterIndexEvent;
 import com.moss.dbreader.service.DBReaderNovel;
 import com.moss.dbreader.ui.ChapterPageAdapter;
 import com.moss.dbreader.ui.ChapterGroupPageAdapter;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
@@ -30,6 +34,7 @@ public class BookCoverFragment extends Fragment {
     private static final int MODE_CHAPTER = 1;
     private static final int MODE_CHAPTER_GROUP = 2;
     private int mode = MODE_CHAPTER;
+    private int currIndex = 0;
 
    public void setNovel(DBReaderNovel novel){
        this.novel = novel;
@@ -47,6 +52,18 @@ public class BookCoverFragment extends Fragment {
         initializeMask();
         initializeBottomPanel();
         initializeChapters();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe
+    public void onChangeChapterIndexEvent(ChangeChapterIndexEvent event){
+        listChapters(event.index);
     }
 
     private void initializeChapters(){
@@ -72,17 +89,18 @@ public class BookCoverFragment extends Fragment {
         tv = (TextView)getActivity().findViewById(R.id.book_cover_per);
         String per = (int)this.novel.currChapter*100/this.novel.chapters.size() + "%";
         tv.setText(per);
-        listChapters();
+        int index = getArguments().getInt(Common.TAG_CUR_PAGE);
+        listChapters(index);
     }
 
-    public void listChapters(){
+    public void listChapters(int index){
         this.mode = MODE_CHAPTER;
         ChapterPageAdapter adapter = new ChapterPageAdapter(this,this.novel.chapters);
         ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
         lv.setVerticalScrollBarEnabled(false);
         lv.setAdapter(adapter);
-        int index = getArguments().getInt(Common.TAG_CUR_PAGE);
         lv.setSelection(index);
+        currIndex = index;
     }
 
     public void listChapterGroups(){
@@ -157,10 +175,12 @@ public class BookCoverFragment extends Fragment {
             @Override
             public void onClick(View v) {
                if(BookCoverFragment.this.mode == MODE_CHAPTER){
+                   ListView lv = (ListView)getActivity().findViewById(R.id.book_cover_list);
+                   BookCoverFragment.this.currIndex = lv.getFirstVisiblePosition();
                    listChapterGroups();
                }
                else{
-                   listChapters();
+                   listChapters(BookCoverFragment.this.currIndex);
                }
             }
         });
