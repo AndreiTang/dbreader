@@ -104,10 +104,6 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
         return ERROR_NO_RESULT;
 
     }

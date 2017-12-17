@@ -426,14 +426,15 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         for (int i = 0; i < count; i++) {
             tv.getLineBounds(i, rc);
             h += rc.height();
-            if (h > tvHigh || i == count - 1) {
-                if (h > tvHigh) {
+            if (h >= tvHigh || i == count - 1) {
+                if (h >= tvHigh) {
                     if (begin == 0) {
                         i = i - 2;
-                    } else {
-                        int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, tv.getResources().getDisplayMetrics());
-                        if((h - margin)>tvHigh)
+                    } else if(h > tvHigh){
+                        int margin = (int)tv.getLineSpacingExtra();
+                        if((h - margin)>tvHigh){
                             i--;
+                        }
                     }
                 }
                 int end = tv.getLayout().getLineEnd(i);
@@ -472,7 +473,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             tv.setGravity(Gravity.BOTTOM);
         } else {
             tv.setText(text);
-            tv.setGravity(Gravity.BOTTOM);
+            tv.setGravity(Gravity.CENTER_VERTICAL);
             if (len == page.end) {
                 tv.setGravity(Gravity.TOP);
             }
