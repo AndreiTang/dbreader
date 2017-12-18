@@ -463,20 +463,24 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             text = text.substring(page.begin, page.end);
         }
 
+        if( text.charAt(text.length() - 1) == '\n'){
+            text = text.substring(0,text.length() - 1);
+        }
+
         if (page.begin == 0) {
             int end = text.indexOf('\n');
             SpannableString sp = new SpannableString(text);
             int fs = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, TITLE_FONT_SIZE_SP, tv.getResources().getDisplayMetrics());
             int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, tv.getResources().getDisplayMetrics());
             sp.setSpan(new DBReaderCenterSpan(fs, margin), 0, end, 0);
-            tv.setText(sp);
             tv.setGravity(Gravity.BOTTOM);
+            tv.setText(sp);
         } else {
-            tv.setText(text);
             tv.setGravity(Gravity.CENTER_VERTICAL);
             if (len == page.end) {
                 tv.setGravity(Gravity.TOP);
             }
+            tv.setText(text);
         }
     }
 }
