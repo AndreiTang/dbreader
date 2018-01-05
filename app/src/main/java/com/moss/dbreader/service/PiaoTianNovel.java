@@ -125,6 +125,8 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
             String cont = html.substring(begin, end);
             cont = cont.replace("&nbsp;", " ");
             cont = cont.replace("<br>", "\n");
+            cont = cont.replace("<br/>", "\n");
+            cont = cont.replace("<br />", "\n");
             cont = arrangeNovel(cont);
             cont = chapter.name + cont;
             buf.write(cont);
