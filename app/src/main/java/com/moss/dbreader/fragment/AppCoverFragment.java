@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.moss.dbreader.fragment.events.StatusBarVisibleEvent;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.Common;
 import com.moss.dbreader.MainActivity;
@@ -45,13 +46,14 @@ public class AppCoverFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Common.changeStatusBarColor(getActivity(),Color.argb(255,206,175,121));
+        //Common.changeStatusBarColor(getActivity(),Color.argb(255,206,175,121));
 
         Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/wawa.ttf");
         TextView tv = (TextView) getActivity().findViewById(R.id.cover_title);
         tv.setTypeface(typeface);
 
         Glide.with(this).load(R.drawable.rm);
+        EventBus.getDefault().post(new StatusBarVisibleEvent(false));
 
     }
 }

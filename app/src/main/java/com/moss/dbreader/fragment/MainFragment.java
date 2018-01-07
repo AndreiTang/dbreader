@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.moss.dbreader.Common;
 import com.moss.dbreader.R;
+import com.moss.dbreader.fragment.events.StatusBarVisibleEvent;
 import com.moss.dbreader.fragment.events.SwitchFragmentEvent;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.ui.MainPageAdapter;
@@ -31,9 +32,17 @@ public class MainFragment extends Fragment implements  IBackPress{
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        EventBus.getDefault().register(this);
+        if(!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
         Common.changeStatusBarColor(getActivity(), Color.parseColor("#DBC49B"));
         initializeAdapter();
+        EventBus.getDefault().post(new StatusBarVisibleEvent(true));
+    }
+
+    public void onResume(){
+        super.onResume();
+        EventBus.getDefault().post(new StatusBarVisibleEvent(true));
     }
 
     @Override

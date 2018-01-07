@@ -1,6 +1,10 @@
 package com.moss.dbreader.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,9 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.moss.dbreader.Common;
 import com.moss.dbreader.fragment.events.ChangeChapterEvent;
 import com.moss.dbreader.fragment.events.FetchEngineEvent;
+import com.moss.dbreader.fragment.events.StatusBarVisibleEvent;
 import com.moss.dbreader.fragment.events.SwitchToMainEvent;
 import com.moss.dbreader.service.NovelInfoManager;
 import com.moss.dbreader.R;
@@ -26,6 +30,8 @@ import com.moss.dbreader.ui.ReaderPanel;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import android.R.*;
 
 import java.util.ArrayList;
 
@@ -41,16 +47,29 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
     private DBReaderNovel novel;
     private ReaderPageAdapter adapter = null;
     private long beginTime = 0;
+    private BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
+                int level = intent.getIntExtra("level", 0);
+                int scale = intent.getIntExtra("scale", 100);
+                int power = level * 100 / scale;
+                if(adapter != null){
+                    adapter.changeBattery(power);
+                }
+            }
+        }
+    };
 
     @Subscribe
-    public void onFetchText(ReaderPageAdapter.FetchTextEvent event){
+    public void onFetchText(ReaderPageAdapter.FetchTextEvent event) {
         this.engine.fetchChapter(this.novel,
                 this.novel.chapters.get(event.chapterIndex),
                 this.sessionID);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onFetchChapterEvent(FetchChapterEvent event){
+    public void onFetchChapterEvent(FetchChapterEvent event) {
         if (this.sessionID != event.sessionID) {
             return;
         }
@@ -62,15 +81,15 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onFetchDeltaChapterListEvent(FetchDeltaChapterListEvent event){
-        if(event.nRet != NO_ERROR || this.novel.name.compareTo(event.novelName) != 0){
+    public void onFetchDeltaChapterListEvent(FetchDeltaChapterListEvent event) {
+        if (event.nRet != NO_ERROR || this.novel.name.compareTo(event.novelName) != 0) {
             return;
         }
         updateChapters(event.chapters);
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onFetchEngine(FetchEngineEvent event){
+    public void onFetchEngine(FetchEngineEvent event) {
         this.engine = event.engine;
         this.sessionID = engine.generateSessionID();
         initializeViewPager();
@@ -79,12 +98,17 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
     }
 
     @Subscribe
-    public void onReadPanel_ToMain_Event(ReaderPanel.ReadPanel_ToMain_Event event){
+    public void onReadPanel_ToMain_Event(ReaderPanel.ReadPanel_ToMain_Event event) {
         int id = 0;
-        if(event.id == ReaderPanel.CLICK_SEARCH){
+        if (event.id == ReaderPanel.CLICK_SEARCH) {
             id = 1;
         }
         back(id);
+    }
+
+    @Subscribe
+    public void onReadPanel_Cache_Event(ReaderPanel.ReadPanel_Cache_Event event){
+        engine.cacheChapters(novel);
     }
 
     @Subscribe
@@ -107,39 +131,13 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Common.changeStatusBarColor(getActivity(), Color.parseColor("#E0E0E0"));
-        ReaderPanel rp = (ReaderPanel)getView().findViewById(R.id.reader_panel);
+        ReaderPanel rp = (ReaderPanel) getView().findViewById(R.id.reader_panel);
         rp.setNovel(this.novel);
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
 
-//        if (savedInstanceState != null) {
-//            onRestoreInstanceState(savedInstanceState);
-//        } else {
-//            initializeAdapter();
-//        }
     }
-
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        if (this.adapter == null) {
-//            return;
-//        }
-//
-//        ArrayList<ReaderPageAdapter.ReaderPage> rps = new ArrayList<ReaderPageAdapter.ReaderPage>();
-//        int count = this.adapter.getCount();
-//        for (int i = 0; i < count; i++) {
-//            ReaderPageAdapter.ReaderPage rp = this.adapter.getReaderPage(i);
-//            rps.add(rp);
-//        }
-//        outState.putSerializable(NovelReaderFragment.TAG_PAGES, rps);
-//
-//        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
-//        int curr = vp.getCurrentItem();
-//        outState.putInt(NovelReaderFragment.TAG_CURR_PAGE, curr);
-//        outState.putSerializable(NovelReaderFragment.TAG_NOVEL, this.novel);
-//    }
-
 
     public void setNovel(DBReaderNovel novel) {
         this.novel = novel;
@@ -151,9 +149,12 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         this.beginTime = System.currentTimeMillis();
+        EventBus.getDefault().post(new StatusBarVisibleEvent(false));
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        getActivity().registerReceiver(batteryReceiver,intentFilter);
     }
 
     @Override
@@ -166,10 +167,11 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
         NovelInfoManager.saveReaderPages(this.novel.name, this.adapter.getPages());
         NovelInfoManager.add(novel, true);
         NovelInfoManager.saveDBReader(novel);
+        getActivity().unregisterReceiver(batteryReceiver);
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
         if (this.engine != null) {
@@ -178,16 +180,8 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
         }
     }
 
-//    private int getCurrentChapterIndex() {
-//        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
-//        int curr = vp.getCurrentItem();
-//        ReaderPageAdapter adapter = (ReaderPageAdapter) vp.getAdapter();
-//        ReaderPageAdapter.ReaderPage rp = adapter.getReaderPage(curr);
-//        return rp.chapterIndex;
-//    }
-
-    private void updateChapters(ArrayList<DBReaderNovel.Chapter> chapters){
-        for(int i = 0 ;i< chapters.size(); i++){
+    private void updateChapters(ArrayList<DBReaderNovel.Chapter> chapters) {
+        for (int i = 0; i < chapters.size(); i++) {
             DBReaderNovel.Chapter item = chapters.get(i);
             ReaderPageAdapter.ReaderPage rp = new ReaderPageAdapter.ReaderPage();
             rp.name = item.name;
@@ -196,36 +190,19 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
             this.adapter.addPage(rp);
         }
         this.adapter.notifyDataSetChanged();
+        this.adapter.changeChapters(chapters.size());
     }
-
-//    private void onRestoreInstanceState(Bundle outState) {
-//        ArrayList<ReaderPageAdapter.ReaderPage> rpList = (ArrayList<ReaderPageAdapter.ReaderPage>) outState.getSerializable(NovelReaderFragment.TAG_PAGES);
-//        for (int i = 0; i < rpList.size(); i++) {
-//            this.adapter.addPage(rpList.get(i));
-//        }
-//
-//        this.novel = (DBReaderNovel) outState.getSerializable(NovelReaderFragment.TAG_NOVEL);
-//
-//        int curPage = outState.getInt(NovelReaderFragment.TAG_CURR_PAGE);
-//
-//        ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
-//        vp.setAdapter(adapter);
-//        vp.setCurrentItem(curPage);
-//    }
-
 
     private void initializeViewPager() {
         ViewPager vp = (ViewPager) getActivity().findViewById(R.id.reader_viewpager);
-        this.adapter = new ReaderPageAdapter(this);
+        this.adapter = new ReaderPageAdapter(this,novel.chapters.size());
         vp.addOnPageChangeListener(adapter);
     }
-
-
 
     private void initializeAdapter() {
         int i = 0;
         int curPage = this.novel.currPage;
-        ArrayList<ReaderPageAdapter.ReaderPage> rps =  NovelInfoManager.readReaderPages(this.novel.name);
+        ArrayList<ReaderPageAdapter.ReaderPage> rps = NovelInfoManager.readReaderPages(this.novel.name);
         if (rps != null) {
             for (i = 0; i < rps.size(); i++) {
                 this.adapter.addPage(rps.get(i));
@@ -246,11 +223,11 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
         vp.setCurrentItem(curPage);
     }
 
-    private void transferToMain(int index){
+    private void transferToMain(int index) {
         EventBus.getDefault().post(new SwitchToMainEvent(index));
     }
 
-    private void popupConfirmDlg(final int index){
+    private void popupConfirmDlg(final int index) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.prompt_title);
         builder.setMessage(R.string.prompt_msg);
@@ -270,11 +247,10 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
         builder.create().show();
     }
 
-    private void back(int index){
-        if(novel.isInCase == 0){
+    private void back(int index) {
+        if (novel.isInCase == 0) {
             popupConfirmDlg(index);
-        }
-        else{
+        } else {
             transferToMain(index);
         }
     }

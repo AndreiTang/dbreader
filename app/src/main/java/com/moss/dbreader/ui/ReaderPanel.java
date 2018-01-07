@@ -36,6 +36,9 @@ public class ReaderPanel extends View {
     public static final int CLICK_CASE = 1;
     public static final int CLICK_SEARCH = 2;
 
+    protected int orgX;
+    protected int orgY;
+
 
     public static class ReadPanel_Dict_Event{
         public ReadPanel_Dict_Event(DBReaderNovel novel,int index)
@@ -65,6 +68,11 @@ public class ReaderPanel extends View {
     public ReaderPanel(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+    }
+
+    public void setOrg(int x, int y){
+        orgX = x;
+        orgY = y;
     }
 
     public ReaderPanel(Context context, @Nullable AttributeSet attrs) {
@@ -114,9 +122,9 @@ public class ReaderPanel extends View {
         paint.setAntiAlias(false);
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.parseColor("#DBC49B"));
-        canvas.drawCircle(getWidth() / 2, getHeight() / 2, outRadius+10, paint);
+        canvas.drawCircle(orgX, orgY, outRadius+10, paint);
         canvas.save();
-        canvas.translate(getWidth() / 2, getHeight() / 2);
+        canvas.translate(orgX, orgY);
         canvas.rotate(45);
 
 
@@ -155,7 +163,7 @@ public class ReaderPanel extends View {
         int delta = midRadius+(outRadius-midRadius)/2;
 
         canvas.save();
-        canvas.translate(getWidth() / 2, getHeight() / 2);
+        canvas.translate(orgX, orgY);
 
         String txt = getResources().getString(R.string.panel_dict);
         paint.getTextBounds(txt, 0, txt.length(), rc);
@@ -186,8 +194,8 @@ public class ReaderPanel extends View {
 
     private boolean checkDict(int x, int y) {
         int delta = midRadius+(outRadius-midRadius)/2;
-        int orgX = getWidth() / 2 - delta;
-        int orgY = getHeight()/2;
+        int orgX = this.orgX - delta;
+        int orgY = this.orgY;
 
         Rect rc = new Rect(orgX-clickRange,orgY-clickRange,orgX+clickRange,orgY+clickRange);
         return rc.contains(x,y);
@@ -195,8 +203,8 @@ public class ReaderPanel extends View {
 
     private boolean checkCache(int x, int y) {
         int delta = midRadius+(outRadius-midRadius)/2;
-        int orgX = getWidth() / 2 + delta;
-        int orgY = getHeight()/2;
+        int orgX = this.orgX + delta;
+        int orgY = this.orgY;
 
         Rect rc = new Rect(orgX-clickRange,orgY-clickRange,orgX+clickRange,orgY+clickRange);
         return rc.contains(x,y);
@@ -204,8 +212,8 @@ public class ReaderPanel extends View {
 
     private boolean checkCase(int x, int y) {
         int delta = midRadius+(outRadius-midRadius)/2;
-        int orgX = getWidth()/2;
-        int orgY = getHeight()/2 - delta;
+        int orgX = this.orgX;
+        int orgY = this.orgY - delta;
 
         Rect rc = new Rect(orgX-clickRange,orgY-clickRange,orgX+clickRange,orgY+clickRange);
         return rc.contains(x,y);
@@ -213,8 +221,8 @@ public class ReaderPanel extends View {
 
     private boolean checkSearch(int x, int y){
         int delta = midRadius+(outRadius-midRadius)/2;
-        int orgX = getWidth()/2;
-        int orgY = getHeight()/2 + delta;
+        int orgX = this.orgX;
+        int orgY = this.orgY + delta;
 
         Rect rc = new Rect(orgX-clickRange,orgY-clickRange,orgX+clickRange,orgY+clickRange);
         return rc.contains(x,y);

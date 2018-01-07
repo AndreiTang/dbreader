@@ -48,6 +48,7 @@ public class DBReaderCenterSpan  extends ReplacementSpan {
     private Paint GetCustomerTextPaint(Paint src){
         Paint paint = new Paint(src);
         paint.setTextSize(fontSize);
+        paint.setFakeBoldText(true);
         return paint;
     }
 }

@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -19,6 +20,7 @@ import com.moss.dbreader.fragment.IBackPress;
 import com.moss.dbreader.fragment.MainFragment;
 import com.moss.dbreader.fragment.NovelReaderFragment;
 import com.moss.dbreader.fragment.events.FetchEngineEvent;
+import com.moss.dbreader.fragment.events.StatusBarVisibleEvent;
 import com.moss.dbreader.fragment.events.SwitchToMainEvent;
 import com.moss.dbreader.fragment.events.SwitchToNovelReaderEvent;
 import com.moss.dbreader.service.DBReaderNovel;
@@ -77,6 +79,16 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
         ft.replace(android.R.id.content, fragment);
         ft.commit();
+    }
+
+    @Subscribe
+    public void onStatusBarVisibleEvent(StatusBarVisibleEvent event){
+        if(event.isVisible){
+            findViewById(android.R.id.content).setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE|View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
+        else{
+           findViewById(android.R.id.content).setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+        }
     }
 
     @Subscribe

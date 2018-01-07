@@ -1,23 +1,30 @@
 package com.moss.dbreader.ui;
 
 import android.graphics.Rect;
+import android.media.Image;
 import android.net.Uri;
+import android.os.BatteryManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.SpannableString;
 import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
+import android.widget.TextClock;
 import android.widget.TextView;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.jakewharton.rxbinding2.view.RxView;
+import com.moss.dbreader.Common;
 import com.moss.dbreader.R;
 
 import org.greenrobot.eventbus.EventBus;
@@ -32,6 +39,9 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observer;
 import io.reactivex.functions.Consumer;
+
+import static android.content.Context.BATTERY_SERVICE;
+import static android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY;
 
 /**
  * Created by tangqif on 2017/9/25.
@@ -56,6 +66,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         public int chapterIndex;
     }
 
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     private ArrayList<ReaderPage> pages = new ArrayList<ReaderPage>();
     private HashMap<Integer, String> pageTexts = new HashMap<Integer, String>();
@@ -63,13 +74,17 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     ;
     private ArrayList<View> usingViews = new ArrayList<View>();
     private Fragment fragment;
+    private int chapterCount = 0;
 
-    private static final int TITLE_FONT_SIZE_SP = 20;
+    GestureDetector detector = null;
+
+    private static final int TITLE_FONT_SIZE_SP = 18;
     public static final int FLAG_CURR_PAGE = -1;
     public static final int FLAG_PREVIOUS_PAGE = -2;
 
-    public ReaderPageAdapter(Fragment fragment) {
+    public ReaderPageAdapter(Fragment fragment, int chapterCount) {
         this.fragment = fragment;
+        this.chapterCount = chapterCount;
     }
 
     @Override
@@ -112,6 +127,26 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             if (pos == i && item.begin == FLAG_PREVIOUS_PAGE) {
                 item.begin = FLAG_CURR_PAGE;
             }
+        }
+    }
+
+    public void changeBattery(int per) {
+        for (int i = 0; i < usingViews.size(); i++) {
+            View v = usingViews.get(i);
+            ImageView battery = (ImageView) v.findViewById(R.id.reader_battery);
+            int id = getBatteryId(per);
+            battery.setImageResource(id);
+        }
+    }
+
+    public void changeChapters(int deltaChapterCount) {
+        this.chapterCount += deltaChapterCount;
+        for (int i = 0; i < usingViews.size(); i++) {
+            View view = usingViews.get(i);
+            TextView tv = (TextView) view.findViewById(R.id.reader_chapter_page_no);
+            int chapterIndex = (Integer) view.getTag(R.id.tag_chap_index);
+            String pageNo = (chapterIndex + 1) + "/" + chapterCount;
+            tv.setText(pageNo);
         }
     }
 
@@ -180,10 +215,16 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         view.setTag(R.id.tag_page_begin, page.begin);
         view.setTag(R.id.tag_need_update, 0);
 
+        BatteryManager batteryManager = (BatteryManager) fragment.getActivity().getSystemService(BATTERY_SERVICE);
+        int power = batteryManager.getIntProperty(BATTERY_PROPERTY_CAPACITY);
+        ImageView battery = (ImageView) view.findViewById(R.id.reader_battery);
+        int id = getBatteryId(power);
+        battery.setImageResource(id);
+
         TextView tv = (TextView) view.findViewById(R.id.reader_chapter_title);
         tv.setText(page.name);
         tv = (TextView) view.findViewById(R.id.reader_chapter_page_no);
-        String pageNo = (position + 1) + "/" + pages.size();
+        String pageNo = (page.chapterIndex + 1) + "/" + chapterCount;
         tv.setText(pageNo);
 
         tv = (TextView) view.findViewById(R.id.reader_text);
@@ -250,14 +291,63 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     private View createView() {
         final View v = this.fragment.getActivity().getLayoutInflater().inflate(R.layout.view_reader, null);
         initializeProgressBar(v);
-        v.setLongClickable(true);
-        RxView.longClicks(v).subscribe(new Consumer() {
+
+        if (detector == null) {
+            detector = new GestureDetector(fragment.getContext(), new GestureDetector.OnGestureListener() {
+                @Override
+                public boolean onDown(MotionEvent e) {
+                    return false;
+                }
+
+                @Override
+                public void onShowPress(MotionEvent e) {
+
+                }
+
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return false;
+                }
+
+                @Override
+                public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                    return false;
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    showReaderPanel(v, (int) e.getRawX(), (int) e.getRawY());
+                }
+
+                @Override
+                public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                    return false;
+                }
+            });
+        }
+        detector.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
             @Override
-            public void accept(Object o) throws Exception {
-                ReaderPanel rp = (ReaderPanel) ReaderPageAdapter.this.fragment.getView().findViewById(R.id.reader_panel);
-                int chapIndex = (int) v.getTag(R.id.tag_chap_index);
-                rp.setCurrIndex(chapIndex);
-                rp.setVisibility(View.VISIBLE);
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                return false;
+            }
+
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                showReaderPanel(v, (int) e.getRawX(), (int) e.getRawY());
+                return false;
+            }
+
+            @Override
+            public boolean onDoubleTapEvent(MotionEvent e) {
+                return false;
+            }
+        });
+        View txView = v.findViewById(R.id.reader_text);
+        txView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View vw, MotionEvent event) {
+                detector.onTouchEvent(event);
+                return true;
             }
         });
 
@@ -270,7 +360,43 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                 err.setVisibility(View.GONE);
             }
         });
+
+        TextClock tmView = (TextClock) v.findViewById(R.id.reader_time);
+        tmView.setFormat24Hour("hh:mm");
+        tmView.setFormat12Hour("hh:mm");
+
         return v;
+    }
+
+    private void showReaderPanel(View v, int x, int y) {
+        ReaderPanel rp = (ReaderPanel) ReaderPageAdapter.this.fragment.getView().findViewById(R.id.reader_panel);
+        int chapIndex = (int) v.getTag(R.id.tag_chap_index);
+        rp.setOrg(x, y);
+        rp.setCurrIndex(chapIndex);
+        rp.setVisibility(View.VISIBLE);
+    }
+
+    private int getBatteryId(int per) {
+        if (per > 90)
+            return R.drawable.battery_100_90;
+        else if (per > 80)
+            return R.drawable.battery_90_80;
+        else if (per > 70)
+            return R.drawable.battery_80_70;
+        else if (per > 60)
+            return R.drawable.battery_70_60;
+        else if (per > 50)
+            return R.drawable.battery_60_50;
+        else if (per > 40)
+            return R.drawable.battery_50_40;
+        else if (per > 30)
+            return R.drawable.battery_40_30;
+        else if (per > 20)
+            return R.drawable.battery_30_20;
+        else if (per > 10)
+            return R.drawable.battery_20_10;
+        else
+            return R.drawable.battery_10_0;
     }
 
     private String buildNovelText(String chapterName, String cont) {
@@ -305,13 +431,13 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                         text = chapterName + "\n\n";
                         hasTitle = true;
                     } else {
-                        text = "    " + line + "\n";
+                        text = "  " + line + "\n";
                     }
                 } else {
                     if (line.indexOf(title) != -1) {
                         continue;
                     }
-                    line = "    " + line;
+                    line = "  " + line;
                     text = text + line + "\n";
                 }
             }
@@ -325,6 +451,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         if (text.length() > 1) {
             text = text.substring(0, text.length() - 1);
         }
+        text = Common.half2full(text);
         return text;
     }
 
@@ -431,7 +558,9 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
             tv.getLineBounds(i, rc);
             h += rc.height();
             if (h >= tvHigh || i == count - 1) {
-                if (h > tvHigh) {
+                if (begin == 0) {
+                    i = i - 1;
+                } else if (h > tvHigh) {
                     int margin = (int) tv.getLineSpacingExtra();
                     if ((h - margin) > tvHigh) {
                         i--;

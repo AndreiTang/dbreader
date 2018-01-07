@@ -44,16 +44,6 @@ public class NovelEngineService extends Service {
             return sessionID;
         }
 
-        public void loadNovels(){
-            Thread thrd = new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                }
-            });
-            thrd.start();
-        }
-
         public void searchNovel(final String name, int sessionID) {
             HashMap<String,Object> args = new HashMap<>();
             args.put(CommandCommon.TAG_NAME,name);
@@ -91,17 +81,6 @@ public class NovelEngineService extends Service {
 
         public void cancel(int sessionID) {
             NovelEngineService.this.cancel(sessionID);
-        }
-
-        public void addNotify(IFetchNovelEngineNotify notify) {
-            if (notifies.contains(notify) == true) {
-                return;
-            }
-            notifies.add(notify);
-        }
-
-        public void removeNotify(IFetchNovelEngineNotify notify) {
-            notifies.remove(notify);
         }
 
     }

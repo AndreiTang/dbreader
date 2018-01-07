@@ -1,23 +1,18 @@
 package com.moss.dbreader.ui;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.moss.dbreader.R;
-import com.moss.dbreader.ReaderActivity;
 import com.moss.dbreader.fragment.events.ChangeChapterEvent;
 import com.moss.dbreader.service.DBReaderNovel;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
-import java.util.zip.Inflater;
 
 /**
  * Created by tangqif on 11/14/2017.
