@@ -42,6 +42,7 @@ import io.reactivex.functions.Consumer;
 
 import static android.content.Context.BATTERY_SERVICE;
 import static android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY;
+import static android.os.BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER;
 
 /**
  * Created by tangqif on 2017/9/25.
@@ -75,6 +76,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     private ArrayList<View> usingViews = new ArrayList<View>();
     private Fragment fragment;
     private int chapterCount = 0;
+    private int power = 50;
 
     GestureDetector detector = null;
 
@@ -131,6 +133,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
     }
 
     public void changeBattery(int per) {
+        this.power = per;
         for (int i = 0; i < usingViews.size(); i++) {
             View v = usingViews.get(i);
             ImageView battery = (ImageView) v.findViewById(R.id.reader_battery);
@@ -215,8 +218,6 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
         view.setTag(R.id.tag_page_begin, page.begin);
         view.setTag(R.id.tag_need_update, 0);
 
-        BatteryManager batteryManager = (BatteryManager) fragment.getActivity().getSystemService(BATTERY_SERVICE);
-        int power = batteryManager.getIntProperty(BATTERY_PROPERTY_CAPACITY);
         ImageView battery = (ImageView) view.findViewById(R.id.reader_battery);
         int id = getBatteryId(power);
         battery.setImageResource(id);

@@ -8,8 +8,8 @@
         android:layout_weight="0"
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_marginRight="15dp"
-        android:layout_marginLeft="17dp"
+        android:layout_marginRight="22dp"
+        android:layout_marginLeft="15dp"
         android:weightSum="1"
         android:layout_height="45dp">
 
