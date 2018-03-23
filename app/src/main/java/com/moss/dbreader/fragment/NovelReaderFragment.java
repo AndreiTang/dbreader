@@ -44,7 +44,7 @@ import static com.moss.dbreader.service.IFetchNovelEngine.NO_ERROR;
 public class NovelReaderFragment extends Fragment implements IBackPress {
     private NovelEngineService.NovelEngine engine = null;
     private int sessionID = -1;
-    private DBReaderNovel novel;
+    private DBReaderNovel novel = null;
     private ReaderPageAdapter adapter = null;
     private long beginTime = 0;
     private BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
@@ -132,6 +132,9 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         ReaderPanel rp = (ReaderPanel) getView().findViewById(R.id.reader_panel);
+        if(savedInstanceState != null && this.novel == null){
+            this.novel = (DBReaderNovel) savedInstanceState.getSerializable("novel");
+        }
         rp.setNovel(this.novel);
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
@@ -178,6 +181,12 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
             this.engine.cancel(this.sessionID);
             this.engine = null;
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("novel",this.novel);
     }
 
     private void updateChapters(ArrayList<DBReaderNovel.Chapter> chapters) {
