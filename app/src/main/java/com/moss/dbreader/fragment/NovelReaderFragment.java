@@ -136,10 +136,7 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
             this.novel = (DBReaderNovel) savedInstanceState.getSerializable("novel");
         }
         rp.setNovel(this.novel);
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
-
+        EventBus.getDefault().register(this);
     }
 
     public void setNovel(DBReaderNovel novel) {
@@ -187,6 +184,12 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putSerializable("novel",this.novel);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        EventBus.getDefault().unregister(this);
     }
 
     private void updateChapters(ArrayList<DBReaderNovel.Chapter> chapters) {

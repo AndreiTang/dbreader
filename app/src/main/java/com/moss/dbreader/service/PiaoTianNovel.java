@@ -52,9 +52,9 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
 
     private int innerSearchNovels(final String name, ArrayList<DBReaderNovel> nvs, boolean isNovel){
         try {
-            String url = "http://www.piaotian.com/modules/article/search.php?searchtype=articlename&searchkey=";
+            String url = "https://www.piaotian.com/modules/article/search.php?searchtype=articlename&searchkey=";
             if(isNovel == false){
-                url = "http://www.piaotian.com/modules/article/search.php?searchtype=author&searchkey=";
+                url = "https://www.piaotian.com/modules/article/search.php?searchtype=author&searchkey=";
             }
             String encodeName = URLEncoder.encode(name, "gb2312");
             url += encodeName;
@@ -89,7 +89,7 @@ public final class PiaoTianNovel implements IFetchNovelEngine {
                 if (nexts.size() == 0) {
                     break;
                 } else {
-                    url = "http://www.piaotian.com" + nexts.first().attr("href");
+                    url = "https://www.piaotian.com" + nexts.first().attr("href");
                     buf = new StringWriter();
                     if (!get(url, buf)) {
                         break;
