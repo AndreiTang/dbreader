@@ -215,12 +215,13 @@ public class NovelReaderFragment extends Fragment implements IBackPress {
         int i = 0;
         int curPage = this.novel.currPage;
         ArrayList<ReaderPageAdapter.ReaderPage> rps = NovelInfoManager.readReaderPages(this.novel.name);
-        if (rps != null) {
+        if (rps != null && rps.size() > 0) {
             for (i = 0; i < rps.size(); i++) {
                 this.adapter.addPage(rps.get(i));
             }
             ReaderPageAdapter.ReaderPage rp = rps.get(rps.size() - 1);
             i = rp.chapterIndex;
+            i++;
         }
         for (; i < this.novel.chapters.size(); i++) {
             ReaderPageAdapter.ReaderPage rp = new ReaderPageAdapter.ReaderPage();

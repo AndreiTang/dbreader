@@ -492,7 +492,7 @@ public class ReaderPageAdapter extends PagerAdapter implements OnPageChangeListe
                 continue;
             }
             if (page.chapterIndex == item.chapterIndex) {
-                if (item.begin == -1 && page.begin == 0) {
+                if ((item.begin == -1 ||  item.begin == -2) && page.begin == 0) {
                     item.begin = page.begin;
                     item.end = page.end;
                     break;
